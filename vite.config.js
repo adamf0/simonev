@@ -14,9 +14,5 @@ export default defineConfig({
     ],
     optimizeDeps: {
         include: ['@inertiajs/inertia', '@inertiajs/react'],
-    },
-    build: {
-        outDir: 'public_html/public/build',
-        manifest: true,
-    },
+    }
 });

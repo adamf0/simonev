@@ -1,0 +1,38 @@
+{
+  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
+    "file": "assets/bootstrap-icons-BOrJxbIo.woff",
+    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
+  },
+  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2": {
+    "file": "assets/bootstrap-icons-BtvjY1KL.woff2",
+    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
+  },
+  "public/assets/img/kuesioner_mulai.png": {
+    "file": "assets/kuesioner_mulai-CYFvKBn5.png",
+    "src": "public/assets/img/kuesioner_mulai.png"
+  },
+  "public/assets/img/kuesioner_selesai.png": {
+    "file": "assets/kuesioner_selesai-BHj8YY5p.png",
+    "src": "public/assets/img/kuesioner_selesai.png"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-CpA6j6fp.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.jsx": {
+    "file": "assets/app-CpOYaNKe.js",
+    "name": "app",
+    "src": "resources/js/app.jsx",
+    "isEntry": true,
+    "css": [
+      "assets/app-CT6PV8mj.css"
+    ],
+    "assets": [
+      "assets/kuesioner_mulai-CYFvKBn5.png",
+      "assets/kuesioner_selesai-BHj8YY5p.png",
+      "assets/bootstrap-icons-BtvjY1KL.woff2",
+      "assets/bootstrap-icons-BOrJxbIo.woff"
+    ]
+  }
+}
