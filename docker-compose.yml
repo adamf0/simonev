@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-vite-app
+    security_opt:
+      - "no-new-privileges:true"
+      - apparmor=docker-default
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+    networks:
+      - app-network
+    extra_hosts:
+      - "remote-db:172.16.20.135"
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - .:/var/www
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
