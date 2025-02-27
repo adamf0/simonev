@@ -157,17 +157,17 @@ class AuthController extends Controller
                 return redirect()->route('dashboard');
             }
         } catch (Exception $e) {
-            $request->session()->regenerate();
-                $request->session()->put("id",0);
-                $request->session()->put("nip",null);
-                $request->session()->put("nidn",null);
-                $request->session()->put("npm","065117251");
-                $request->session()->put("nama","adam");
-                $request->session()->put("fakultas","mipa");
-                $request->session()->put("prodi","ilkom");
-                $request->session()->put("unit",null);
-                $request->session()->put("level",'mahasiswa');
-                return redirect()->route('kuesioner');
+            // $request->session()->regenerate();
+            //     $request->session()->put("id",0);
+            //     $request->session()->put("nip",null);
+            //     $request->session()->put("nidn",null);
+            //     $request->session()->put("npm","065117251");
+            //     $request->session()->put("nama","adam");
+            //     $request->session()->put("fakultas","mipa");
+            //     $request->session()->put("prodi","ilkom");
+            //     $request->session()->put("unit",null);
+            //     $request->session()->put("level",'mahasiswa');
+            //     return redirect()->route('kuesioner');
 
             return redirect('/')->with('pesan', $e->getMessage());
         }
