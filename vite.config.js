@@ -16,14 +16,7 @@ export default defineConfig({
         include: ['@inertiajs/inertia', '@inertiajs/react'],
     },
     build: {
-        outDir: 'public/build', // Menetapkan output build ke folder public/build
+        outDir: 'build', // Menetapkan output build ke folder public/build
         manifest: true, // Penting untuk Laravel Inertia
-        rollupOptions: {
-            output: {
-                assetFileNames: 'assets/[name]-[hash][extname]',
-                entryFileNames: 'assets/[name]-[hash].js',
-                chunkFileNames: 'assets/[name]-[hash].js',
-            },
-        },
     },
 });
