@@ -49,10 +49,16 @@
         }
     </style>
     @php
-        $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
+    $manifestPath = public_path('build/manifest.json');
+    if (file_exists($manifestPath)) {
+        $manifest = json_decode(file_get_contents($manifestPath), true);
+        echo '<script type="module" src="' . asset('build/' . $manifest['resources/js/app.jsx']['file']) . '"></script>';
+        echo '<link rel="stylesheet" href="' . asset('build/' . $manifest['resources/css/app.css']['file']) . '">';
+        } else {
+            echo '<!-- Manifest.json not found -->';
+        }
     @endphp
-    <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/css/app.css']['file']) }}">
-    <script type="module" src="{{ asset('build/' . $manifest['resources/js/app.jsx']['file']) }}"></script>
+
     @inertiaHead
 
     <link href="{{ asset('assets/css/modern.css') }}" rel="stylesheet">
