@@ -16,7 +16,7 @@ export default defineConfig({
         include: ['@inertiajs/inertia', '@inertiajs/react'],
     },
     build: {
-        outDir: 'public_html/build', // Menetapkan output build ke folder public/build
-        manifest: true, // Penting untuk Laravel Inertia
+        outDir: 'public_html/public/build',
+        manifest: true,
     },
 });
