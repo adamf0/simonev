@@ -42,9 +42,8 @@ class AuthController extends Controller
         if($akunSimak->aktif!="Y"){
             throw new Exception("akun sudah tidak aktif");
         }
-        dd($akunSimak, $akunSimak->level);
         $level = strtolower($akunSimak->level);
-        if(!in_array($akunSimak->level,["dosen","mahasiswa"])){
+        if(!in_array($level,["dosen","mahasiswa"])){
             throw new Exception("selain dosen dan mahasiswa tidak diizinkan masuk");
         }
 
