@@ -25,12 +25,16 @@ class BankSoalController extends Controller
 
     public function bankSoalEdit($id_bank_soal)
     {
-        $data = BankSoal::find($id_bank_soal);
+        try {
+            $data = BankSoal::find($id_bank_soal);
         $fakultas = Fakultas::select(DB::raw("kode_fakultas as id"),DB::raw("nama_fakultas as nama"))->get();
         $prodi = Prodi::select(DB::raw("kode_prodi as id"),DB::raw("nama_prodi as nama"))->get();
         $mahasiswa = AkunSimak::select(DB::raw("userid as id"), "nama")->where("level","MAHASISWA")->get();
         $unit = Pengangkatan::select('unit_kerja')->distinct()->get();
 
         return Inertia::render('BankSoal/BankSoalForm', ['typeEvent' => "Edit", "dataBankSoal"=>$data, "listUnit"=>$unit, "listFakultas"=>$fakultas, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa, "level"=>session()->get('level')]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }
