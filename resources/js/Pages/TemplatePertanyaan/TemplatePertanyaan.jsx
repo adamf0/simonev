@@ -53,7 +53,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
         );
       
         dispatch(setTemplatePertanyaans(updatedTemplatePertanyaans));
-        console.log("after selected", updatedTemplatePertayaans);
+        console.log("after selected", updatedTemplatePertanyaans);
     }
 
     function getTotalSelected() {
