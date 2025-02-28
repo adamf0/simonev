@@ -9,6 +9,7 @@ import { Bounce, toast, ToastContainer } from "react-toastify";
 
 function TemplatePertanyaan({bankSoal, level=null}) {
     const dispatch = useDispatch();
+    const st = useSelector((state) => state.templatePertanyaan);
     const templatePertanyaans = useSelector((state) => state.templatePertanyaan.templatePertanyaans);
     const action_type = useSelector((state) => state.templatePertanyaan.action_type);
     const errorMessage = useSelector((state) => state.templatePertanyaan.error);
@@ -18,6 +19,10 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     const [filters, setFilters] = useState({ judul: '', tipe: '', id_bank_soal: bankSoal.id});
 
     const debounceTimeout = useRef(null);
+
+
+    console.log(st)
+    console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
 
     useEffect(()=>{
         console.log("loading:",loading);
@@ -46,11 +51,6 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     useEffect(() => {
         dispatch(fetchTemplatePertanyaans(filters));
     }, [filters]);
-
-    useEffect(()=>{
-        console.log("after selected1", templatePertanyaans);
-        console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
-    },[ templatePertanyaans ])
 
     function changeSelected(id) {
         const updatedTemplatePertanyaans = templatePertanyaans.record.map((item) =>
