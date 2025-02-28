@@ -23,8 +23,8 @@ function Sidemenu({ isOpen, level }) {
                         {/* <li className="sidebar-header">
                             Main
                         </li> */}
-                        <li className={`sidebar-item ${activeItem === '/page' ? 'active' : ''}`}>
-                            <a className="sidebar-link" href="/page" onClick={() => handleItemClick('/page')}>
+                        <li className={`sidebar-item ${activeItem === '/dashboard' ? 'active' : ''}`}>
+                            <a className="sidebar-link" href="/dashboard" onClick={() => handleItemClick('/dashboard')}>
                                 <i className="align-middle ti ti-home me-2"></i>
                                 <span className="align-middle">Dashboards</span>
                             </a>

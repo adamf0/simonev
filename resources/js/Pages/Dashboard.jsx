@@ -10,7 +10,7 @@ function Dashboard({level=null}) {
                     <h1 className="header-title">
                         Welcome back to SIMONEV!
                     </h1>
-                    <p className="header-subtitle">Aplikasi Untuk Sinkronisasi data ke Neo-Feeder</p>
+                    <p className="header-subtitle">Aplikasi untuk kuesioner mahasiswa, dose dan tendik</p>
                 </div>
 
             </Layout>

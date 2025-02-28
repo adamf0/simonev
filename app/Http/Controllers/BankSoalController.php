@@ -33,7 +33,15 @@ class BankSoalController extends Controller
             $mahasiswa = AkunSimak::select(DB::raw("userid as id"), "nama")->where("level","MAHASISWA")->get();
             $unit = Pengangkatan::select('unit_kerja')->distinct()->get();
             
-            return Inertia::render('BankSoal/BankSoalForm', ['typeEvent' => "Edit", "dataBankSoal"=>$data, "listUnit"=>$unit, "listFakultas"=>$fakultas, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa, "level"=>session()->get('level')]);
+            return Inertia::render('BankSoal/BankSoalForm', [
+                'typeEvent' => "Edit", 
+                "dataBankSoal"=>$data, 
+                "listUnit"=>$unit, 
+                "listFakultas"=>$fakultas, 
+                "listProdi"=>$prodi, 
+                "listMahahsiswa"=>$mahasiswa, 
+                "level"=>session()->get('level')
+            ]);
         } catch (Exception $th) {
             throw $th;
         }
