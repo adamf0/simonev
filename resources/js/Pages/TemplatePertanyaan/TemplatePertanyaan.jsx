@@ -47,6 +47,11 @@ function TemplatePertanyaan({bankSoal, level=null}) {
         dispatch(fetchTemplatePertanyaans(filters));
     }, [filters]);
 
+    useEffect(()=>{
+        console.log("after selected1", updatedTemplatePertanyaans);
+        console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
+    },[ (templatePertanyaans?.record ?? []) ])
+
     function changeSelected(id) {
         const updatedTemplatePertanyaans = templatePertanyaans.record.map((item) =>
           item.id === id ? { ...item, selected: !item.selected } : item
@@ -54,7 +59,6 @@ function TemplatePertanyaan({bankSoal, level=null}) {
       
         dispatch(setTemplatePertanyaans(updatedTemplatePertanyaans));
         console.log("after selected", updatedTemplatePertanyaans);
-        console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
     }
 
     function getTotalSelected() {
