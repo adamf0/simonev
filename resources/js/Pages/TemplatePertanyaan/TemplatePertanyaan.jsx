@@ -9,7 +9,6 @@ import { Bounce, toast, ToastContainer } from "react-toastify";
 
 function TemplatePertanyaan({bankSoal, level=null}) {
     const dispatch = useDispatch();
-    const st = useSelector((state) => state.templatePertanyaan);
     const templatePertanyaans = useSelector((state) => state.templatePertanyaan.templatePertanyaans);
     const action_type = useSelector((state) => state.templatePertanyaan.action_type);
     const errorMessage = useSelector((state) => state.templatePertanyaan.error);
@@ -19,10 +18,6 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     const [filters, setFilters] = useState({ judul: '', tipe: '', id_bank_soal: bankSoal.id});
 
     const debounceTimeout = useRef(null);
-
-
-    console.log(st)
-    console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
 
     useEffect(()=>{
         console.log("loading:",loading);
@@ -70,7 +65,6 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     }
 
     function onDelete() {
-        setJudulModal("Anda yakin ingin hapus data?");
         setModalDeleteVisible(true);
     }
 
@@ -98,7 +92,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
                     title="Peringatan"
                     onClose={() => setModalDeleteVisible(false)}
                     showClose={!loading}
-                    content={""}
+                    content={"Anda yakin ingin hapus data ini?"}
                     footer={
                         <button
                             className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"

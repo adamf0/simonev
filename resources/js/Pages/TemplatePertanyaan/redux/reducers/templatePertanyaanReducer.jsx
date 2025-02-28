@@ -11,6 +11,7 @@
     DELETE_TEMPLATE_PERTANYAAN_REQUEST,
     DELETE_TEMPLATE_PERTANYAAN_SUCCESS,
     DELETE_TEMPLATE_PERTANYAAN_FAILURE,
+    SET_TEMPLATE_PERTANYAANS,
   } from '../actions/templatePertanyaanActions';
   
   const initialState = {
@@ -64,6 +65,16 @@
       case DELETE_TEMPLATE_PERTANYAAN_FAILURE:
         return { ...state, loading: false, error: action.error, validation: action?.validation, action_type:action.type };
   
+      case SET_TEMPLATE_PERTANYAANS: // Handle the action for setting bank soals
+        return {
+          ...state,
+          templatePertanyaans: {
+            ...state.templatePertanyaans,
+            record: action.payload, // Set updated bank soals
+            action_type:action.type
+          }
+        };
+
       default:
         return state;
     }
