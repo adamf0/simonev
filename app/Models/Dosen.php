@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Dosen extends Model
 {
     protected $table = 'm_dosen';
-    protected $connection = 'simak';
+    // protected $connection = 'simak';
     protected $fillable = ['*'];
 
     public function Fakultas():HasOne{

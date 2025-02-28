@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Mahasiswa extends Model
 {
     protected $table = 'm_mahasiswa';
-    protected $connection = 'simak';
+    // protected $connection = 'simak';
     protected $fillable = ['*'];
 }
