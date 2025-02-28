@@ -49,7 +49,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
     );
 
     useEffect(() => {
-        setListMahasiswa(filteredMahasiswa);
+        setlistMahasiswa(filteredMahasiswa);
     }, [filteredMahasiswa]);
 
     useEffect(() => {
