@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../Component/Layout";
 import PaginationTable from "../../Component/Pagination";
@@ -43,9 +43,14 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
         }
     }, [fakultas]);
 
+    const filteredMahasiswa = useMemo(() => 
+        listMahasiswa.filter(item => item.kode_prodi === prodi), 
+        [listMahasiswa, prodi]
+    );
+
     useEffect(() => {
-        setlistMahasiswa(listMahasiswa.filter(item => item.kode_prodi === `${prodi}`))
-    }, [prodi]);
+        setListMahasiswa(filteredMahasiswa);
+    }, [filteredMahasiswa]);
 
     useEffect(() => {
         const list = listTendik.filter(item => {

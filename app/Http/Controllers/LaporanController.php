@@ -42,6 +42,15 @@ class LaporanController extends Controller
                                 ];
                             });
 
+        dd([
+            'kode_fakultas'=>session()->get('level')=="fakultas"? session()->get('fakultas'):null, 
+            "listMahasiswa"=>$listMahasiswa,
+            "listDosen"=>$listDosen,
+            "listTendik"=>$listTendik,
+            "listFakultas"=>$listFakultas,
+            "listUnit"=>$listUnit,
+            "level"=>session()->get('level')
+        ]);
         return Inertia::render('Laporan/Rekap', [
             'kode_fakultas'=>session()->get('level')=="fakultas"? session()->get('fakultas'):null, 
             "listMahasiswa"=>$listMahasiswa,
