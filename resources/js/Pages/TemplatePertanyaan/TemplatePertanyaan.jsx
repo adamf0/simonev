@@ -48,7 +48,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     }, [filters]);
 
     useEffect(()=>{
-        console.log("after selected1", updatedTemplatePertanyaans);
+        console.log("after selected1", templatePertanyaans);
         console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
     },[ (templatePertanyaans?.record ?? []) ])
 
