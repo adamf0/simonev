@@ -54,10 +54,10 @@ function TemplatePertanyaan({bankSoal, level=null}) {
       
         dispatch(setTemplatePertanyaans(updatedTemplatePertanyaans));
         console.log("after selected", updatedTemplatePertanyaans);
+        console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
     }
 
     function getTotalSelected() {
-        console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
         return (templatePertanyaans?.record ?? []).filter(item => item.selected).length;
     }
 
