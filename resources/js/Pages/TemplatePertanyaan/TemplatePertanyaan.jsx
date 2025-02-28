@@ -57,6 +57,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     }
 
     function getTotalSelected() {
+        console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
         return (templatePertanyaans?.record ?? []).filter(item => item.selected).length;
     }
 
