@@ -50,7 +50,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     useEffect(()=>{
         console.log("after selected1", templatePertanyaans);
         console.log((templatePertanyaans?.record ?? []).filter(item => item.selected))
-    },[ (templatePertanyaans?.record ?? []) ])
+    },[ templatePertanyaans ])
 
     function changeSelected(id) {
         const updatedTemplatePertanyaans = templatePertanyaans.record.map((item) =>
