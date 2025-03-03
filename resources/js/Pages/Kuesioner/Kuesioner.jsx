@@ -106,7 +106,7 @@ function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakul
 
         // console.log({"banksoal":bankSoal, "keusioner":kuesioner})
         return (
-            kuesioner==null? 
+            kuesioner==null || kuesioner=="E-K0"? 
                 <div className="card-header d-flex flex-wrap gap-4 align-items-center">
                     <img src={mulai} style={{ maxWidth: "5rem" }} alt="belum ada kuesioner" />
                     <div className="row">
