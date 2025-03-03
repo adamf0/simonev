@@ -31,7 +31,7 @@ function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakul
         }
         if(action_type==ADD_KUESIONER_SUCCESS){
             setModalDeleteVisible(false);
-            window.location.href = `/kuesioner/${id_kuesioner}`;
+            window.location.href = `/kuesioner/start/${id_kuesioner}`;
             // dispatch(fetchKuesioners());
         }
     },[loading,action_type])
@@ -106,12 +106,12 @@ function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakul
 
         // console.log({"banksoal":bankSoal, "keusioner":kuesioner})
         return (
-            kuesioner==null || kuesioner=="E-K0"? 
+            kuesioner==null || kuesioner=="E-K0" || kuesioner!=null? 
                 <div className="card-header d-flex flex-wrap gap-4 align-items-center">
                     <img src={mulai} style={{ maxWidth: "5rem" }} alt="belum ada kuesioner" />
                     <div className="row">
                         <p>Ada kuesioner hari ini</p>
-                        <button className="btn btn-primary" disabled={loading} onClick={()=>startKuesioner()}>
+                        <button className="btn btn-primary" disabled={loading} onClick={()=>startKuesioner(kuesioner?.id)}>
                             {action_type==ADD_KUESIONER_REQUEST? (
                                 <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             ):"Mulai Isi"}

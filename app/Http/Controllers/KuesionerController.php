@@ -147,7 +147,6 @@ class KuesionerController extends Controller
             } else {
                 $kuesioner = $kuesioner->first();
             }
-            dd($kuesioner);
         }
 
         return Inertia::render('Kuesioner/Kuesioner', [
