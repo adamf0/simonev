@@ -139,7 +139,8 @@ class KuesionerController extends Controller
             
             dump($kolom, $target, session()->all());
             $bankSoal->active_entry = strtotime($now) >= strtotime($bankSoal->start_repair." 00:00:00") || strtotime($now) <= strtotime($bankSoal->end_repair." 23:59:59");
-            $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$bankSoal->start_repair,$bankSoal->end_repair])->get();
+            $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$bankSoal->start_repair,$bankSoal->end_repair])->toRawSql();
+            dd($kuesioner);
 
             if($kuesioner->count()>1){
                 $kuesioner = "E-K1";
