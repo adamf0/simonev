@@ -1,4 +1,5 @@
 sudo mysql_upgrade -u root -p
+"@rollup/rollup-linux-x64-gnu": "^4.34.8",
 
 $result = DB::table('kuesioner')
                         ->selectRaw(
