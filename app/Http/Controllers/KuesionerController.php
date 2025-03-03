@@ -46,7 +46,7 @@ class KuesionerController extends Controller
         $prodi = session()->get('prodi');
         $unit = session()->get('unit');
         $target = match($peruntukan){
-            'mahasiswa'=>session()->get('npm'),
+            'mahasiswa'=>session()->get('id'),
             'dosen'=>session()->get('nidn'),
             default=>session()->get('nip'),
         };
