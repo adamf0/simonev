@@ -8,7 +8,7 @@ import { fetchTemplateJawabans, addTemplateJawaban, deleteTemplateJawaban, ADD_T
 import { useDispatch, useSelector } from "react-redux";
 import TemplateJawaban from "../TemplateJawaban/TemplateJawaban";
 
-function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, level=null}) {
+function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKategori = [], level=null}) {
     const dispatch = useDispatch();
     const action_type_pertanyaan = useSelector((state) => state.templatePertanyaan.action_type);
     const loading_pertanyaan = useSelector((state) => state.templatePertanyaan.loading); 
@@ -19,6 +19,9 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, level=n
     const [pertanyaan, setPertanyaan] = useState(templatePertanyaan?.pertanyaan);
     const [jenisPilihan, setJenisPilihan] = useState(templatePertanyaan?.jenis_pilihan);
     const [bobot, setBobot] = useState(templatePertanyaan?.bobot);
+    const [kategori, setKategori] = useState(templatePertanyaan?.id_kategori);
+    const [subKategori, setSubKategori] = useState(templatePertanyaan?.id_sub_kategori);
+    const [listSubKategori, setListSubKategori] = useState([]);
 
     const templateJawabans = useSelector((state) => state.templateJawaban.templateJawabans);
     const action_type_jawaban = useSelector((state) => state.templateJawaban.action_type);
@@ -107,11 +110,26 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, level=n
         }
     }, []);
 
+    useEffect(() => {
+        const selectedKategori = listKategori.filter(k => k.id == kategori)
+        if (selectedKategori.length > 0) {
+            setListSubKategori(selectedKategori[0]?.sub_kategori ?? []);
+        } else {
+            setListSubKategori([]);
+        }
+    }, [kategori])
+
     const changePertanyaan = (value) => {
           setPertanyaan(value);  
     };
     const changeJenisPilihan = (value) => {
         setJenisPilihan(value);  
+    };
+    const changeKategori = (value) => {
+        setKategori(value);  
+    };
+    const changeSubKategori = (value) => {
+        setSubKategori(value);  
     };
     const changeBobot = (value) => {
         setBobot(value);  
@@ -119,9 +137,9 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, level=n
 
     function saveHandler(){
         if(type=="Add"){
-            dispatch(addTemplatePertanyaan(bankSoal?.id, pertanyaan, jenisPilihan, bobot));
+            dispatch(addTemplatePertanyaan(bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori));
         } else{
-            dispatch(updateTemplatePertanyaan(templatePertanyaan?.id, bankSoal?.id, pertanyaan, jenisPilihan, bobot));
+            dispatch(updateTemplatePertanyaan(templatePertanyaan?.id, bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori));
         }
     }
 
@@ -207,6 +225,28 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, level=n
                                     <input type="number" className="form-control" step={0.1} value={bobot} onChange={(e)=>changeBobot(e.target.value)}/>
                                     <label htmlFor="floatingInput">Bobot <b className="text-danger">*</b></label>
                                     <ErrorList errors={validation_pertanyaan?.bobot} />
+                                </div>
+
+                                <div className="form-floating">
+                                    <select className="form-select" id="jenisKategoriSelect" value={kategori} onChange={(e)=>changeKategori(e.target.value)}>
+                                    <option selected=""></option>
+                                    {
+                                        listKategori.map(lk => <option value={lk.id} selected={lk.id==kategori}>{lk.nama_kategori}</option>)
+                                    }
+                                    </select>
+                                    <label htmlFor="jenisKategoriSelect">Kategori <b className="text-danger">*</b></label>
+                                    <ErrorList errors={validation_pertanyaan?.kategori} />
+                                </div>
+
+                                <div className="form-floating">
+                                    <select className="form-select" id="jenisSubKategoriSelect" value={subKategori} onChange={(e)=>changeSubKategori(e.target.value)}>
+                                    <option selected=""></option>
+                                    {
+                                        listSubKategori.map(lsk => <option value={lsk.id} selected={lsk.id==subKategori}>{lsk.nama_sub}</option>)
+                                    }
+                                    </select>
+                                    <label htmlFor="jenisSubKategoriSelect">Sub Kategori <b className="text-danger">*</b></label>
+                                    <ErrorList errors={validation_pertanyaan?.subKategori} />
                                 </div>
 
                                 <div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BankSoal;
+use App\Models\Kategori;
 use App\Models\Kuesioner;
 use App\Models\TemplatePertanyaan;
 use Carbon\Exceptions\InvalidFormatException;
@@ -24,13 +25,17 @@ class TemplatePertanyaanController extends Controller
     public function pertanyaanAdd($id_bank_soal)
     {
         $bankSoal = BankSoal::findOrFail($id_bank_soal);
-        return Inertia::render('TemplatePertanyaan/TemplatePertanyaanForm', ['type'=>'Add','bankSoal'=>$bankSoal,'templatePertanyaan'=>null,"level"=>session()->get('level')]);
+        $listKategori = Kategori::with('SubKategori')->get();
+
+        return Inertia::render('TemplatePertanyaan/TemplatePertanyaanForm', ['type'=>'Add','bankSoal'=>$bankSoal,'templatePertanyaan'=>null,'listKategori'=> $listKategori,"level"=>session()->get('level')]);
     }
 
     public function pertanyaanEdit($id_bank_soal, $id_pertanyaan)
     {
         $bankSoal = BankSoal::findOrFail($id_bank_soal);
         $templatePertanyaan = TemplatePertanyaan::findOrFail($id_pertanyaan);
-        return Inertia::render('TemplatePertanyaan/TemplatePertanyaanForm', ['type'=>'Edit','bankSoal'=>$bankSoal,'templatePertanyaan'=>$templatePertanyaan, "level"=>session()->get('level')]);
+        $listKategori = Kategori::with(['SubKategori'])->get();
+
+        return Inertia::render('TemplatePertanyaan/TemplatePertanyaanForm', ['type'=>'Edit','bankSoal'=>$bankSoal,'templatePertanyaan'=>$templatePertanyaan,'listKategori'=> $listKategori, "level"=>session()->get('level')]);
     }
 }

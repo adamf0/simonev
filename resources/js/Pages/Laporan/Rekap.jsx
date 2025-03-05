@@ -302,6 +302,19 @@ RekapKuesioner.RekapKuesionersBody = ({ action_type, rekaps, loading, viewRekapK
         );
     }
 };
+
+function renderPeruntukan(item){
+    if(item.npm!=null){
+        return "Mahasiswa";
+    }
+    if(item.nidn!=null){
+        return "Dosen";
+    }
+    if(item.nip!=null){
+        return "Tendik";
+    }
+    return "unknown";
+}
 RekapKuesioner.RekapKuesionersRow = ({ item, loading, viewRekapKuesioner }) => (
     <tr key={item.id} className="text-center">
         <td>
@@ -311,7 +324,7 @@ RekapKuesioner.RekapKuesionersRow = ({ item, loading, viewRekapKuesioner }) => (
             {renderNama(item)}
         </td>
         <td>
-            {item.peruntukan}
+            {renderPeruntukan(item)}
         </td>
         <td>
             {item.bankSoal}

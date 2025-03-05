@@ -12,7 +12,7 @@ import { ADD_KUESIONER_SUCCESS } from "./redux/actions/kuesionerActions";
 
 // import { Inertia } from '@inertiajs/inertia';
 
-function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakultas=null, unit=null, target, level=null}) {
+function Kuesioner({bankSoal=null, peruntukan, prodi=null, fakultas=null, unit=null, target, level=null}) {
     const dispatch = useDispatch();
     const id_kuesioner = useSelector((state) => state.kuesioner.id_kuesioner);
     const kuesioners = useSelector((state) => state.kuesioner.kuesioners);
@@ -65,15 +65,13 @@ function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakul
         dispatch(deleteKuesioner(getIdSelected())); // Dispatch delete action
     }
 
-    function isEmptyBankSoal(){
-        return bankSoal=="E-B1" || bankSoal=="E-B0" || bankSoal==null || bankSoal == undefined;
-    }
+    function startKuesioner(id_bank_soal=null, id_kuesioner=null){
+        console.log(id_bank_soal, id_kuesioner);
 
-    function startKuesioner(id_kuesioner=null){
-        if(!isEmptyBankSoal() && id_kuesioner !== null){
+        if(id_kuesioner !== null){
             window.location.href = `/kuesioner/start/${id_kuesioner}`;
         } else{
-            dispatch(addKuesioner("add", peruntukan, target, bankSoal.id, fakultas, prodi, unit));
+            dispatch(addKuesioner("add", peruntukan, target, id_bank_soal, fakultas, prodi, unit));
         }
     }
     
@@ -86,32 +84,21 @@ function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakul
         setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
     };
 
-    function renderHeader(){
-        if(!(bankSoal?.active_entry ?? false)){
-            return <div className="card-header d-flex gap-2 align-items-center">
-                        <img src={selesai} style={{ maxWidth: "5rem" }} alt="tidak ada kuesioner" />
-                        <p>Tidak ada kuesioner hari ini</p>
-                    </div>
-        } else if(bankSoal=="E-B1" || bankSoal=="E-B0"){
-            return <div className="card-header d-flex gap-2 align-items-center">
-                        <img src={selesai} style={{ maxWidth: "5rem" }} alt="erorr template kuesioner" />
-                        <p>Gagal mendapatkan data template kuesioner</p>
-                    </div>
-        } else if(kuesioner=="E-K1"){
-            return <div className="card-header d-flex gap-2 align-items-center">
+    function renderHeader(bankSoal){
+        if(bankSoal.kuesioner=="E-K1"){
+            return <div className="card-header d-flex flex-nowrap gap-4 align-items-center">
                         <img src={selesai} style={{ maxWidth: "5rem" }} alt="erorr kuesioner" />
-                        <p>Gagal mendapatkan data kuesioner</p>
+                        <p style={{"minWidth": "200px"}}>Gagal mendapatkan data kuesioner</p>
                     </div>
         }
 
-        // console.log({"banksoal":bankSoal, "keusioner":kuesioner})
         return (
-            kuesioner==null || kuesioner=="E-K0" || kuesioner!=null? 
-                <div className="card-header d-flex flex-wrap gap-4 align-items-center">
+            bankSoal.kuesioner==null || bankSoal.kuesioner=="E-K0" || bankSoal.kuesioner!=null? 
+                <div className="card-header d-flex flex-nowrap gap-4 align-items-center">
                     <img src={mulai} style={{ maxWidth: "5rem" }} alt="belum ada kuesioner" />
-                    <div className="row">
-                        <p>Ada kuesioner hari ini</p>
-                        <button className="btn btn-primary" disabled={loading} onClick={()=>startKuesioner(kuesioner?.id)}>
+                    <div className="d-flex flex-column">
+                        <p style={{"minWidth": "200px"}}>Ada kuesioner {bankSoal.judul}</p>
+                        <button className="btn btn-primary" disabled={loading} onClick={()=>startKuesioner(bankSoal.id, bankSoal.kuesioner=="E-K0"? null:bankSoal.kuesioner?.id)}>
                             {action_type==ADD_KUESIONER_REQUEST? (
                                 <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             ):"Mulai Isi"}
@@ -119,10 +106,10 @@ function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakul
                     </div>
                 </div>
                 :
-                <div className="card-header d-flex flex-wrap gap-4 align-items-center">
+                <div className="card-header d-flex flex-nowrap gap-4 align-items-center">
                     <img src={mulai} style={{ maxWidth: "5rem" }} alt="sudah ada kuesioner" />
-                    <div className="row">
-                        <p>Kuesioner hari ini sudah terisi, silahkan ke history kuesioner untuk edit / melihat hasil input sebelumnya</p>
+                    <div className="d-flex flex-column">
+                        <p style={{"minWidth": "200px"}}>Kuesioner hari ini sudah terisi, silahkan ke history kuesioner untuk edit / melihat hasil input sebelumnya</p>
                     </div>
                 </div>
         );
@@ -163,8 +150,15 @@ function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakul
 
                     <div className="row">
                     <div className="col-12">
-                            <div className="card flex-fill table-responsive gap-2 px-4 py-3">
-                                {renderHeader()}
+                            <div className="card d-flex flex-row gap-2 px-4 py-3 overflow-scroll">
+                                {
+                                    bankSoal.length==0?
+                                    <div className="d-flex flex-column gap-2 align-items-center">
+                                        <img src={selesai} style={{ maxWidth: "5rem" }} alt="tidak ada kuesioner" />
+                                        <p>Tidak ada kuesioner hari ini</p>
+                                    </div> : 
+                                    bankSoal.map(bs=> renderHeader(bs))
+                                }
                             </div>
                         </div>
                         <div className="col-12">
@@ -193,7 +187,7 @@ function Kuesioner({kuesioner=null, bankSoal=null, peruntukan, prodi=null, fakul
                                                 
                                             </th>
                                             <th>
-                                                Judul
+                                                Kuesioner
                                             </th>
                                             <th>
                                                 Peruntukan
@@ -261,6 +255,10 @@ Kuesioner.KuesionersRow = ({ item, loading, changeSelected, startKuesioner, view
         </td>
         <td className="d-none d-xl-table-cell">
             {format(new Date(item.tanggal), "dd MMM yyyy")}
+            {
+                item?.open_edit && 
+                <><br/><span className="badge bg-success">Kuesioner Masih Aktif</span></>
+            }
         </td>
         <td>
             <div className="d-flex justify-content-center gap-2">
@@ -270,7 +268,7 @@ Kuesioner.KuesionersRow = ({ item, loading, changeSelected, startKuesioner, view
                 
                 {
                     item?.open_edit && 
-                    <button className="btn" disabled={false} onClick={() => startKuesioner(item?.id)}>
+                    <button className="btn" disabled={false} onClick={() => startKuesioner(null, item?.id)}>
                         <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                 }

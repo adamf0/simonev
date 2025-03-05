@@ -123,22 +123,16 @@ class KuesionerController extends Controller
             }
         }
 
-        $bankSoal = $filter->first();
-        $kuesioner = null;
-        
-        if($filter->count()>1){
-            $bankSoal = "E-B1";
-        } else if($filter->count()==0){
-            $bankSoal = "E-B0";
-        } else{
+        $bankSoal = $filter->filter(function($items) use($peruntukan,$now,$target){
             $kolom = match($peruntukan){
                 'mahasiswa'=>'npm',
                 'dosen'=>'nidn',
                 default => 'nip'
             };
+            $active = strtotime($now) >= strtotime($items->start_repair." 00:00:00") || strtotime($now) <= strtotime($items->end_repair." 23:59:59");
             
-            $bankSoal->active_entry = strtotime($now) >= strtotime($bankSoal->start_repair." 00:00:00") || strtotime($now) <= strtotime($bankSoal->end_repair." 23:59:59");
-            $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$bankSoal->start_repair,$bankSoal->end_repair])->get();
+            $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
+            $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
 
             if($kuesioner->count()>1){
                 $kuesioner = "E-K1";
@@ -146,11 +140,16 @@ class KuesionerController extends Controller
                 $kuesioner = "E-K0";
             } else {
                 $kuesioner = $kuesioner->first();
+                $kuesioner = $kuesioner->id_bank_soal==$items->id? $kuesioner:null;
             }
-        }
+            
+            $items->active_entry = $active;
+            $items->kuesioner = $kuesioner;
 
+            return $filtered;
+        });
+        
         return Inertia::render('Kuesioner/Kuesioner', [
-            'kuesioner'=>$kuesioner,
             'bankSoal'=>$bankSoal,
             'peruntukan'=>$peruntukan,
             'prodi'=>$prodi,
@@ -211,15 +210,20 @@ class KuesionerController extends Controller
             }
         }
 
-        $pertanyaan = TemplatePertanyaan::with(['TemplatePilihan'])->where('id_bank_soal',$kuesioner->id_bank_soal)->get();
+        $pertanyaan = TemplatePertanyaan::with(['Kategori','SubKategori','TemplatePilihan'])->where('id_bank_soal',$kuesioner->id_bank_soal)->get();
         $jawaban = KuesionerJawaban::where("id_kuesioner",$kuesioner->id)->get();
 
         $pertanyaan = $pertanyaan->map(function($item) use($jawaban){
             $selected = $jawaban->where('id_template_pertanyaan',$item->id)->pluck('id_template_jawaban');
             $item->selected = $selected;
+            $item->pattern = $item->Kategori?->nama_kategori."||".$item->SubKategori?->nama_sub;
+            unset($item->Kategori);
+            unset($item->SubKategori);
+
             return $item;
         });
+        $groupPertanyaan = $pertanyaan->groupBy("pattern");
 
-        return Inertia::render('Kuesioner/KuesionerForm', ['kuesioner'=>$kuesioner, 'dataPertanyaan'=>$pertanyaan, "level"=>session()->get('level'), "mode"=>$type]);
+        return Inertia::render('Kuesioner/KuesionerForm', ['kuesioner'=>$kuesioner, 'groupPertanyaan'=>$groupPertanyaan, "level"=>session()->get('level'), "mode"=>$type]);
     }
 }

@@ -65,6 +65,7 @@ class TemplatePertanyaanApiController extends Controller
                     'pertanyaan'    => 'required',
                     'jenis_pilihan' => 'required',
                     'bobot'         => 'required',
+                    'kategori'      => 'required',
                 ]
             );
     
@@ -85,6 +86,8 @@ class TemplatePertanyaanApiController extends Controller
             $TemplatePertanyaan->pertanyaan = $request->pertanyaan;
             $TemplatePertanyaan->jenis_pilihan = $request->jenis_pilihan;
             $TemplatePertanyaan->bobot = $request->bobot;
+            $TemplatePertanyaan->id_kategori = $request->kategori;
+            $TemplatePertanyaan->id_sub_kategori = $request->subKategori;
             $TemplatePertanyaan->save();
     
             return response()->json([

@@ -12,6 +12,6 @@ class Kategori extends Model
     protected $fillable = ['*'];
 
     public function SubKategori():HasMany{
-        return $this->hasMany(SubKategori::class, 'sub_kategori', 'id');
+        return $this->hasMany(SubKategori::class, 'id_kategori', 'id');
     }
 }
