@@ -7,16 +7,17 @@ import { FETCH_LAPORANS_FAILURE, FETCH_LAPORANS_REQUEST, fetchLaporans } from ".
 import { DtCalendar } from 'react-calendar-datetime-picker'
 import 'react-calendar-datetime-picker/dist/style.css'
 
-function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkatan=[]}) {
+function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkatan=[], listBankSoal=[]}) {
     const dispatch = useDispatch();
     const laporans = useSelector((state) => state.laporan.laporans);
     const action_type = useSelector((state) => state.laporan.action_type);
     const errorMessage = useSelector((state) => state.laporan.error);
     const loading = useSelector((state) => state.laporan.loading); // Access loading state from Redux
 
-    const [filters, setFilters] = useState({start_date: '', end_date: '', level: level});
+    const [filters, setFilters] = useState({start_date: '', end_date: '', level: level, bankSoal: ''});
     const [modePerhitungan, setModePerhitungan] = useState("total");
     const [date, setDate] = useState(null);
+    const [bankSoal, setBankSoal] = useState(null);
 
     useEffect(()=>{
         console.log("loading:",loading);
@@ -63,6 +64,20 @@ function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkata
                                     <h3>Filter</h3>
                                 </div>
                                 <div className="col-12">
+                                    <label>Bank Soal</label>
+                                    <select className="form-select" onChange={(e)=>{
+                                            setBankSoal(e.target.value)
+                                            changeFilter("bankSoal",e.target.value);
+                                        }}>
+                                        <option value=""></option>
+                                        {
+                                            listBankSoal.map(b => {
+                                                return <option value={b.id} selected={bankSoal==b.id}>{b.text}</option>
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                                <div className="col-12">
                                     <label>Tanggal</label>
                                         <DtCalendar
                                             onChange={setDate}
@@ -71,7 +86,10 @@ function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkata
                                         />
                                 </div>
                                 <div className="col-12">
-                                    <button className="btn btn-primary" onClick={()=>{setDate(null)}}>Hapus filter</button>
+                                    <button className="btn btn-primary" onClick={()=>{
+                                        setDate(null)
+                                        setBankSoal(null)
+                                    }}>Hapus filter</button>
                                 </div>
                             </div>
                         </div>

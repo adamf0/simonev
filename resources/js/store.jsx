@@ -7,6 +7,8 @@ import kuesionerReducer from './Pages/Kuesioner/redux/reducers/kuesionerReducer'
 import rekapReducer from './Pages/Laporan/redux/reducers/rekapReducer';
 import penggunaReducer from './Pages/Pengguna/redux/reducers/penggunaReducer';
 import laporanReducer from './Pages/Laporan/redux/reducers/laporanReducer';
+import kategoriReducer from './Pages/Kategori/redux/reducers/kategoriReducer';
+import subkategoriReducer from './Pages/SubKategori/redux/reducers/subkategoriReducer';
 
 const store = createStore(
     combineReducers({
@@ -16,7 +18,9 @@ const store = createStore(
         kuesioner: kuesionerReducer,
         rekap: rekapReducer,
         laporan: laporanReducer,
-        pengguna: penggunaReducer
+        pengguna: penggunaReducer,
+        kategori: kategoriReducer,
+        subkategori: subkategoriReducer,
     }), 
     applyMiddleware(thunk)
 );

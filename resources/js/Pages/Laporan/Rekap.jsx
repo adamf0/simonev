@@ -8,11 +8,12 @@ import { DtCalendar } from 'react-calendar-datetime-picker'
 import 'react-calendar-datetime-picker/dist/style.css'
 // import { Inertia } from '@inertiajs/inertia';
 
-function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=[], listTendik=[], listFakultas=[], listUnit=[]}) {
+function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=[], listTendik=[], listFakultas=[], listUnit=[], listBankSoal=[]}) {
     const dispatch = useDispatch();
     const [npm, setNpm] = useState(null);
     const [nidn, setNidn] = useState(null);
     const [nip, setNip] = useState(null);
+    const [bankSoal, setBankSoal] = useState(null);
     const [fakultas, setFakultas] = useState(kode_fakultas);
     const [prodi, setProdi] = useState(null);
     const [dosen, setDosen] = useState(null);
@@ -27,7 +28,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
     const action_type = useSelector((state) => state.rekap.action_type);
     const loading = useSelector((state) => state.rekap.loading); // Access loading state from Redux
 
-    const [filters, setFilters] = useState({ npm: '', nidn: '', nip: '', unit:'', fakultas: level=='fakultas'? kode_fakultas:null, level: level, start_date: '', end_date: '' });
+    const [filters, setFilters] = useState({ npm: '', nidn: '', nip: '', unit:'', bankSoal: '', fakultas: level=='fakultas'? kode_fakultas:null, level: level, start_date: '', end_date: '' });
     const debounceTimeout = useRef(null);
 
     useEffect(()=>{
@@ -76,6 +77,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
         setNidn(null)
         setNip(null)
         setNpm(null)
+        setBankSoal(null)
         setFakultas(null)
         setProdi(null)
         setDate(null)
@@ -106,6 +108,20 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                             <div className="card flex-fill gap-2 px-4 py-3">
                                 <div className="col-12">
                                    <h4>Filter</h4>
+                                </div>
+                                <div className="col-12">
+                                    <label>Bank Soal</label>
+                                    <select className="form-select" onChange={(e)=>{
+                                            setBankSoal(e.target.value)
+                                            changeFilter("bankSoal",e.target.value);
+                                        }}>
+                                        <option value=""></option>
+                                        {
+                                            listBankSoal.map(b => {
+                                                return <option value={b.id} selected={bankSoal==b.id}>{b.text}</option>
+                                            })
+                                        }
+                                    </select>
                                 </div>
                                 {
                                     level=='admin'?
@@ -220,6 +236,9 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                                                 Peruntukan
                                             </th>
                                             <th>
+                                                Bank Soal
+                                            </th>
+                                            <th>
                                                 Tanggal
                                             </th>
                                             <th>Action</th>
@@ -293,6 +312,9 @@ RekapKuesioner.RekapKuesionersRow = ({ item, loading, viewRekapKuesioner }) => (
         </td>
         <td>
             {item.peruntukan}
+        </td>
+        <td>
+            {item.bankSoal}
         </td>
         <td>
             {format(new Date(item.tanggal), "dd MMM yyyy")}

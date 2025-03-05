@@ -28,6 +28,7 @@ class LaporanApiController extends Controller
                                 'kuesioner.id_bank_soal',
                                 'kuesioner.tanggal',
                                 'bank_soal.peruntukan',
+                                DB::raw('bank_soal.judul as bankSoal'),
                                 DB::raw('m_mahasiswa.nama_mahasiswa'),
                                 DB::raw('m_mahasiswa.kode_fak as mahasiswa_kode_fakultas'),
                                 DB::raw('m_mahasiswa.kode_prodi as mahasiswa_kode_prodi'),
@@ -57,6 +58,17 @@ class LaporanApiController extends Controller
         if(!empty($request->npm)){
             $query = $query->where('npm',$request->npm);
         }
+        if(!empty($request->bankSoal)){
+            $query = $query->where('kuesioner.id_bank_soal',$request->bankSoal);
+        } else{
+            return response()->json([
+                'data' => [],
+                'currentPage' => 0,
+                'total' => 0,
+                'lastPage' => 0,
+            ]);
+        }
+
         if($request->level=="admin"){
             if(!empty($request->nidn)){
                 $query = $query->where('nidn',$request->nidn);
@@ -162,6 +174,17 @@ class LaporanApiController extends Controller
             $query= $query
                 ->whereBetween('kuesioner.tanggal',[$request->start_date,$request->end_date]);
         }
+        if(!empty($request->bankSoal)){
+            $query = $query->where('kuesioner.id_bank_soal',$request->bankSoal);
+        } else{
+            return response()->json([
+                'data' => [],
+                'currentPage' => 0,
+                'total' => 0,
+                'lastPage' => 0,
+            ]);
+        }
+
         $query= $query
                 ->leftJoin('kuesioner', 'kuesioner_jawaban.id_kuesioner', '=', 'kuesioner.id')
                 ->leftJoin('template_pertanyaan', 'kuesioner_jawaban.id_template_pertanyaan', '=', 'template_pertanyaan.id')

@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Api\FeederController;
 use App\Http\Controllers\BankSoalApiController;
+use App\Http\Controllers\KategoriApiController;
 use App\Http\Controllers\KuesionerApiController;
 use App\Http\Controllers\LaporanApiController;
 use App\Http\Controllers\PenggunaApiController;
+use App\Http\Controllers\SubKategoriApiController;
 use App\Http\Controllers\TemplatePertanyaanApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -38,3 +40,13 @@ Route::post('/kuesioner/delete', [KuesionerApiController::class, 'delete'])->nam
 
 Route::get('/kuesioner/rekap', [LaporanApiController::class, 'rekap'])->name('api.kuesioner.rekap');
 Route::get('/kuesioner/laporan', [LaporanApiController::class, 'laporan'])->name('api.kuesioner.laporan');
+
+Route::get('/kategori', [KategoriApiController::class, 'listkategori'])->name('api.kategori.list');
+Route::post('/kategori/save', [KategoriApiController::class, 'save'])->name('api.kategori.add');
+Route::post('/kategori/update', [KategoriApiController::class, 'update'])->name('api.kategori.update');
+Route::post('/kategori/delete', [KategoriApiController::class, 'delete'])->name('api.kategori.delete');
+
+Route::get('/subkategori', [SubKategoriApiController::class, 'listsubKategori'])->name('api.subKategori.list');
+Route::post('/subkategori/save', [SubKategoriApiController::class, 'save'])->name('api.subKategori.add');
+Route::post('/subkategori/update', [SubKategoriApiController::class, 'update'])->name('api.subKategori.update');
+Route::post('/subkategori/delete', [SubKategoriApiController::class, 'delete'])->name('api.subKategori.delete');

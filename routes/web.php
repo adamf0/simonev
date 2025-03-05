@@ -3,9 +3,11 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankSoalController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\KuesionerController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PenggunaController;
+use App\Http\Controllers\SubKategoriController;
 use App\Http\Controllers\TemplatePertanyaanController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,4 +36,13 @@ Route::get('/kuesioner/{type}/{id}', [KuesionerController::class,"kuesionerEdit"
 
 Route::get('/laporan/rekap', [LaporanController::class,"rekap"])->name('kuesioner.rekap');
 Route::get('/laporan', [LaporanController::class,"laporan"])->name('kuesioner.laporan');
+
+Route::get('/kategori', [KategoriController::class,"kategori"])->name('kategori');
+Route::get('/kategori/{id}/edit', [KategoriController::class,"kategoriEdit"])->name('kategori.edit');
+
+Route::get('/kategori/{id_kategori}/sub', [SubKategoriController::class,"subKategori"])->name('subKategori');
+Route::get('/kategori/{id_kategori}/sub/{id}/edit', [SubKategoriController::class,"subKategoriEdit"])->name('subKategori.edit');
+
+Route::get('/pengguna', [PenggunaController::class,"pengguna"])->name('pengguna');
+Route::get('/pengguna/{id}/edit', [PenggunaController::class,"penggunaEdit"])->name('pengguna.edit');
 // Route::resource('/rencana-evaluasi', RencanaEvaluasiController::class);

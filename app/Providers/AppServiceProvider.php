@@ -23,9 +23,9 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         
-        // if (config('DEPLOY') === 'prod') {
+        if (config('DEPLOY') === 'prod') {
             URL::forceScheme('https');
-        // }
+        }
 
         Inertia::share([
             'csrf_token' => function () {

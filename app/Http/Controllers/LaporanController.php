@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankSoal;
 use App\Models\DosenTendik;
 use App\Models\Fakultas;
 use App\Models\KuesionerJawaban;
@@ -41,6 +42,7 @@ class LaporanController extends Controller
                                     "prodis" => $prodis
                                 ];
                             });
+        $listBankSoal = BankSoal::select('id',DB::raw('judul as text'))->get();
 
         return Inertia::render('Laporan/Rekap', [
             'kode_fakultas'=>session()->get('level')=="fakultas"? session()->get('fakultas'):null, 
@@ -49,6 +51,7 @@ class LaporanController extends Controller
             "listTendik"=>$listTendik,
             "listFakultas"=>$listFakultas,
             "listUnit"=>$listUnit,
+            "listBankSoal"=>$listBankSoal,
             "level"=>session()->get('level')
         ]);
     }
@@ -83,6 +86,7 @@ class LaporanController extends Controller
                             ->pluck('tahun_masuk'),
             default=>collect([]),
         };
+        $listBankSoal = BankSoal::select('id',DB::raw('judul as text'))->get();
 
         return Inertia::render('Laporan/Laporan',[
             "level"=>$level,
@@ -90,6 +94,7 @@ class LaporanController extends Controller
             "listProdi"=>$listProdi,
             "listUnit"=>$listUnit,
             "listAngkatan"=>$listAngkatan,
+            "listBankSoal"=>$listBankSoal
         ]);
     }
 }
