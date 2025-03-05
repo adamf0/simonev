@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         
-        if (config('DEPLOY') === 'prod') {
-            URL::forceScheme('https');
+        if(env('DEPLOY','dev')=='prod'){
+            \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
         Inertia::share([
