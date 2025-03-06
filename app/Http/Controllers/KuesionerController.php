@@ -122,7 +122,10 @@ class KuesionerController extends Controller
                 }
             }
         }
-        $bankSoal = $filter->filter(fn($items) => strtotime($now) >= strtotime($items->start_repair." 00:00:00") || strtotime($now) <= strtotime($items->end_repair." 23:59:59"))->values();
+        $bankSoal = $filter->filter(function($items) use($now){
+            dump(strtotime($now), strtotime($items->start_repair." 00:00:00"), strtotime($now), strtotime($items->end_repair." 23:59:59"));
+            return strtotime($now) >= strtotime($items->start_repair." 00:00:00") || strtotime($now) <= strtotime($items->end_repair." 23:59:59");
+        })->values();
 
         $bankSoal = $filter->filter(function($items) use($peruntukan,$now,$target){
             $kolom = match($peruntukan){
