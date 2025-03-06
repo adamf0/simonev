@@ -121,10 +121,10 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listFa
         let end = null;
         if(tipeGenerate=="recursive" && date!=null){
             start = `${date.from.year}-${String(date.from.month).padStart(2, '0')}-${String(date.from.day).padStart(2, '0')}`
-            end = `${date.to.year}-${String(date.to.month).padStart(2, '0')}-${String(date.from.day).padStart(2, '0')}`
+            end = `${date.to.year}-${String(date.to.month).padStart(2, '0')}-${String(date.to.day).padStart(2, '0')}`
         } else if(tipeGenerate=="once" && date!=null || date!=undefined){
             start = `${date.from.year}-${String(date.from.month).padStart(2, '0')}-${String(date.from.day).padStart(2, '0')}`
-            end = `${date.to.year}-${String(date.to.month).padStart(2, '0')}-${String(date.from.day).padStart(2, '0')}`
+            end = `${date.to.year}-${String(date.to.month).padStart(2, '0')}-${String(date.to.day).padStart(2, '0')}`
         }
 
         const newRule = {
