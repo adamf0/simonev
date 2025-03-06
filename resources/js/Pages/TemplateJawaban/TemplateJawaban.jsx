@@ -48,7 +48,7 @@ TemplateJawaban.ListRow = ({ templateJawabans, loadingJawaban, updateJawabanHand
                 <div className="d-flex flex-row align-items-center gap-2">
                     <div className="form-floating w-75">
                         <input type="text" className="form-control" value={item.jawaban} onChange={(e)=>changeJawabanHandler(index,e.target.value)}/>
-                        <label htmlhtmlFor="floatingInput">Jawaban {convertIndexToLetter(index)}</label>
+                        <label htmlhtmlFor="floatingInput">Jawaban {convertIndexToLetter(index+1)}</label>
                     </div>
                     <div className="form-floating w-20">
                         <input type="text" className="form-control" value={item.nilai} onChange={(e)=>changeNilaiHandler(index,e.target.value)}/>
