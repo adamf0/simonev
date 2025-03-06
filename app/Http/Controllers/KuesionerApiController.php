@@ -193,47 +193,51 @@ class KuesionerApiController extends Controller
                     default=>'nip',
                 };
 
-                if($bankSoal['rule']['type']=="spesific" && $bankSoal['rule']['target_type']=="npm" && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
+                if(in_array($bankSoal['rule']['type'], ["spesific","all"]) && $bankSoal['rule']['target_type']=="npm" && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $start = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['start'],"slug"));
                         $end = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['end'],"slug"));
 
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
+                    } else if($bankSoal['rule']['generate']['type']=="once"){
+                        $bankSoal['start_repair'] = $start;
+                        $bankSoal['end_repair'] = $end;
                     }
-                } else if($bankSoal['rule']['type']=="spesific" && $bankSoal['rule']['target_type']=="prodi" && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
+                } else if(in_array($bankSoal['rule']['type'], ["spesific","all"]) && $bankSoal['rule']['target_type']=="prodi" && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $start = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['start'],"slug"));
                         $end = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['end'],"slug"));
 
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
+                    } else if($bankSoal['rule']['generate']['type']=="once"){
+                        $bankSoal['start_repair'] = $start;
+                        $bankSoal['end_repair'] = $end;
                     }
-                } else if($bankSoal['rule']['type']=="spesific" && $bankSoal['rule']['target_type']=="fakultas" && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
+                } else if(in_array($bankSoal['rule']['type'], ["spesific","all"]) && $bankSoal['rule']['target_type']=="fakultas" && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $start = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['start'],"slug"));
                         $end = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['end'],"slug"));
 
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
+                    } else if($bankSoal['rule']['generate']['type']=="once"){
+                        $bankSoal['start_repair'] = $start;
+                        $bankSoal['end_repair'] = $end;
                     }
-                } else if($bankSoal['rule']['type']=="spesific" && $bankSoal['rule']['target_type']=="unit" && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
+                } else if(in_array($bankSoal['rule']['type'], ["spesific","all"]) && $bankSoal['rule']['target_type']=="unit" && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $start = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['start'],"slug"));
                         $end = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['end'],"slug"));
 
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
-                    }
-                } else if($bankSoal['rule']['type']=="all"){
-                    if($bankSoal['rule']['generate']['type']=="recursive"){
-                        $start = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['start'],"slug"));
-                        $end = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['end'],"slug"));
-
+                    } else if($bankSoal['rule']['generate']['type']=="once"){
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
                     }
-                }
+                } 
 
                 $kuesioner = Kuesioner::where($kolom,$request?->target)
                                         ->where('id_bank_soal',$request?->id_bank_soal)
