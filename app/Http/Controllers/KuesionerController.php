@@ -149,17 +149,17 @@ class KuesionerController extends Controller
             return $filtered;
         });
         
-        dd([
-            'bankSoal'=>$bankSoal,
-            'peruntukan'=>$peruntukan,
-            'prodi'=>$prodi,
-            'fakultas'=>$fakultas,
-            'unit'=>$unit,
-            'target'=>$target,
-            "level"=>session()->get('level')
-        ]);
+        // dd([
+        //     'bankSoal'=>$bankSoal,
+        //     'peruntukan'=>$peruntukan,
+        //     'prodi'=>$prodi,
+        //     'fakultas'=>$fakultas,
+        //     'unit'=>$unit,
+        //     'target'=>$target,
+        //     "level"=>session()->get('level')
+        // ]);
         return Inertia::render('Kuesioner/Kuesioner', [
-            'bankSoal'=>$bankSoal,
+            'bankSoal'=>$bankSoal->values(),
             'peruntukan'=>$peruntukan,
             'prodi'=>$prodi,
             'fakultas'=>$fakultas,
