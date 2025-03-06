@@ -31,7 +31,8 @@ function Kuesioner({bankSoal=null, peruntukan, prodi=null, fakultas=null, unit=n
         }
         if(action_type==ADD_KUESIONER_SUCCESS){
             setModalDeleteVisible(false);
-            window.location.href = `/kuesioner/start/${id_kuesioner}`;
+            console.log(id_kuesioner);
+            //window.location.href = `/kuesioner/start/${id_kuesioner}`;
             // dispatch(fetchKuesioners());
         }
     },[loading,action_type])

@@ -265,7 +265,7 @@ class KuesionerApiController extends Controller
                     "message"=>"berhasil simpan data template pertanyaan",
                     "validation"=>[],
                     "trace"=>null
-                ], 500);
+                ], 200);
             } else{
                 $inputFormat = [];
                 foreach (($request?->data ?? []) as $data) {
