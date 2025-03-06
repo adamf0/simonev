@@ -265,7 +265,7 @@ class KuesionerApiController extends Controller
                     "message"=>"berhasil simpan data template pertanyaan",
                     "validation"=>[],
                     "trace"=>null
-                ], 200);
+                ], 500);
             } else{
                 $inputFormat = [];
                 foreach (($request?->data ?? []) as $data) {
@@ -313,7 +313,6 @@ class KuesionerApiController extends Controller
                     "trace"=>[]
                 ],200);
             }
-            dd($request->all());
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
