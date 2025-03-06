@@ -32,7 +32,15 @@ TemplateJawaban.ErrorRow = ({ onRefresh }) => {
         </li>
     );
 };
-
+function convertIndexToLetter(index) {
+    let result = "";
+    while (index > 0) {
+        index--; // Sesuaikan ke 0-based
+        result = String.fromCharCode(97 + (index % 26)) + result;
+        index = Math.floor(index / 26);
+    }
+    return result;
+}
 TemplateJawaban.ListRow = ({ templateJawabans, loadingJawaban, updateJawabanHandler, deleteJawabanHandler, changeJawabanHandler, changeNilaiHandler }) => {
     return (
         (templateJawabans?.record ?? []).map((item, index) => (
@@ -40,7 +48,7 @@ TemplateJawaban.ListRow = ({ templateJawabans, loadingJawaban, updateJawabanHand
                 <div className="d-flex flex-row align-items-center gap-2">
                     <div className="form-floating w-75">
                         <input type="text" className="form-control" value={item.jawaban} onChange={(e)=>changeJawabanHandler(index,e.target.value)}/>
-                        <label htmlhtmlFor="floatingInput">Jawaban A</label>
+                        <label htmlhtmlFor="floatingInput">Jawaban {convertIndexToLetter(index)}</label>
                     </div>
                     <div className="form-floating w-20">
                         <input type="text" className="form-control" value={item.nilai} onChange={(e)=>changeNilaiHandler(index,e.target.value)}/>

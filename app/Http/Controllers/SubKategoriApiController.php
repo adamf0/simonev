@@ -13,7 +13,7 @@ class SubKategoriApiController extends Controller
     {
         sleep(3);
 
-        $query = SubKategori::query();
+        $query = SubKategori::query()->where('id_kategori',$request->id_kategori);
 
         if ($request->filled('nama_sub')) {
             $query->where('nama_sub', 'like', '%' . $request->nama_sub . '%');

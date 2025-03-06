@@ -15,7 +15,7 @@ function SubKategori({kategori=null, level=null}) {
     const errorMessage = useSelector((state) => state.subkategori.error);
     const loading = useSelector((state) => state.subkategori.loading); // Access loading state from Redux
 
-    const [filters, setFilters] = useState({ nama_kategori: '', level: '' });
+    const [filters, setFilters] = useState({ nama_kategori: '', level: '', id_kategori:kategori?.id });
     const [isModalDeleteVisible, setModalDeleteVisible] = useState(false);
     const [isModalAddVisible, setModalAddVisible] = useState(false);
     const [nama_kategori, setNamaSubKategori] = useState(null);
