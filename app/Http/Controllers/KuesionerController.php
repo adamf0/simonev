@@ -148,6 +148,7 @@ class KuesionerController extends Controller
 
             return $filtered;
         });
+        dd($bankSoal);
         
         // dd([
         //     'bankSoal'=>$bankSoal,
