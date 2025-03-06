@@ -47,17 +47,6 @@ class AuthController extends Controller
             throw new Exception("selain dosen dan mahasiswa tidak diizinkan masuk");
         }
 
-        dd([
-            "id"=>$akunSimak->userid,
-            "nip"=>null,
-            "nidn"=>$akunSimak->Dosen?->NIDN,
-            "npm"=>null,
-            "nama"=>$akunSimak->nama,
-            "fakultas"=>strtolower($akunSimak->Dosen?->Fakultas?->nama_fakultas),
-            "prodi"=>strtolower($akunSimak->Dosen?->Prodi?->nama_prodi),
-            "unit"=>null,
-            "level"=>$level,
-        ]);
         return (object)[
             "id"=>$akunSimak->userid,
             "nip"=>null,
