@@ -313,6 +313,7 @@ class KuesionerApiController extends Controller
                     "trace"=>[]
                 ],200);
             }
+            dd($request->all());
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
