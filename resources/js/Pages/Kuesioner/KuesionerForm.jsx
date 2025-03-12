@@ -75,6 +75,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                             const isSelected = pertanyaan.selected.includes(id_template_pilihan);
                             return {
                                 ...pertanyaan,
+                                freeText: freeText,
                                 selected: isSelected
                                     ? pertanyaan.selected.filter((id) => id !== id_template_pilihan)
                                     : [...pertanyaan.selected, id_template_pilihan], 
@@ -82,6 +83,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                         } else {
                             return {
                                 ...pertanyaan,
+                                freeText: freeText,
                                 selected: [id_template_pilihan],
                             };
                         }
@@ -100,7 +102,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                     .filter(item => Array.isArray(item.selected) && item.selected.length > 0) 
                     .flatMap(item => {
                         const getFreeText = item.template_pilihan.find(pilihan => pilihan.isFreeText === 1);
-                        const freeText = getFreeText && item.selected.includes(getFreeText.id) ? item.freetext : null;
+                        const freeText = getFreeText && item.selected.includes(getFreeText.id) ? item?.freetext : null;
 
                         return item.selected.map(id_pilihan => ({
                             id_kuesioner: kuesioner.id,
