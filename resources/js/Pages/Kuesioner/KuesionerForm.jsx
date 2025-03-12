@@ -98,13 +98,17 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
         const data = Object.values(groupPertanyaans) 
                     .flat() 
                     .filter(item => Array.isArray(item.selected) && item.selected.length > 0) 
-                    .flatMap(item => 
-                        item.selected.map(id_pilihan => ({
+                    .flatMap(item => {
+                        const getFreeText = item.template_pilihan.find(pilihan => pilihan.isFreeText === 1);
+                        const freeText = getFreeText && item.selected.includes(getFreeText.id) ? item.freetext : null;
+
+                        return item.selected.map(id_pilihan => ({
                             id_kuesioner: kuesioner.id,
                             id_template_pertanyaan: item.id,
-                            id_template_pilihan: id_pilihan
+                            id_template_pilihan: id_pilihan,
+                            freeText: id_pilihan === getFreeText?.id ? freeText : null
                         }))
-                    );
+                    });
     
         console.log(data);
         dispatch(updateKuesioner("update", kuesioner.id, data))
@@ -165,7 +169,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                 <div className="col-12">{index+1}. {item.pertanyaan}</div>
                                                                 <div className="col-12">
                                                                     {
-                                                                        item.jenis_pilihan=="checkbox" || item.jenis_pilihan=="checkbox"?
+                                                                        item.jenis_pilihan=="checkbox" || item.jenis_pilihan=="radio"?
                                                                         <ol key={item.ref} type="A">
                                                                             {
                                                                                 (item?.template_pilihan??[]).map(pilihan => <li key={pilihan.ref}>
