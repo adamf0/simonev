@@ -243,6 +243,7 @@ class KuesionerController extends Controller
         });
         $groupPertanyaan = $pertanyaan->groupBy("pattern");
 
+        dd($groupPertanyaan);
         return Inertia::render('Kuesioner/KuesionerForm', ['kuesioner'=>$kuesioner, 'groupPertanyaan'=>$groupPertanyaan, "level"=>session()->get('level'), "mode"=>$type]);
     }
 }
