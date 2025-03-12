@@ -302,7 +302,6 @@ class KuesionerApiController extends Controller
                                     ->where('id_template_pilihan', (int) $id_template_pilihan)
                                     ->first();
 
-                    dd($dataInput, collect($request?->data), $request->data, $id_kuesioner, $id_template_pertanyaan, $id_template_pilihan);
                     $insertData[] = [
                         'id_kuesioner' => $id_kuesioner,
                         'id_template_pertanyaan' => $id_template_pertanyaan,
