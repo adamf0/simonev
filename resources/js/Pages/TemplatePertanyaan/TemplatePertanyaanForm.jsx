@@ -281,7 +281,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                 {
                                     jenisPilihan=="checkbox"? 
                                     <div className="">
-                                        <input type="checkbox" value={1} onChange={createJawabanFreeTextHandler}/> tanbah input free text
+                                        <input type="checkbox" value={1} onChange={createJawabanFreeTextHandler}/> tambah input free text
                                     </div> : 
                                     <></>
                                 }
