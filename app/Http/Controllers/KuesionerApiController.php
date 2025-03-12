@@ -296,7 +296,7 @@ class KuesionerApiController extends Controller
                                     ->where('id_template_jawaban', $id_template_pilihan)
                                     ->first();
 
-                    dd($dataInput, $request->data);
+                    dd($dataInput, $request->data, $id_kuesioner, $id_template_pertanyaan, $id_template_pilihan);
                     $insertData[] = [
                         'id_kuesioner' => $id_kuesioner,
                         'id_template_pertanyaan' => $id_template_pertanyaan,
