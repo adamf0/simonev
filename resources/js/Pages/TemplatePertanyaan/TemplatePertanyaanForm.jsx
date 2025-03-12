@@ -8,7 +8,7 @@ import { fetchTemplateJawabans, addTemplateJawaban, deleteTemplateJawaban, ADD_T
 import { useDispatch, useSelector } from "react-redux";
 import TemplateJawaban from "../TemplateJawaban/TemplateJawaban";
 
-function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKategori = [], level=null}) {
+function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKategori = [], level=null, hasFreeText=false}) {
     const dispatch = useDispatch();
     const action_type_pertanyaan = useSelector((state) => state.templatePertanyaan.action_type);
     const loading_pertanyaan = useSelector((state) => state.templatePertanyaan.loading); 
@@ -281,7 +281,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                 {
                                     jenisPilihan=="checkbox"? 
                                     <div className="">
-                                        <input type="checkbox" value={1} onChange={createJawabanFreeTextHandler}/> tambah input free text
+                                        <input type="checkbox" checked={hasFreeText} value={1} onChange={createJawabanFreeTextHandler}/> tambah input free text
                                     </div> : 
                                     <></>
                                 }

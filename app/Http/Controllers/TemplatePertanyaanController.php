@@ -6,6 +6,7 @@ use App\Models\BankSoal;
 use App\Models\Kategori;
 use App\Models\Kuesioner;
 use App\Models\TemplatePertanyaan;
+use App\Models\TemplatePilihan;
 use Carbon\Exceptions\InvalidFormatException;
 use Inertia\Inertia;
 
@@ -35,7 +36,8 @@ class TemplatePertanyaanController extends Controller
         $bankSoal = BankSoal::findOrFail($id_bank_soal);
         $templatePertanyaan = TemplatePertanyaan::findOrFail($id_pertanyaan);
         $listKategori = Kategori::with(['SubKategori'])->get();
+        $hasFreeText = TemplatePilihan::where('id_template_soal',$id_pertanyaan)->where('isFreeText',1)->count();
 
-        return Inertia::render('TemplatePertanyaan/TemplatePertanyaanForm', ['type'=>'Edit','bankSoal'=>$bankSoal,'templatePertanyaan'=>$templatePertanyaan,'listKategori'=> $listKategori, "level"=>session()->get('level')]);
+        return Inertia::render('TemplatePertanyaan/TemplatePertanyaanForm', ['type'=>'Edit','hasFreeText'=>$hasFreeText,'bankSoal'=>$bankSoal,'templatePertanyaan'=>$templatePertanyaan,'listKategori'=> $listKategori, "level"=>session()->get('level')]);
     }
 }
