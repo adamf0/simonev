@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Layout from "../../Component/Layout";
 import { Bounce, ToastContainer, toast } from 'react-toastify';
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -96,7 +96,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
         });
     }
     
-    function changePilihanFreeText(ref, id_template_pilihan, jenis_pilihan, freeText){
+    function changePilihanFreeText(ref, id_template_pilihan, jenis_pilihan, freeText) {
         setGroupPertanyaans((prev) => {
             const newData = { ...prev };
     
@@ -126,7 +126,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
     
             return newData;
         });
-    };
+    }
     
     function saveHandler() {
         const data = Object.values(groupPertanyaans) 
