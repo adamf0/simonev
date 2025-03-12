@@ -101,15 +101,16 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                     .flat() 
                     .filter(item => Array.isArray(item.selected) && item.selected.length > 0) 
                     .flatMap(item => {
-                        const getFreeText = item.template_pilihan.find(pilihan => pilihan.isFreeText === 1);
-                        const freeText = getFreeText && item.selected.includes(getFreeText.id) ? item?.freetext : null;
+                        const freeTextOption = item.template_pilihan.find(pilihan => pilihan.isFreeText === 1);
+                        const isFreeTextSelected = freeTextOption && item.selected.includes(freeTextOption.id);
+                        const freeTextValue = isFreeTextSelected ? item.freeText ?? null : null;
 
                         return item.selected.map(id_pilihan => ({
                             id_kuesioner: kuesioner.id,
                             id_template_pertanyaan: item.id,
                             id_template_pilihan: id_pilihan,
-                            freeText: id_pilihan === getFreeText?.id ? freeText : null
-                        }))
+                            freeText: id_pilihan === freeTextOption?.id ? freeTextValue : null
+                        }));
                     });
     
         console.log(data);
