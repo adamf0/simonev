@@ -216,6 +216,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                     <option selected=""></option>
                                     <option value="radio" selected={jenisPilihan=="radio"}>Pilihan Ganda</option>
                                     <option value="checkbox" selected={jenisPilihan=="checkbox"}>Pilih Banyak</option>
+                                    <option value="rating5" selected={jenisPilihan=="rating5"}>Rating 5 Pilihan</option>
                                     </select>
                                     <label htmlFor="jenisPilihanSelect">Jenis Pilihan <b className="text-danger">*</b></label>
                                     <ErrorList errors={validation_pertanyaan?.jenisPilihan} />
@@ -260,7 +261,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                     </div>
 
                     {
-                        type=="Edit"? 
+                        type=="Edit" && ["radio","checkbox"].includes(jenisPilihan)? 
                         <div className="col-12">
                         <div className="card flex-fill table-responsive gap-2 px-4 py-3">
                             <div className="card-header d-flex justify-content-between flex-wrap">

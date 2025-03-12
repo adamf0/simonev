@@ -173,6 +173,84 @@ class AuthController extends Controller
         }
     }
 
+    public function propagation(Request $request)
+    {
+        try {
+            $validator      = validator($request->all(), [
+                'username' => ['required','min:3'],
+                'password' => ['required'],
+            ]);
+
+            if(count($validator->errors())){
+                return view("access_denied");
+            }
+
+            $akun = User::where("username", $request->username)->where("password_plain", $request->password)->first();
+
+            if($akun==null){
+                $akunSimak = $this->loginSimak($request->username, $request->password);
+                if($akunSimak==null){
+                    $akunSimpeg = $this->loginSimpeg($request->username, $request->password);
+                    if($akunSimpeg==null){
+                        throw new Exception("akun tidak ditemukan");
+                    } else{
+                        $request->session()->regenerate();
+                        $request->session()->put("id",$akunSimpeg?->id);
+                        $request->session()->put("nip",$akunSimpeg?->nip);
+                        $request->session()->put("nidn",$akunSimpeg?->nidn);
+                        $request->session()->put("npm",$akunSimpeg?->npm);
+                        $request->session()->put("nama",$akunSimpeg?->nama);
+                        $request->session()->put("fakultas",$akunSimpeg?->fakultas);
+                        $request->session()->put("prodi",$akunSimpeg?->prodi);
+                        $request->session()->put("unit",$akunSimpeg?->unit);
+                        $request->session()->put("level",$akunSimpeg?->level);
+                    }
+                } else{
+                    $request->session()->regenerate();
+                    $request->session()->put("id",$akunSimak?->id);
+                    $request->session()->put("nip",$akunSimak?->nip);
+                    $request->session()->put("nidn",$akunSimak?->nidn);
+                    $request->session()->put("npm",$akunSimak?->npm);
+                    $request->session()->put("nama",$akunSimak?->nama);
+                    $request->session()->put("fakultas",$akunSimak?->fakultas);
+                    $request->session()->put("prodi",$akunSimak?->prodi);
+                    $request->session()->put("unit",$akunSimak?->unit);
+                    $request->session()->put("level",$akunSimak?->level);
+                }
+    
+                return redirect()->route('kuesioner');
+            } else{
+
+                $request->session()->regenerate();
+                $request->session()->put("id",$akun?->id);
+                $request->session()->put("nip",null);
+                $request->session()->put("nidn",null);
+                $request->session()->put("npm",null);
+                $request->session()->put("nama",$akun?->name);
+                $request->session()->put("fakultas",$akun->fakultas);
+                $request->session()->put("prodi",null);
+                $request->session()->put("unit",null);
+                $request->session()->put("level",$akun?->level);
+
+                return redirect()->route('dashboard');
+            }
+        } catch (Exception $e) {
+            // $request->session()->regenerate();
+            //     $request->session()->put("id",0);
+            //     $request->session()->put("nip",null);
+            //     $request->session()->put("nidn",null);
+            //     $request->session()->put("npm","065117251");
+            //     $request->session()->put("nama","adam");
+            //     $request->session()->put("fakultas","mipa");
+            //     $request->session()->put("prodi","ilkom");
+            //     $request->session()->put("unit",null);
+            //     $request->session()->put("level",'mahasiswa');
+            //     return redirect()->route('kuesioner');
+
+            return redirect('/')->with('pesan', $e->getMessage());
+        }
+    }
+
     public function logout(Request $request)
     {
         $request->session()->invalidate();

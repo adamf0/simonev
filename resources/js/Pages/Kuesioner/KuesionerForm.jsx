@@ -164,33 +164,39 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                             <div className="row">
                                                                 <div className="col-12">{index+1}. {item.pertanyaan}</div>
                                                                 <div className="col-12">
-                                                                    <ol key={item.ref} type="A">
                                                                     {
-                                                                        (item?.template_pilihan??[]).map(pilihan => {
-                                                                            if(item.jenis_pilihan=="checkbox"){
-                                                                                return <li key={pilihan.ref}>
+                                                                        item.jenis_pilihan=="checkbox" || item.jenis_pilihan=="checkbox"?
+                                                                        <ol key={item.ref} type="A">
+                                                                            {
+                                                                                (item?.template_pilihan??[]).map(pilihan => <li key={pilihan.ref}>
                                                                                     <input
                                                                                         data-ref={item.ref} 
-                                                                                        type={"checkbox"} 
+                                                                                        type={item.jenis_pilihan=="checkbox"? "checkbox":"radio"} 
                                                                                         checked={ item.selected.some(id => id === pilihan.id) } 
                                                                                         className={mode != "start"? "no-click":""}
                                                                                         name={`jawaban_pertanyaan_${item.id}`} 
                                                                                         onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan)}/> {pilihan.jawaban}
-                                                                                </li>
-                                                                            } 
-
-                                                                            return <li key={pilihan.ref}>
-                                                                                <input
-                                                                                    data-ref={item.ref} 
-                                                                                    type={"radio"} 
-                                                                                    checked={ item.selected.some(id => id === pilihan.id) } 
-                                                                                    className={mode != "start"? "no-click":""}
-                                                                                    name={`jawaban_pertanyaan_${item.id}`} 
-                                                                                    onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan)}/> {pilihan.jawaban}
-                                                                            </li>
-                                                                        })
+                                                                                </li>)
+                                                                            }
+                                                                        </ol>
+                                                                        :
+                                                                        <div className="d-flex">
+                                                                            <b>Sangat Tidak Baik</b>
+                                                                            {
+                                                                                (item?.template_pilihan??[]).map(pilihan => <div className="row" key={pilihan.ref}>
+                                                                                    <p>{pilihan.jawaban}</p>
+                                                                                    <input
+                                                                                        data-ref={item.ref} 
+                                                                                        type={"radio"} 
+                                                                                        checked={ item.selected.some(id => id === pilihan.id) } 
+                                                                                        className={mode != "start"? "no-click":""}
+                                                                                        name={`jawaban_pertanyaan_${item.id}`} 
+                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan)}/>
+                                                                                </div>)
+                                                                            }
+                                                                            <b>Sangat Baik</b>
+                                                                        </div>
                                                                     }
-                                                                    </ol>
                                                                 </div>
                                                             </div>
                                                         </div>
