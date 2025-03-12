@@ -244,7 +244,7 @@ TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, chan
         <td>{item.nama_sub}</td>
         <td>{item.pertanyaan}</td>
         <td>
-            <span className="badge bg-success">{item.jenis_pilihan}</span>
+            <span className="badge bg-success">{item.jenis_pilihan=="rating5"? "5 rating":item.jenis_pilihan}</span>
         </td>
         <td>
             <span className="badge bg-success">{item.bobot}</span>

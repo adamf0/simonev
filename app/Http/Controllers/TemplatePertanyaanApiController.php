@@ -68,6 +68,7 @@ class TemplatePertanyaanApiController extends Controller
     public function save(Request $request){
         sleep(3);
 
+        DB::beginTransaction();
         try {
             $validator      = validator(
                 $request->all(),
@@ -86,13 +87,47 @@ class TemplatePertanyaanApiController extends Controller
                     "validation"=>$validator->errors()->toArray(),
                     "trace"=>null
                 ], 400);
-            } 
+            }
+            
+            $nowJenisPilihan = $request->jenis_pilihan;
     
             if(empty($request->id)){
                 $TemplatePertanyaan = new TemplatePertanyaan();
             } else{
                 $TemplatePertanyaan = TemplatePertanyaan::findOrFail($request->id);
             }
+
+            if ($TemplatePertanyaan?->jenis_pilihan !== $nowJenisPilihan && $nowJenisPilihan === "rating5") {
+                $listJawabanLama = $TemplatePertanyaan?->id_bank_soal 
+                    ? TemplatePilihan::where('id_template_soal', $TemplatePertanyaan->id_bank_soal)->get()
+                    : collect([]);
+            
+                if ($listJawabanLama->isEmpty()) {
+                    $data = array_map(fn($i) => [
+                        'id_template_soal' => $TemplatePertanyaan?->id_bank_soal, 
+                        'jawaban' => $i,
+                        'nilai' => $i,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ], range(1, 5));
+            
+                    TemplatePilihan::insert($data);
+                } else {
+                    foreach ($listJawabanLama as $index => $item) {
+                        $val = $index + 1;
+                    
+                        if ($val <= 5) {
+                            $item->update([
+                                'jawaban' => $val,
+                                'nilai' => $val
+                            ]);
+                        } else {
+                            $item->delete();
+                        }
+                    }
+                }
+            }            
+
             $TemplatePertanyaan->id_bank_soal = $request->id_bank_soal;
             $TemplatePertanyaan->pertanyaan = $request->pertanyaan;
             $TemplatePertanyaan->jenis_pilihan = $request->jenis_pilihan;
@@ -102,6 +137,8 @@ class TemplatePertanyaanApiController extends Controller
                 $TemplatePertanyaan->id_sub_kategori = $request->subKategori;   
             }
             $TemplatePertanyaan->save();
+
+            DB::commit();
     
             return response()->json([
                 "current_id"=>$TemplatePertanyaan?->id,
@@ -110,6 +147,7 @@ class TemplatePertanyaanApiController extends Controller
                 "trace"=>null
             ], 200);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 "message"=>"ups ada error",
                 "validation"=>[],
