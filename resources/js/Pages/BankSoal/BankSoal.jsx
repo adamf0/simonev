@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../Component/Layout";
 import Modal from "../../Component/Modal";
@@ -117,9 +117,15 @@ function BankSoal({level=null}) {
     }
 
     // Debounced filter change
-    const changeFilter = (key, value) => {
-        setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
-    };
+    const changeFilter = useCallback((key, value) => {
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
+        }
+    
+        debounceTimeout.current = setTimeout(() => {
+            setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
+        }, 1500);
+    }, []);
 
     return (
             <>
