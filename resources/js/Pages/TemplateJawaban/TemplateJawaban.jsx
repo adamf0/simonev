@@ -51,21 +51,22 @@ TemplateJawaban.ListRow = ({ templateJawabans, loadingJawaban, updateJawabanHand
                         <label htmlhtmlFor="floatingInput">Jawaban {convertIndexToLetter(index+1)}</label>
                     </div>
                     <div className="form-floating w-20">
-                        <input type="text" className="form-control" value={item.nilai} onChange={(e)=>changeNilaiHandler(index,e.target.value)}/>
+                        <input type="text" className="form-control" disabled={item.isFreeText==1} value={item.nilai} onChange={(e)=>changeNilaiHandler(index,e.target.value)}/>
                         <label htmlhtmlFor="floatingInput">Nilai</label>
                     </div>
                     <div className="d-grid gap-2">
-                        <button 
-                            className="btn btn-outline-primary d-flex align-items-center gap-2" 
-                            type="button" 
-                            disabled={loadingJawaban} 
-                            onClick={() => updateJawabanHandler(item.id, item.jawaban, item.nilai)}
-                        >
-                            {loadingJawaban ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : null}
-                            {!loadingJawaban? <i class="bi bi-check-circle"></i>:<></>}
-                        </button>
                         {
                             item.isFreeText!=1?
+                            <>
+                            <button 
+                                className="btn btn-outline-primary d-flex align-items-center gap-2" 
+                                type="button" 
+                                disabled={loadingJawaban} 
+                                onClick={() => updateJawabanHandler(item.id, item.jawaban, item.nilai)}
+                            >
+                                {loadingJawaban ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : null}
+                                {!loadingJawaban? <i class="bi bi-check-circle"></i>:<></>}
+                            </button>
                             <button 
                                 className="btn btn-outline-danger d-flex align-items-center gap-2" 
                                 type="button" 
@@ -74,7 +75,8 @@ TemplateJawaban.ListRow = ({ templateJawabans, loadingJawaban, updateJawabanHand
                             >
                                 {loadingJawaban ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : null}
                                 {!loadingJawaban? <i class="bi bi-x-circle"></i>:<></>}
-                            </button> : 
+                            </button>
+                            </> : 
                             <></>
                         }
                     </div>

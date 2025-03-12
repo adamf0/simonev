@@ -227,6 +227,7 @@ class TemplatePertanyaanApiController extends Controller
                 if($request->freetext==1){
                     $TemplatePilihan = new TemplatePilihan();
                     $TemplatePilihan->id_template_soal = $request->id_template_soal;
+                    $TemplatePilihan->jawaban = 1;
                     $TemplatePilihan->isFreeText = 1;
                     $TemplatePilihan->save();
                 } else{
