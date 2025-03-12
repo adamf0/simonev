@@ -151,7 +151,8 @@ class TemplatePertanyaanApiController extends Controller
             return response()->json([
                 "message"=>"ups ada error",
                 "validation"=>[],
-                "trace"=>$th->getTrace()
+                "messageTrace"=>$th->getMessage(),
+                "trace"=>$th->getTrace(),
             ],500);
         }
     }
