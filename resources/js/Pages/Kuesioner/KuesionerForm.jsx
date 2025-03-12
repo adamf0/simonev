@@ -214,7 +214,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                         checked={ item.selected.some(id => id === pilihan.id) } 
                                                                                         className={mode != "start"? "no-click":""}
                                                                                         name={`jawaban_pertanyaan_${item.id}`} 
-                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, null)}/> 
+                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, pilihan.isFreeText==1? item?.freeText:null)}/> 
                                                                                     {
                                                                                         pilihan.isFreeText?
                                                                                         <>
