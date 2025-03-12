@@ -234,7 +234,7 @@ class KuesionerController extends Controller
 
         $pertanyaan = $pertanyaan->map(function($item) use($jawaban){
             $selected = $jawaban->where('id_template_pertanyaan',$item->id);
-            $freeText = $selected->filter(fn($s)=>!empty($s->freeText))->first();
+            $freeText = $selected->filter(fn($s)=>!empty($s->freeText))->first()?->freeText;
 
             $item->selected = $selected->pluck('id_template_jawaban');
             $item->freeText = $freeText;
