@@ -224,8 +224,8 @@ class TemplatePertanyaanApiController extends Controller
                                         ->where('isFreeText',1)
                                         ->first();
                 
-                dd($TemplatePilihan);
                 if($request->freetext==1){
+                    $TemplatePilihan = new TemplatePilihan();
                     $TemplatePilihan->id_template_soal = $request->id_template_soal;
                     $TemplatePilihan->isFreeText = 1;
                     $TemplatePilihan->save();
