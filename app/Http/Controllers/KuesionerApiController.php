@@ -290,10 +290,16 @@ class KuesionerApiController extends Controller
                 $insertData = [];
                 foreach ($left as $l) {
                     [$id_kuesioner, $id_template_pertanyaan, $id_template_pilihan] = explode("#", $l);
+                    $dataInput = collect($request?->data)
+                                    ->where('id_kuesioner', $id_kuesioner)
+                                    ->where('id_template_pertanyaan', $id_template_pertanyaan)
+                                    ->where('id_template_jawaban', $id_template_pilihan);
+
                     $insertData[] = [
                         'id_kuesioner' => $id_kuesioner,
                         'id_template_pertanyaan' => $id_template_pertanyaan,
                         'id_template_jawaban' => $id_template_pilihan,
+                        'freeText' => $dataInput?->freeText,
                         'created_at' => now(),
                         'updated_at' => now()
                     ];
