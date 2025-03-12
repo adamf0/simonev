@@ -64,7 +64,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
 
     useEffect(()=> console.log(groupPertanyaans),[groupPertanyaans])
 
-    function changePilihan(ref, id_template_pilihan, jenis_pilihan) {
+    function changePilihan(ref, id_template_pilihan, jenis_pilihan, freeText) {
         setGroupPertanyaans((prev) => {
             const newData = { ...prev };
     
@@ -175,7 +175,19 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                         checked={ item.selected.some(id => id === pilihan.id) } 
                                                                                         className={mode != "start"? "no-click":""}
                                                                                         name={`jawaban_pertanyaan_${item.id}`} 
-                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan)}/> {pilihan.jawaban}
+                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, null)}/> 
+                                                                                    {
+                                                                                        pilihan.isFreeText?
+                                                                                        <>
+                                                                                        <input data-ref={item.ref} 
+                                                                                            type="text" 
+                                                                                            className={"corm-control"}
+                                                                                            placeholder="masukkan jawaban lainnya"
+                                                                                            name={`jawaban_pertanyaan_${item.id}_free`} 
+                                                                                            onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, e.target.value)}/>
+                                                                                        </>:
+                                                                                        pilihan.jawaban
+                                                                                    }
                                                                                 </li>)
                                                                             }
                                                                         </ol>
@@ -191,7 +203,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                         checked={ item.selected.some(id => id === pilihan.id) } 
                                                                                         className={mode != "start"? "no-click":""}
                                                                                         name={`jawaban_pertanyaan_${item.id}`} 
-                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan)}/>
+                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, null)}/>
                                                                                 </div>)
                                                                             }
                                                                             <b>Sangat Baik</b>
