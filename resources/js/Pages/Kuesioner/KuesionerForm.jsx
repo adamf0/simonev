@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Layout from "../../Component/Layout";
 import { Bounce, ToastContainer, toast } from 'react-toastify';
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -94,7 +94,45 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
     
             return newData;
         });
-    }    
+    }
+    
+    const changePilihanFreeText = useCallback((ref, id_template_pilihan, jenis_pilihan, freeText) => {
+            if (debounceTimeout.current) {
+                clearTimeout(debounceTimeout.current);
+            }
+        
+            debounceTimeout.current = setTimeout(() => {
+                setGroupPertanyaans((prev) => {
+                    const newData = { ...prev };
+            
+                    Object.keys(newData).forEach((kategori) => {
+                        newData[kategori] = newData[kategori].map((pertanyaan) => {
+                            if (pertanyaan.ref === ref) {
+                                if (jenis_pilihan === "checkbox") {
+                                    const isSelected = pertanyaan.selected.includes(id_template_pilihan);
+                                    return {
+                                        ...pertanyaan,
+                                        freeText: freeText,
+                                        selected: isSelected
+                                            ? pertanyaan.selected.filter((id) => id !== id_template_pilihan)
+                                            : [...pertanyaan.selected, id_template_pilihan], 
+                                    };
+                                } else {
+                                    return {
+                                        ...pertanyaan,
+                                        freeText: freeText,
+                                        selected: [id_template_pilihan],
+                                    };
+                                }
+                            }
+                            return pertanyaan;
+                        });
+                    });
+            
+                    return newData;
+                });
+            }, 1500);
+        }, []);
     
     function saveHandler() {
         const data = Object.values(groupPertanyaans) 
@@ -191,7 +229,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                             className={"corm-control"}
                                                                                             placeholder="masukkan jawaban lainnya"
                                                                                             name={`jawaban_pertanyaan_${item.id}_free`} 
-                                                                                            onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, e.target.value)}/>
+                                                                                            onChange={(e)=>changePilihanFreeText(item.ref, pilihan.id, item.jenis_pilihan, e.target.value)}/>
                                                                                         </>:
                                                                                         pilihan.jawaban
                                                                                     }
