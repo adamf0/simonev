@@ -14,7 +14,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
     const errorMessage = useSelector((state) => state.kuesioner.error);
     const loading = useSelector((state) => state.kuesioner.loading); // Access loading state from Redux
     const debounceTimeout = useRef(null);
-    
+
     const [groupPertanyaans, setGroupPertanyaans] = useState(
         Object.fromEntries(
             Object.entries(groupPertanyaan).map(([group, pertanyaan]) => [
@@ -98,42 +98,42 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
     }
     
     const changePilihanFreeText = useCallback((ref, id_template_pilihan, jenis_pilihan, freeText) => {
-            if (debounceTimeout.current) {
-                clearTimeout(debounceTimeout.current);
-            }
-        
-            debounceTimeout.current = setTimeout(() => {
-                setGroupPertanyaans((prev) => {
-                    const newData = { ...prev };
-            
-                    Object.keys(newData).forEach((kategori) => {
-                        newData[kategori] = newData[kategori].map((pertanyaan) => {
-                            if (pertanyaan.ref === ref) {
-                                if (jenis_pilihan === "checkbox") {
-                                    const isSelected = pertanyaan.selected.includes(id_template_pilihan);
-                                    return {
-                                        ...pertanyaan,
-                                        freeText: freeText,
-                                        selected: isSelected
-                                            ? pertanyaan.selected.filter((id) => id !== id_template_pilihan)
-                                            : [...pertanyaan.selected, id_template_pilihan], 
-                                    };
-                                } else {
-                                    return {
-                                        ...pertanyaan,
-                                        freeText: freeText,
-                                        selected: [id_template_pilihan],
-                                    };
-                                }
+    if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+            setGroupPertanyaans((prev) => {
+                const newData = { ...prev };
+
+                Object.keys(newData).forEach((kategori) => {
+                    newData[kategori] = newData[kategori].map((pertanyaan) => {
+                        if (pertanyaan.ref === ref) {
+                            if (jenis_pilihan === "checkbox") {
+                                const isSelected = pertanyaan.selected.includes(id_template_pilihan);
+                                return {
+                                    ...pertanyaan,
+                                    freeText,
+                                    selected: isSelected
+                                        ? pertanyaan.selected.filter((id) => id !== id_template_pilihan)
+                                        : [...pertanyaan.selected, id_template_pilihan], 
+                                };
+                            } else {
+                                return {
+                                    ...pertanyaan,
+                                    freeText,
+                                    selected: [id_template_pilihan],
+                                };
                             }
-                            return pertanyaan;
-                        });
+                        }
+                        return pertanyaan;
                     });
-            
-                    return newData;
                 });
-            }, 1500);
-        }, []);
+
+                return newData;
+            });
+        }, 500); // Set debounce lebih cepat agar lebih responsif
+    }, []);
     
     function saveHandler() {
         const data = Object.values(groupPertanyaans) 
