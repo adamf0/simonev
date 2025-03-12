@@ -13,7 +13,8 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
     const action_type = useSelector((state) => state.kuesioner.action_type);
     const errorMessage = useSelector((state) => state.kuesioner.error);
     const loading = useSelector((state) => state.kuesioner.loading); // Access loading state from Redux
-
+    const debounceTimeout = useRef(null);
+    
     const [groupPertanyaans, setGroupPertanyaans] = useState(
         Object.fromEntries(
             Object.entries(groupPertanyaan).map(([group, pertanyaan]) => [
