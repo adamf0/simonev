@@ -6,6 +6,7 @@ use App\Models\TemplatePertanyaan;
 use App\Models\TemplatePilihan;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class TemplatePertanyaanApiController extends Controller
@@ -14,13 +15,23 @@ class TemplatePertanyaanApiController extends Controller
     {
         sleep(3);
 
-        $query = TemplatePertanyaan::query();
+        $query = TemplatePertanyaan::select('template_pertanyaan.*','kategori.nama_kategori','sub_kategori.nama_sub')
+                                    ->leftJoin('kategori','template_pertanyaan.id_kategori','=','kategori.id')
+                                    ->leftJoin('sub_kategori','template_pertanyaan.id_sub_kategori','=','sub_kategori.id');
 
-        $query->where('id_bank_soal', $request->id_bank_soal);
+        if($request->filled('id_bank_soal')){
+            $query = $query->where('id_bank_soal', $request->id_bank_soal);
+        }
 
         // Apply existing filters
         if ($request->filled('pertanyaan')) {
             $query->where('pertanyaan', 'like', '%' . $request->pertanyaan . '%');
+        }
+        if ($request->filled('kategori')) {
+            $query->where('kategori.nama_kategori', 'like', '%' . $request->kategori . '%');
+        }
+        if ($request->filled('sub_Kategori')) {
+            $query->where('sub_kategori.nama_sub', 'like', '%' . $request->sub_Kategori . '%');
         }
 
         // Paginate the result

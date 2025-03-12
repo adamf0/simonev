@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../Component/Layout";
 import Modal from "../../Component/Modal";
@@ -15,7 +15,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     const loading = useSelector((state) => state.templatePertanyaan.loading); // Access loading state from Redux
 
     const [isModalDeleteVisible, setModalDeleteVisible] = useState(false);    
-    const [filters, setFilters] = useState({ judul: '', tipe: '', id_bank_soal: bankSoal.id});
+    const [filters, setFilters] = useState({ kategori: '', sub_Kategori:'', judul: '', tipe: '', id_bank_soal: bankSoal.id});
 
     const debounceTimeout = useRef(null);
 
@@ -81,9 +81,15 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     }
 
     // Debounced filter change
-    const changeFilter = (key, value) => {
-        setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
-    };
+    const changeFilter = useCallback((key, value) => {
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
+        }
+        
+        debounceTimeout.current = setTimeout(() => {
+            setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
+        }, 1500);
+    }, []);
 
     return (
             <>
@@ -148,6 +154,24 @@ function TemplatePertanyaan({bankSoal, level=null}) {
                                         <tr>
                                             <th>
                                                 
+                                            </th>
+                                            <th>
+                                                Kategori
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder="Kategori"
+                                                    onChange={(e) => changeFilter("kategori", e.target.value)}
+                                                />
+                                            </th>
+                                            <th>
+                                                Sub Kategori
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder="sub kategori"
+                                                    onChange={(e) => changeFilter("sub_ Kategori", e.target.value)}
+                                                />
                                             </th>
                                             <th>
                                                 Pertanyaan
@@ -216,6 +240,8 @@ TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, chan
         <td>
             <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
         </td>
+        <td>{item.nama_kategori}</td>
+        <td>{item.nama_sub}</td>
         <td>{item.pertanyaan}</td>
         <td>
             <span className="badge bg-success">{item.jenis_pilihan}</span>

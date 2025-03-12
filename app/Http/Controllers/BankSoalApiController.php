@@ -152,6 +152,9 @@ class BankSoalApiController extends Controller
                 $bankSoal->deskripsi = $request->deskripsi;
             if(!empty($request->rule))
                 $bankSoal->rule = $request->rule;
+            if(!empty($request->content))
+                $bankSoal->content = htmlspecialchars($request->content);
+
             $bankSoal->save();
     
             return response()->json([

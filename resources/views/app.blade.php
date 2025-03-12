@@ -48,6 +48,7 @@
             cursor: not-allowed;  /* Change cursor to indicate no interaction */
         }
     </style>
+    <script> const global = globalThis; </script>
     @vite('resources/js/app.jsx')
     @inertiaHead
 

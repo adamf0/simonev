@@ -8,6 +8,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { DtCalendar } from 'react-calendar-datetime-picker'
 import 'react-calendar-datetime-picker/dist/style.css'
 import { v4 as uuidv4 } from "uuid";
+import { Editor } from "react-draft-wysiwyg";
+import { EditorState, ContentState, convertFromHTML } from "draft-js";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { stateToHTML } from "draft-js-export-html";
+import parse from "html-react-parser";
+import DOMPurify from "dompurify";
 
 const today = new Date();
 
@@ -38,6 +44,13 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listFa
 
     const [judul, setJudul] = useState(dataBankSoal?.judul);
     const [deskripsi, setDeskripsi] = useState(dataBankSoal?.deskripsi);
+
+    const [htmlContent, setHtmlContent] = useState(DOMPurify.sanitize(parse(dataBankSoal?.content ?? "")) || "<p></p>");
+    const blocksFromHTML = convertFromHTML(htmlContent);
+    const contentState = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+    const [editorState, setEditorState] = useState(EditorState.createWithContent(contentState));
+    
+    
     const [peruntukan, setPeruntukan] = useState(dataBankSoal?.peruntukan);
     // const [rule, setRule] = useState(json);
     const [tipe, setTipe] = useState(json?.type);
@@ -137,7 +150,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listFa
                 "end":end
             }
         };
-        dispatch(updateBankSoal(dataBankSoal.id, judul, deskripsi, peruntukan, newRule));
+        dispatch(updateBankSoal(dataBankSoal.id, judul, deskripsi, peruntukan, newRule, DOMPurify.sanitize(htmlContent)));
     }
 
     function renderOptionListTarget(target) {
@@ -160,6 +173,14 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listFa
             return <></>;
         }, [target, listMahahsiswa, listUnit, listProdi, list]);
     }
+
+    const handleEditorChange = (newState) => {
+        setEditorState(newState);
+        
+        // Convert editorState ke HTML
+        const html = stateToHTML(newState.getCurrentContent());
+        setHtmlContent(html);
+    };
 
     return (
         <>
@@ -190,6 +211,19 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listFa
                                     <textarea className="form-control" value={deskripsi} onChange={(e)=>setDeskripsi(e.target.value)} style={{"height": "100px"}}></textarea>
                                     <label htmlFor="floatingTextarea2">Deskripsi</label>
                                     <ErrorList errors={validation?.deskripsi} />
+                                </div>
+
+                                <div>
+                                    <label>Content</label>
+                                    <table border={1}>
+                                        <Editor
+                                            editorState={editorState}
+                                            toolbarClassName="toolbarClassName"
+                                            wrapperClassName="wrapperClassName"
+                                            editorClassName="editorClassName"
+                                            onEditorStateChange={handleEditorChange}
+                                        />
+                                    </table>
                                 </div>
 
                                 <div className="form-floating">

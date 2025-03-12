@@ -63,11 +63,11 @@ export const addBankSoal = (judul) => {
   };
 };
 
-export const updateBankSoal = (id,judul,deskripsi,peruntukan,rule) => {
+export const updateBankSoal = (id,judul,deskripsi,peruntukan,rule, content) => {
   return async (dispatch) => {
     dispatch({ type: UPDATE_BANK_SOAL_REQUEST });
     try {
-      const response = await axios.post(api_bankSoal_update, { id, judul, deskripsi, peruntukan, rule });
+      const response = await axios.post(api_bankSoal_update, { id, judul, deskripsi, peruntukan, rule, content });
       dispatch({ type: UPDATE_BANK_SOAL_SUCCESS, payload: response.data });
     } catch (error) {
       const validation = error?.response?.data?.validation;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../Component/Layout";
 import Modal from "../../Component/Modal";
@@ -10,6 +10,8 @@ import { Bounce, toast, ToastContainer } from "react-toastify";
 function SubKategori({kategori=null, level=null}) {
     const dispatch = useDispatch();
 
+    const st = useSelector((state) => state.subkategori);
+    console.log(st);
     const subkategoris = useSelector((state) => state.subkategori.subkategoris);
     const action_type = useSelector((state) => state.subkategori.action_type);
     const errorMessage = useSelector((state) => state.subkategori.error);
@@ -28,7 +30,7 @@ function SubKategori({kategori=null, level=null}) {
 
         if(action_type==DELETE_SUBKATEGORI_SUCCESS){
             setModalDeleteVisible(false);
-            dispatch(fetchSubKategoris());
+            dispatch(fetchSubKategoris({id_kategori:kategori?.id}, 1));
         }
         if(action_type==DELETE_SUBKATEGORI_FAILURE || action_type==ADD_SUBKATEGORI_FAILURE || action_type==FETCH_SUBKATEGORIS_FAILURE ){
             toast.error(errorMessage?.response?.data?.message, {
@@ -44,8 +46,9 @@ function SubKategori({kategori=null, level=null}) {
             });
         }
         if(action_type==ADD_SUBKATEGORI_SUCCESS){
+            console.log("ADD_SUBKATEGORI_SUCCESS execute")
             setModalAddVisible(false);
-            dispatch(fetchSubKategoris());
+            dispatch(fetchSubKategoris({id_kategori:kategori?.id}, 1));
         }
     },[loading,action_type])
 
@@ -87,9 +90,15 @@ function SubKategori({kategori=null, level=null}) {
     }
 
     // Debounced filter change
-    const changeFilter = (key, value) => {
-        setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
-    };
+    const changeFilter = useCallback((key, value) => {
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
+        }
+
+        debounceTimeout.current = setTimeout(() => {
+            setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
+        }, 1500);
+    }, []);
 
     return (
             <>
@@ -147,7 +156,7 @@ function SubKategori({kategori=null, level=null}) {
                         <nav>
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item header-subtitle">Kategori Kuesioner</li>
-                                <li className="breadcrumb-item header-subtitle"><a href={`/kategori/${kategori?.id}`}>{kategori?.nama_kategori}</a></li>
+                                <li className="breadcrumb-item header-subtitle">{kategori?.nama_kategori}</li>
                                 <li className="breadcrumb-item header-subtitle">Sub Kategori</li>
                             </ol>
                         </nav>
@@ -190,7 +199,7 @@ function SubKategori({kategori=null, level=null}) {
                                                     type="text"
                                                     className="form-control"
                                                     placeholder="Nama"
-                                                    onChange={(e) => changeFilter("nama", e.target.value)}
+                                                    onChange={(e) => changeFilter("nama_sub", e.target.value)}
                                                 />
                                             </th>
                                             <th>Action</th>

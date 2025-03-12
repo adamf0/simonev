@@ -5,7 +5,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { v4 as uuidv4 } from "uuid";
 import { useDispatch, useSelector } from "react-redux";
 import { UPDATE_KUESIONER_FAILURE, UPDATE_KUESIONER_REQUEST, UPDATE_KUESIONER_SUCCESS, updateKuesioner } from "./redux/actions/kuesionerActions";
-import { format } from "date-fns";
+import parse from "html-react-parser";
+import DOMPurify from "dompurify";
 
 function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
     const dispatch = useDispatch();
@@ -144,13 +145,19 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
 
                 <div className="row">
                     {
+                        kuesioner?.bank_soal?.content.length > 0? 
+                        <div className="card col-12">
+                            <div className="card-body px-4 py-3 row gap-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parse(kuesioner?.bank_soal?.content ?? "")) }}></div>
+                        </div> : <></>
+                    }
+                    {
                         Object.entries(groupPertanyaans).map(([group, pertanyaan]) => {
                             return <div className="col-12">
                                         <div className="card flex-fill">
                                             <div className="card-header bg-primary text-white">
                                                 {renderHeaderCard(group)}
                                             </div>
-                                            <div className="crad-body px-4 py-3 row gap-2">
+                                            <div className="card-body px-4 py-3 row gap-2">
                                                 {
                                                     Object.values(pertanyaan).map((item,index) => 
                                                         <div className="col-12">
@@ -159,16 +166,29 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                 <div className="col-12">
                                                                     <ol key={item.ref} type="A">
                                                                     {
-                                                                        (item?.template_pilihan??[]).map(pilihan => 
-                                                                        <li key={pilihan.ref}>
-                                                                            <input
-                                                                                data-ref={item.ref} 
-                                                                                type={item.jenis_pilihan=="checkbox"? "checkbox":"radio"} 
-                                                                                checked={ item.selected.some(id => id === pilihan.id) } 
-                                                                                className={mode != "start"? "no-click":""}
-                                                                                name={`jawaban_pertanyaan_${item.id}`} 
-                                                                                onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan)}/> {pilihan.jawaban}
-                                                                        </li>)
+                                                                        (item?.template_pilihan??[]).map(pilihan => {
+                                                                            if(item.jenis_pilihan=="checkbox"){
+                                                                                return <li key={pilihan.ref}>
+                                                                                    <input
+                                                                                        data-ref={item.ref} 
+                                                                                        type={"checkbox"} 
+                                                                                        checked={ item.selected.some(id => id === pilihan.id) } 
+                                                                                        className={mode != "start"? "no-click":""}
+                                                                                        name={`jawaban_pertanyaan_${item.id}`} 
+                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan)}/> {pilihan.jawaban}
+                                                                                </li>
+                                                                            } 
+
+                                                                            return <li key={pilihan.ref}>
+                                                                                <input
+                                                                                    data-ref={item.ref} 
+                                                                                    type={"radio"} 
+                                                                                    checked={ item.selected.some(id => id === pilihan.id) } 
+                                                                                    className={mode != "start"? "no-click":""}
+                                                                                    name={`jawaban_pertanyaan_${item.id}`} 
+                                                                                    onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan)}/> {pilihan.jawaban}
+                                                                            </li>
+                                                                        })
                                                                     }
                                                                     </ol>
                                                                 </div>
