@@ -99,7 +99,6 @@ class TemplatePertanyaanApiController extends Controller
             $TemplatePertanyaan->bobot = $request->bobot;
             $TemplatePertanyaan->id_kategori = $request->kategori;
             $TemplatePertanyaan->id_sub_kategori = $request->subKategori;
-            dd($TemplatePertanyaan);
             $TemplatePertanyaan->save();
     
             return response()->json([
@@ -112,6 +111,7 @@ class TemplatePertanyaanApiController extends Controller
             return response()->json([
                 "message"=>"ups ada error",
                 "validation"=>[],
+                "errMessage"=>$th->getMessage(),
                 "trace"=>$th->getTrace()
             ],500);
         }
