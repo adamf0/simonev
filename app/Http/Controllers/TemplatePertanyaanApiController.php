@@ -97,14 +97,24 @@ class TemplatePertanyaanApiController extends Controller
                 $TemplatePertanyaan = TemplatePertanyaan::findOrFail($request->id);
             }
 
-            if ($TemplatePertanyaan?->jenis_pilihan !== $nowJenisPilihan && $nowJenisPilihan === "rating5") {
-                $listJawabanLama = $TemplatePertanyaan?->id_bank_soal 
-                    ? TemplatePilihan::where('id_template_soal', $TemplatePertanyaan->id_bank_soal)->get()
+            $TemplatePertanyaan->id_bank_soal = $request->id_bank_soal;
+            $TemplatePertanyaan->pertanyaan = $request->pertanyaan;
+            $TemplatePertanyaan->jenis_pilihan = $request->jenis_pilihan;
+            $TemplatePertanyaan->bobot = $request->bobot;
+            $TemplatePertanyaan->id_kategori = $request->kategori;
+            if(!empty($request->subKategori)){
+                $TemplatePertanyaan->id_sub_kategori = $request->subKategori;   
+            }
+            $TemplatePertanyaan->save();
+
+            if ($request->jenis_pilihan === "rating5") {
+                $listJawabanLama = $TemplatePertanyaan?->id 
+                    ? TemplatePilihan::where('id_template_soal', $TemplatePertanyaan->id)->get()
                     : collect([]);
             
                 if ($listJawabanLama->isEmpty()) {
                     $data = array_map(fn($i) => [
-                        'id_template_soal' => $TemplatePertanyaan?->id_bank_soal, 
+                        'id_template_soal' => $TemplatePertanyaan?->id, 
                         'jawaban' => $i,
                         'nilai' => $i,
                         'created_at' => now(),
@@ -126,17 +136,7 @@ class TemplatePertanyaanApiController extends Controller
                         }
                     }
                 }
-            }            
-
-            $TemplatePertanyaan->id_bank_soal = $request->id_bank_soal;
-            $TemplatePertanyaan->pertanyaan = $request->pertanyaan;
-            $TemplatePertanyaan->jenis_pilihan = $request->jenis_pilihan;
-            $TemplatePertanyaan->bobot = $request->bobot;
-            $TemplatePertanyaan->id_kategori = $request->kategori;
-            if(!empty($request->subKategori)){
-                $TemplatePertanyaan->id_sub_kategori = $request->subKategori;   
             }
-            $TemplatePertanyaan->save();
 
             DB::commit();
     
