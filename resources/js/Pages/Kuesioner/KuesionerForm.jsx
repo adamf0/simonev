@@ -145,7 +145,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
 
                 <div className="row">
                     {
-                        kuesioner?.bank_soal?.content.length > 0? 
+                        (kuesioner?.bank_soal?.content ?? "").length > 0? 
                         <div className="card col-12">
                             <div className="card-body px-4 py-3 row gap-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parse(kuesioner?.bank_soal?.content ?? "")) }}></div>
                         </div> : <></>
