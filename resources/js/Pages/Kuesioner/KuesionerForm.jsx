@@ -229,6 +229,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                             className={"corm-control"}
                                                                                             placeholder="masukkan jawaban lainnya"
                                                                                             name={`jawaban_pertanyaan_${item.id}_free`} 
+                                                                                            value={item?.freeText ?? ""}
                                                                                             onChange={(e)=>changePilihanFreeText(item.ref, pilihan.id, item.jenis_pilihan, e.target.value)}/>
                                                                                         </>:
                                                                                         pilihan.jawaban
