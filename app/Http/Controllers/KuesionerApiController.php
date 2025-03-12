@@ -302,12 +302,11 @@ class KuesionerApiController extends Controller
                                     ->where('id_template_pilihan', (int) $id_template_pilihan)
                                     ->first();
 
-                    dd($dataInput,$dataInput['freeText']);
                     $insertData[] = [
                         'id_kuesioner' => $id_kuesioner,
                         'id_template_pertanyaan' => $id_template_pertanyaan,
                         'id_template_jawaban' => $id_template_pilihan,
-                        'freeText' => $dataInput?->freeText,
+                        'freeText' => $dataInput['freeText'],
                         'created_at' => now(),
                         'updated_at' => now()
                     ];
