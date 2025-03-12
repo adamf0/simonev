@@ -13,7 +13,6 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
     const action_type = useSelector((state) => state.kuesioner.action_type);
     const errorMessage = useSelector((state) => state.kuesioner.error);
     const loading = useSelector((state) => state.kuesioner.loading); // Access loading state from Redux
-    const debounceTimeout = useRef(null);
 
     const [groupPertanyaans, setGroupPertanyaans] = useState(
         Object.fromEntries(
@@ -97,43 +96,37 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
         });
     }
     
-    const changePilihanFreeText = useCallback((ref, id_template_pilihan, jenis_pilihan, freeText) => {
-    if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-    }
-
-    debounceTimeout.current = setTimeout(() => {
-            setGroupPertanyaans((prev) => {
-                const newData = { ...prev };
-
-                Object.keys(newData).forEach((kategori) => {
-                    newData[kategori] = newData[kategori].map((pertanyaan) => {
-                        if (pertanyaan.ref === ref) {
-                            if (jenis_pilihan === "checkbox") {
-                                const isSelected = pertanyaan.selected.includes(id_template_pilihan);
-                                return {
-                                    ...pertanyaan,
-                                    freeText,
-                                    selected: isSelected
-                                        ? pertanyaan.selected.filter((id) => id !== id_template_pilihan)
-                                        : [...pertanyaan.selected, id_template_pilihan], 
-                                };
-                            } else {
-                                return {
-                                    ...pertanyaan,
-                                    freeText,
-                                    selected: [id_template_pilihan],
-                                };
-                            }
+    function changePilihanFreeText(ref, id_template_pilihan, jenis_pilihan, freeText){
+        setGroupPertanyaans((prev) => {
+            const newData = { ...prev };
+    
+            Object.keys(newData).forEach((kategori) => {
+                newData[kategori] = newData[kategori].map((pertanyaan) => {
+                    if (pertanyaan.ref === ref) {
+                        if (jenis_pilihan === "checkbox") {
+                            const isSelected = pertanyaan.selected.includes(id_template_pilihan);
+                            return {
+                                ...pertanyaan,
+                                freeText: freeText,
+                                selected: isSelected
+                                    ? pertanyaan.selected.filter((id) => id !== id_template_pilihan)
+                                    : [...pertanyaan.selected, id_template_pilihan], 
+                            };
+                        } else {
+                            return {
+                                ...pertanyaan,
+                                freeText: freeText,
+                                selected: [id_template_pilihan],
+                            };
                         }
-                        return pertanyaan;
-                    });
+                    }
+                    return pertanyaan;
                 });
-
-                return newData;
             });
-        }, 500); // Set debounce lebih cepat agar lebih responsif
-    }, []);
+    
+            return newData;
+        });
+    };
     
     function saveHandler() {
         const data = Object.values(groupPertanyaans) 
@@ -230,7 +223,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                             className={"corm-control"}
                                                                                             placeholder="masukkan jawaban lainnya"
                                                                                             name={`jawaban_pertanyaan_${item.id}_free`} 
-                                                                                            value={item?.freeText ?? ""}
+                                                                                            value={item?.freeText}
                                                                                             onChange={(e)=>changePilihanFreeText(item.ref, pilihan.id, item.jenis_pilihan, e.target.value)}/>
                                                                                         </>:
                                                                                         pilihan.jawaban
