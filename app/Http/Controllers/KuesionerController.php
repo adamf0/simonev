@@ -232,12 +232,17 @@ class KuesionerController extends Controller
         $pertanyaan = TemplatePertanyaan::with(['Kategori','SubKategori','TemplatePilihan'])->where('id_bank_soal',$kuesioner->id_bank_soal)->get();
         $jawaban = KuesionerJawaban::where("id_kuesioner",$kuesioner->id)->get();
 
-        $pertanyaan = $pertanyaan->map(function($item) use($jawaban){
-            $selected = $jawaban->where('id_template_pertanyaan',$item->id)->pluck('id_template_jawaban');
+        $pertanyaan = $pertanyaan->map(function($item) use($jawaban, $kuesioner){
+            $selected = $jawaban->where('id_template_pertanyaan',$item->id)->pluck('id_template_jawaban');            
             $item->selected = $selected;
+            // $item->freeText = $freeText;
             $item->pattern = $item->Kategori?->nama_kategori."||".$item->SubKategori?->nama_sub;
             unset($item->Kategori);
             unset($item->SubKategori);
+
+            if($kuesioner->id==91 && $item->id==31){
+                dd($kuesioner, $item);
+            }
 
             return $item;
         });
