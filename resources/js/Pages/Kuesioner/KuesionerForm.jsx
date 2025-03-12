@@ -180,11 +180,11 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                             }
                                                                         </ol>
                                                                         :
-                                                                        <div className="d-flex">
+                                                                        <div className="d-flex align-items-center gap-2">
                                                                             <b>Sangat Tidak Baik</b>
                                                                             {
                                                                                 (item?.template_pilihan??[]).map(pilihan => <div className="row" key={pilihan.ref}>
-                                                                                    <p>{pilihan.jawaban}</p>
+                                                                                    <center>{pilihan.jawaban}</center>
                                                                                     <input
                                                                                         data-ref={item.ref} 
                                                                                         type={"radio"} 
