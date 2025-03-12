@@ -9,6 +9,7 @@ import parse from "html-react-parser";
 import DOMPurify from "dompurify";
 
 function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
+    console.log(groupPertanyaan)
     const dispatch = useDispatch();
     const action_type = useSelector((state) => state.kuesioner.action_type);
     const errorMessage = useSelector((state) => state.kuesioner.error);
