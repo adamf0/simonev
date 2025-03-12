@@ -89,8 +89,6 @@ class TemplatePertanyaanApiController extends Controller
                 ], 400);
             }
             
-            $nowJenisPilihan = $request->jenis_pilihan;
-    
             if(empty($request->id)){
                 $TemplatePertanyaan = new TemplatePertanyaan();
             } else{
@@ -209,17 +207,31 @@ class TemplatePertanyaanApiController extends Controller
                 ], 400);
             } 
     
-            if(empty($request->id)){
-                $TemplatePilihan = new TemplatePilihan();
+            if($request->freetext==null){
+                if(empty($request->id)){
+                    $TemplatePilihan = new TemplatePilihan();
+                } else{
+                    $TemplatePilihan = TemplatePilihan::findOrFail($request->id);
+                }
+                $TemplatePilihan->id_template_soal = $request->id_template_soal;
+                if(!empty($request->id))
+                    $TemplatePilihan->jawaban = $request->jawaban;
+                if(!empty($request->id))
+                    $TemplatePilihan->nilai = $request->nilai;
+                $TemplatePilihan->save();
             } else{
-                $TemplatePilihan = TemplatePilihan::findOrFail($request->id);
+                $TemplatePilihan = TemplatePilihan::where('id_template_soal',$request->id_template_soal)
+                                        ->where('isFreeText',1)
+                                        ->first();
+                
+                if($request->freetext==1){
+                    $TemplatePilihan->id_template_soal = $request->id_template_soal;
+                    $TemplatePilihan->isFreeText = 1;
+                    $TemplatePilihan->save();
+                } else{
+                    $TemplatePilihan->delete();
+                }
             }
-            $TemplatePilihan->id_template_soal = $request->id_template_soal;
-            if(!empty($request->id))
-                $TemplatePilihan->jawaban = $request->jawaban;
-            if(!empty($request->id))
-                $TemplatePilihan->nilai = $request->nilai;
-            $TemplatePilihan->save();
     
             return response()->json([
                 "message"=>"berhasil simpan data template pilihan",

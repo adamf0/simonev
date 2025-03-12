@@ -39,11 +39,11 @@ export const fetchTemplateJawabans = (id_template_soal) => {
   };
 };
 
-export const addTemplateJawaban = (id_template_soal) => {
+export const addTemplateJawaban = (id_template_soal, freetext) => {
   return async (dispatch) => {
     dispatch({ type: ADD_TEMPLATE_JAWABAN_REQUEST });
     try {
-      const response = await axios.post(api_templateJawaban_add, { id_template_soal });
+      const response = await axios.post(api_templateJawaban_add, { id_template_soal, freetext });
       dispatch({ type: ADD_TEMPLATE_JAWABAN_SUCCESS, payload: response.data });
     } catch (error) {
       const validation = error?.response?.data?.validation;

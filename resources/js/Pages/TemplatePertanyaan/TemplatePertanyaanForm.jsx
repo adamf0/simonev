@@ -160,8 +160,11 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                 transition: Bounce,
             });
         } else{
-            dispatch(addTemplateJawaban(templatePertanyaan?.id));
+            dispatch(addTemplateJawaban(templatePertanyaan?.id, null));
         }
+    }
+    function createJawabanFreeTextHandler(event){
+        dispatch(addTemplateJawaban(templatePertanyaan?.id, event.target.checked? 1:0));
     }
     function updateJawabanHandler(id, jawaban, nilai){
         dispatch(updateTemplateJawaban(id, templatePertanyaan?.id, jawaban, nilai));
@@ -275,6 +278,13 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                 </button>
                             </div>
                             <div className="row gap-2">
+                                {
+                                    jenisPilihan=="checkbox"? 
+                                    <div className="">
+                                        <input type="checkbox" value={1} onChange={createJawabanFreeTextHandler}/> tanbah input free text
+                                    </div> : 
+                                    <></>
+                                }
                                 <ul className="list-group">
                                     {action_type_jawaban === FETCH_TEMPLATE_JAWABANS_REQUEST && <TemplateJawaban.LoadingRow />}
                                     {action_type_jawaban === FETCH_TEMPLATE_JAWABANS_FAILURE && <TemplateJawaban.ErrorRow onRefresh={()=>{}} />}
