@@ -127,10 +127,9 @@ class TemplatePertanyaanApiController extends Controller
                         $val = $index + 1;
                     
                         if ($val <= 5) {
-                            $item->update([
-                                'jawaban' => $val,
-                                'nilai' => $val
-                            ]);
+                            $item->jawaban = $val;
+                            $item->nilai = $val;
+                            $item->save();
                         } else {
                             $item->delete();
                         }
