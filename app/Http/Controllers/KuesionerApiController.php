@@ -6,6 +6,7 @@ use App\Models\BankSoal;
 use App\Models\Kuesioner;
 use App\Models\KuesionerJawaban;
 use Carbon\Exceptions\InvalidFormatException;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -250,6 +251,9 @@ class KuesionerApiController extends Controller
                     }
                 } 
 
+                if(empty($bankSoal['start_repair']) || empty($bankSoal['end_repair'])){
+                    throw new Exception("gagal medapatkan bank soal yg aktif rule");
+                }
                 $kuesioner = Kuesioner::where($kolom,$request?->target)
                                         ->where('id_bank_soal',$request?->id_bank_soal)
                                         ->whereBetween('tanggal',[$bankSoal['start_repair'], $bankSoal['end_repair']])
