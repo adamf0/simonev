@@ -45,7 +45,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listFa
     const [judul, setJudul] = useState(dataBankSoal?.judul);
     const [deskripsi, setDeskripsi] = useState(dataBankSoal?.deskripsi);
 
-    const [htmlContent, setHtmlContent] = useState(DOMPurify.sanitize(parse(dataBankSoal?.content ?? "")) || "<p></p>");
+    const [htmlContent, setHtmlContent] = useState(parse(dataBankSoal?.content ?? "") || "<p></p>");
     const blocksFromHTML = convertFromHTML(htmlContent);
     const contentState = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
     const [editorState, setEditorState] = useState(EditorState.createWithContent(contentState));
@@ -150,7 +150,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listFa
                 "end":end
             }
         };
-        dispatch(updateBankSoal(dataBankSoal.id, judul, deskripsi, peruntukan, newRule, DOMPurify.sanitize(htmlContent)));
+        dispatch(updateBankSoal(dataBankSoal.id, judul, deskripsi, peruntukan, newRule, htmlContent));
     }
 
     function renderOptionListTarget(target) {
