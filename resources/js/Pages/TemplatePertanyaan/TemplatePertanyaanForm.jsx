@@ -10,6 +10,7 @@ import TemplateJawaban from "../TemplateJawaban/TemplateJawaban";
 
 function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKategori = [], level=null, hasFreeText=false}) {
     const dispatch = useDispatch();
+    const [hasFree, setHasFree] = useState(hasFreeText);
     const action_type_pertanyaan = useSelector((state) => state.templatePertanyaan.action_type);
     const loading_pertanyaan = useSelector((state) => state.templatePertanyaan.loading); 
     const errorMessage_pertanyaan = useSelector((state) => state.templatePertanyaan.error);
@@ -185,6 +186,12 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
         dispatch(setTemplateJawabans(update));
     };
     
+    useEffect(()=>{
+        if(templateJawabans!=null && templateJawabans.length>0){
+            const check = templateJawabans.filter(jawaban => jawaban.isFreeText == 1);
+            setHasFree(check.length>0);
+        }
+    },[templateJawabans])
     return (
         <>
             <Layout level={level}>
@@ -281,7 +288,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                 {
                                     jenisPilihan=="checkbox"? 
                                     <div className="">
-                                        <input type="checkbox" checked={hasFreeText} value={1} onChange={createJawabanFreeTextHandler}/> tambah input free text
+                                        <input type="checkbox" checked={hasFree} value={1} onChange={createJawabanFreeTextHandler}/> tambah input free text
                                     </div> : 
                                     <></>
                                 }
