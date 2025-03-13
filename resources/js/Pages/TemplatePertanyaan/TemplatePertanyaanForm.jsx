@@ -188,8 +188,8 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
     
     useEffect(()=>{
         console.log(templateJawabans)
-        if(templateJawabans!=null && templateJawabans.length>0){
-            const check = templateJawabans.filter(jawaban => jawaban.isFreeText == 1);
+        if(templateJawabans!=null && templateJawabans.record.length>0){
+            const check = templateJawabans.record.filter(jawaban => jawaban.isFreeText == 1);
             console.log(check)
             setHasFree(check.length>0);
         }
