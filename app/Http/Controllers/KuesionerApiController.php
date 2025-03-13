@@ -345,7 +345,8 @@ class KuesionerApiController extends Controller
             return response()->json([
                 "message"=>"ups ada error",
                 "validation"=>[],
-                "trace"=>$th->getTrace()
+                "trace"=>$th->getTrace(),
+                "messagetrace"=>$th->getMessage(),
             ],500);
         }
     }
