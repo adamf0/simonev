@@ -8,9 +8,8 @@ import { fetchTemplateJawabans, addTemplateJawaban, deleteTemplateJawaban, ADD_T
 import { useDispatch, useSelector } from "react-redux";
 import TemplateJawaban from "../TemplateJawaban/TemplateJawaban";
 
-function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKategori = [], level=null, hasFreeText=false}) {
+function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKategori = [], level=null}) {
     const dispatch = useDispatch();
-    const [hasFree, setHasFree] = useState(hasFreeText);
     const action_type_pertanyaan = useSelector((state) => state.templatePertanyaan.action_type);
     const loading_pertanyaan = useSelector((state) => state.templatePertanyaan.loading); 
     const errorMessage_pertanyaan = useSelector((state) => state.templatePertanyaan.error);
@@ -164,7 +163,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
             dispatch(addTemplateJawaban(templatePertanyaan?.id, null));
         }
     }
-    function createJawabanFreeTextHandler(event){
+    function createJawabanFreeTextHandler(){
         dispatch(addTemplateJawaban(templatePertanyaan?.id, 1));//event.target.checked
     }
     function updateJawabanHandler(id, jawaban, nilai){
@@ -185,15 +184,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
         );
         dispatch(setTemplateJawabans(update));
     };
-    
-    useEffect(()=>{
-        console.log(templateJawabans)
-        if(templateJawabans!=null && templateJawabans.record.length>0){
-            const check = templateJawabans.record.filter(jawaban => jawaban.isFreeText == 1);
-            console.log(check)
-            setHasFree(check.length>0);
-        }
-    },[templateJawabans])
+
     return (
         <>
             <Layout level={level}>
@@ -290,7 +281,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                 {
                                     jenisPilihan=="checkbox"? 
                                     <div className="">
-                                        <input type="checkbox" checked={hasFree} value={1} disabled={action_type_jawaban != FETCH_TEMPLATE_JAWABANS_SUCCESS} onChange={createJawabanFreeTextHandler}/> tambah input free text
+                                        <button className="btn btn-primary btn-sm" disabled={action_type_jawaban != FETCH_TEMPLATE_JAWABANS_SUCCESS} onChange={createJawabanFreeTextHandler}>tambah input free text</button>
                                     </div> : 
                                     <></>
                                 }
