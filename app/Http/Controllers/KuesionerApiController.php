@@ -241,9 +241,9 @@ class KuesionerApiController extends Controller
 
                 $kuesioner = Kuesioner::where($kolom,$request?->target)
                                         ->where('id_bank_soal',$request?->id_bank_soal)
-                                        ->whereBetween('tanggal',[$bankSoal['start_repair'], $bankSoal['end_repair']])
-                                        ->first();
+                                        ->whereBetween('tanggal',[$bankSoal['start_repair'], $bankSoal['end_repair']]);
 
+                                        dd($kuesioner->toRawSql(), $kuesioner->first());
                 $now = strtotime(now());
                 $uStart = strtotime($bankSoal['start_repair']." 00:00:00");
                 $uEnd = strtotime($bankSoal['end_repair']." 23:59:59");
