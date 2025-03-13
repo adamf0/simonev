@@ -67,7 +67,10 @@ TemplateJawaban.ListRow = ({ templateJawabans, loadingJawaban, updateJawabanHand
                                 {loadingJawaban ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : null}
                                 {!loadingJawaban? <i class="bi bi-check-circle"></i>:<></>}
                             </button>
-                            <button 
+                            </> : 
+                            <></>
+                        }
+                        <button 
                                 className="btn btn-outline-danger d-flex align-items-center gap-2" 
                                 type="button" 
                                 disabled={loadingJawaban} 
@@ -76,9 +79,6 @@ TemplateJawaban.ListRow = ({ templateJawabans, loadingJawaban, updateJawabanHand
                                 {loadingJawaban ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : null}
                                 {!loadingJawaban? <i class="bi bi-x-circle"></i>:<></>}
                             </button>
-                            </> : 
-                            <></>
-                        }
                     </div>
                 </div>
             </li>
