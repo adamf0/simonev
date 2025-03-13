@@ -165,7 +165,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
         }
     }
     function createJawabanFreeTextHandler(event){
-        dispatch(addTemplateJawaban(templatePertanyaan?.id, event.target.checked? 1:0));
+        dispatch(addTemplateJawaban(templatePertanyaan?.id, 1));//event.target.checked
     }
     function updateJawabanHandler(id, jawaban, nilai){
         dispatch(updateTemplateJawaban(id, templatePertanyaan?.id, jawaban, nilai));
@@ -290,7 +290,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                 {
                                     jenisPilihan=="checkbox"? 
                                     <div className="">
-                                        <input type="checkbox" checked={hasFree} value={1} onChange={createJawabanFreeTextHandler}/> tambah input free text
+                                        <input type="checkbox" checked={hasFree} value={1} disabled={action_type_jawaban != FETCH_TEMPLATE_JAWABANS_SUCCESS} onChange={createJawabanFreeTextHandler}/> tambah input free text
                                     </div> : 
                                     <></>
                                 }
