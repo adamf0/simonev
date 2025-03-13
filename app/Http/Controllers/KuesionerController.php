@@ -227,6 +227,14 @@ class KuesionerController extends Controller
                 $kuesioner->start_repair = $kuesioner->BankSoal['rule']['generate']['start'];
                 $kuesioner->end_repair = $kuesioner->BankSoal['rule']['generate']['end'];
             }
+        } else if(in_array($kuesioner->BankSoal['rule']['type'],["spesific","all"]) && $kuesioner->BankSoal['rule']['target_type']==null && in_array($unit,$kuesioner->BankSoal['rule']['target_list'])){
+            if($kuesioner->BankSoal['rule']['generate']['type']=="recursive"){
+                $kuesioner->start_repair = $start;
+                $kuesioner->end_repair = $end;
+            } else if($kuesioner->BankSoal['rule']['generate']['type']=="once"){
+                $kuesioner->start_repair = $kuesioner->BankSoal['rule']['generate']['start'];
+                $kuesioner->end_repair = $kuesioner->BankSoal['rule']['generate']['end'];
+            }
         } 
 
         $pertanyaan = TemplatePertanyaan::with(['Kategori','SubKategori','TemplatePilihan'])->where('id_bank_soal',$kuesioner->id_bank_soal)->get();

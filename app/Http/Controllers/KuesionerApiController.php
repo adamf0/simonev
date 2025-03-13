@@ -237,6 +237,17 @@ class KuesionerApiController extends Controller
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
                     }
+                } else if(in_array($bankSoal['rule']['type'], ["spesific","all"]) && $bankSoal['rule']['target_type']==null && (in_array("all",$bankSoal['rule']['target_list']) || in_array($request->target,$bankSoal['rule']['target_list'])) ){
+                    if($bankSoal['rule']['generate']['type']=="recursive"){
+                        $start = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['start'],"slug"));
+                        $end = date($this->replaceDateFormatIfEndDate($bankSoal->rule['generate']['end'],"slug"));
+
+                        $bankSoal['start_repair'] = $start;
+                        $bankSoal['end_repair'] = $end;
+                    } else if($bankSoal['rule']['generate']['type']=="once"){
+                        $bankSoal['start_repair'] = $start;
+                        $bankSoal['end_repair'] = $end;
+                    }
                 } 
 
                 $kuesioner = Kuesioner::where($kolom,$request?->target)
