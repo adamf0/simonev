@@ -11,8 +11,6 @@ class KategoriApiController extends Controller
 {
     public function listKategori(Request $request)
     {
-        sleep(3);
-
         $query = Kategori::query();
 
         if ($request->filled('nama_kategori')) {
@@ -30,7 +28,7 @@ class KategoriApiController extends Controller
     }
 
     public function delete(Request $request){
-        sleep(3);
+        
         
         try {
             Kategori::whereIn('id',$request->id)->delete();

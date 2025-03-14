@@ -18,7 +18,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
 
     const [pertanyaan, setPertanyaan] = useState(templatePertanyaan?.pertanyaan);
     const [jenisPilihan, setJenisPilihan] = useState(templatePertanyaan?.jenis_pilihan);
-    const [bobot, setBobot] = useState(templatePertanyaan?.bobot);
+    const [bobot, setBobot] = useState(1);
     const [kategori, setKategori] = useState(templatePertanyaan?.id_kategori);
     const [subKategori, setSubKategori] = useState(templatePertanyaan?.id_sub_kategori);
     const [listSubKategori, setListSubKategori] = useState([]);
@@ -144,7 +144,8 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
     }
 
     function countEmptyJawabanInput() {
-        return (templateJawabans?.record ?? []).filter(item => (item.jawaban=="" || item.nilai=="") || (item.jawaban==null || item.nilai==null) || (item.jawaban==undefined || item.nilai==undefined) ).length;
+        console.log(templateJawabans?.record)
+        return (templateJawabans?.record ?? []).filter(item => (item.jawaban=="" && item.isFreeText==0) || (item.jawaban==null && item.isFreeText==null) || (item.jawaban==undefined && item.isFreeText==undefined) ).length;
     }    
     function createJawabanHandler(){
         if(countEmptyJawabanInput()){
@@ -167,7 +168,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
         dispatch(addTemplateJawaban(templatePertanyaan?.id, 1));//event.target.checked
     }
     function updateJawabanHandler(id, jawaban, nilai){
-        dispatch(updateTemplateJawaban(id, templatePertanyaan?.id, jawaban, nilai));
+        dispatch(updateTemplateJawaban(id, templatePertanyaan?.id, jawaban, 1));
     }
     function deleteJawabanHandler(id) {
         dispatch(deleteTemplateJawaban(id)); // Dispatch delete action
@@ -225,11 +226,11 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                     <ErrorList errors={validation_pertanyaan?.jenisPilihan} />
                                 </div>
 
-                                <div className="form-floating">
+                                {/* <div className="form-floating">
                                     <input type="number" className="form-control" step={0.1} value={bobot} onChange={(e)=>changeBobot(e.target.value)}/>
                                     <label htmlFor="floatingInput">Bobot <b className="text-danger">*</b></label>
                                     <ErrorList errors={validation_pertanyaan?.bobot} />
-                                </div>
+                                </div> */}
 
                                 <div className="form-floating">
                                     <select className="form-select" id="jenisKategoriSelect" value={kategori} onChange={(e)=>changeKategori(e.target.value)}>
@@ -249,7 +250,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                         listSubKategori.map(lsk => <option value={lsk.id} selected={lsk.id==subKategori}>{lsk.nama_sub}</option>)
                                     }
                                     </select>
-                                    <label htmlFor="jenisSubKategoriSelect">Sub Kategori <b className="text-danger">*</b></label>
+                                    <label htmlFor="jenisSubKategoriSelect">Sub Kategori</label>
                                     <ErrorList errors={validation_pertanyaan?.subKategori} />
                                 </div>
 

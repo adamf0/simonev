@@ -10,8 +10,6 @@ class PenggunaApiController extends Controller
 {
     public function listPengguna(Request $request)
     {
-        sleep(3);
-
         $query = User::select('id','name','username','level');
 
         if ($request->filled('nama')) {
@@ -34,7 +32,7 @@ class PenggunaApiController extends Controller
 
 
     public function delete(Request $request){
-        sleep(3);
+        
         
         try {
             User::whereIn('id',$request->id)->delete();

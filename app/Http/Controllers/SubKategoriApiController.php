@@ -11,8 +11,6 @@ class SubKategoriApiController extends Controller
 {
     public function listSubKategori(Request $request)
     {
-        sleep(3);
-
         $query = SubKategori::query()->where('id_kategori',$request->id_kategori);
 
         if ($request->filled('nama_sub')) {
@@ -30,7 +28,7 @@ class SubKategoriApiController extends Controller
     }
 
     public function delete(Request $request){
-        sleep(3);
+        
         
         try {
             SubKategori::whereIn('id',$request->id)->delete();

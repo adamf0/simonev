@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/', [AuthController::class, 'index']);
-Route::post('/propagation', [AuthController::class, 'propagation'])->name('propagation');
+Route::get('/propagation', [AuthController::class, 'propagation'])->name('propagation');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -27,6 +27,7 @@ Route::get('/pengguna/{id}/edit', [PenggunaController::class,"penggunaEdit"])->n
 
 Route::get('/bankSoal', [BankSoalController::class,"bankSoal"])->name('bankSoal');
 Route::get('/bankSoal/{id_bank_soal}/edit', [BankSoalController::class,"bankSoalEdit"])->name('bankSoal.edit');
+Route::get('/bankSoal/{id_bank_soal}/preview', [BankSoalController::class,"bankSoalPreview"])->name('bankSoal.preview');
 
 Route::get('/bankSoal/{id_bank_soal}/pertanyaan', [TemplatePertanyaanController::class,"pertanyaan"])->name('pertanyaan');
 Route::get('/bankSoal/{id_bank_soal}/pertanyaan/add', [TemplatePertanyaanController::class,"pertanyaanAdd"])->name('pertanyaan.add');

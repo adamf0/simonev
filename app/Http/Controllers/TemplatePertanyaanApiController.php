@@ -13,8 +13,6 @@ class TemplatePertanyaanApiController extends Controller
 {
     public function listTemplatePertanyaan(Request $request)
     {
-        sleep(3);
-
         $query = TemplatePertanyaan::select('template_pertanyaan.*','kategori.nama_kategori','sub_kategori.nama_sub')
                                     ->leftJoin('kategori','template_pertanyaan.id_kategori','=','kategori.id')
                                     ->leftJoin('sub_kategori','template_pertanyaan.id_sub_kategori','=','sub_kategori.id');
@@ -46,7 +44,7 @@ class TemplatePertanyaanApiController extends Controller
         ]);
     }
     public function delete(Request $request){
-        sleep(3);
+        
         
         try {
             TemplatePertanyaan::whereIn('id',$request->id)->delete();
@@ -66,8 +64,6 @@ class TemplatePertanyaanApiController extends Controller
         }
     }
     public function save(Request $request){
-        sleep(3);
-
         DB::beginTransaction();
         try {
             $validator      = validator(
@@ -156,8 +152,6 @@ class TemplatePertanyaanApiController extends Controller
 
     public function listTemplatePilihan($id_template_soal, Request $request)
     {
-        sleep(3);
-
         $query = TemplatePilihan::query();
 
         $query->where('id_template_soal', $id_template_soal);
@@ -187,8 +181,6 @@ class TemplatePertanyaanApiController extends Controller
         return $query->get();
     }
     public function savePilihan(Request $request){
-        sleep(3);
-
         try {
             $validator      = validator(
                 $request->all(),
@@ -250,7 +242,7 @@ class TemplatePertanyaanApiController extends Controller
         }
     }
     public function deletePilihan(Request $request){
-        sleep(3);
+        
         
         try {
             TemplatePilihan::where('id',$request->id)->delete();

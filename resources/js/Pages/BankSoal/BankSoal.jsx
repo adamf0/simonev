@@ -93,6 +93,10 @@ function BankSoal({level=null}) {
         window.location.href = `/bankSoal/${id}/pertanyaan`;
     }
 
+    function previewPertanyaan(id) {
+        window.location.href = `/bankSoal/${id}/preview`;
+    }
+
     function openCopy(id, judul) {
         setJudul(judul);
         setCopyJudul(judul);
@@ -300,6 +304,7 @@ function BankSoal({level=null}) {
                                             changeStatusHandler={changeStatusHandler}
                                             openPertanyaan={openPertanyaan}
                                             openCopy={openCopy}
+                                            previewPertanyaan={previewPertanyaan}
                                     />
                                 </table>
 
@@ -319,7 +324,7 @@ function BankSoal({level=null}) {
     );
 }
 
-BankSoal.BankSoalsBody = ({ action_type, bankSoals, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy }) => {
+BankSoal.BankSoalsBody = ({ action_type, bankSoals, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan }) => {
     if (action_type === FETCH_BANK_SOALS_REQUEST) {
         return <BankSoal.LoadingRow />;
     } else if (action_type === FETCH_BANK_SOALS_FAILURE) {
@@ -337,13 +342,14 @@ BankSoal.BankSoalsBody = ({ action_type, bankSoals, loading, changeSelected, ope
                         changeStatusHandler={changeStatusHandler}
                         openPertanyaan={openPertanyaan}
                         openCopy={openCopy}
+                        previewPertanyaan={previewPertanyaan}
                     />
                 ))}
             </tbody>
         );
     }
 };
-BankSoal.BankSoalsRow = ({ item, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy }) => { 
+BankSoal.BankSoalsRow = ({ item, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan }) => { 
     function renderAturan(item){
         let output = [<span class="badge bg-secondary">{item.peruntukan}</span>];
         if(item.rule!=null || rule!="" || rule!="{}" || rule!=undefined){
@@ -405,6 +411,9 @@ BankSoal.BankSoalsRow = ({ item, loading, changeSelected, openEdit, changeStatus
                     </button>
                     <button className="btn" disabled={loading} onClick={() => openPertanyaan(item.id)}>
                         <i className="bi bi-arrow-right-circle text-black" style={{ fontSize: "1.2rem" }}></i>
+                    </button>
+                    <button className="btn" disabled={loading} onClick={() => previewPertanyaan(item.id)}>
+                        <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                 </div>
             </td>

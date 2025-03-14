@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\AkunSimak;
 use App\Models\BankSoal;
 use App\Models\Fakultas;
+use App\Models\KuesionerJawaban;
 use App\Models\Pengangkatan;
 use App\Models\Prodi;
+use App\Models\TemplatePertanyaan;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -32,5 +34,24 @@ class BankSoalController extends Controller
         $unit = Pengangkatan::select('unit_kerja')->distinct()->get();
 
         return Inertia::render('BankSoal/BankSoalForm', ['typeEvent' => "Edit", "dataBankSoal"=>$data, "listUnit"=>$unit, "listFakultas"=>$fakultas, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa, "level"=>session()->get('level')]);
+    }
+
+    public function bankSoalPreview($id_bank_soal)
+    {
+        $bankSoal = BankSoal::findOrFail($id_bank_soal);
+        $pertanyaan = TemplatePertanyaan::with(['Kategori','SubKategori','TemplatePilihan'])->where('id_bank_soal',$id_bank_soal)->get();
+        $pertanyaan = $pertanyaan->map(function($item){
+            $freeText = $item->TemplatePilihan->where('isFreeText',1)->count();
+
+            $item->freeText = $freeText>0;
+            $item->pattern = $item->Kategori?->nama_kategori."||".$item->SubKategori?->nama_sub;
+            unset($item->Kategori);
+            unset($item->SubKategori);
+
+            return $item;
+        });
+        $groupPertanyaan = $pertanyaan->groupBy("pattern");
+
+        return Inertia::render('BankSoal/BankSoalPreview', ['bankSoal'=>$bankSoal, 'groupPertanyaan'=>$groupPertanyaan, "level"=>session()->get('level')]);
     }
 }

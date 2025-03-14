@@ -15,8 +15,6 @@ class BankSoalApiController extends Controller
 {
     public function listBankSoal(Request $request)
     {
-        sleep(3);
-
         $query = BankSoal::query()->where('hide', 0);
 
         if ($request->filled('judul')) {
@@ -52,8 +50,6 @@ class BankSoalApiController extends Controller
 
 
     public function status($id,$status){
-        sleep(3);
-
         try {
             $bankSoal = BankSoal::findOrFail($id);
             $bankSoal->status = $status;
@@ -73,7 +69,7 @@ class BankSoalApiController extends Controller
         }
     }
     public function delete(Request $request){
-        sleep(3);
+        
         
         try {
             BankSoal::whereIn('id',$request->id)->delete();
@@ -172,7 +168,7 @@ class BankSoalApiController extends Controller
     }
     public function copy(Request $request)
     {
-        sleep(3);
+        
         DB::beginTransaction();
         try {
             // Validasi input

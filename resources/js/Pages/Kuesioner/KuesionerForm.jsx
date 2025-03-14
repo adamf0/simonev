@@ -206,9 +206,9 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                 <div className="col-12">
                                                                     {
                                                                         item.jenis_pilihan=="checkbox" || item.jenis_pilihan=="radio"?
-                                                                        <ol key={item.ref} type="A">
+                                                                        <ol key={item.ref} className="list-group list-group-flush">
                                                                             {
-                                                                                (item?.template_pilihan??[]).map(pilihan => <li key={pilihan.ref}>
+                                                                                (item?.template_pilihan??[]).map(pilihan => <li className="list-group-item" key={pilihan.ref}>
                                                                                     <input
                                                                                         data-ref={item.ref} 
                                                                                         type={item.jenis_pilihan=="checkbox"? "checkbox":"radio"} 
@@ -216,6 +216,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                         className={mode != "start"? "no-click":""}
                                                                                         name={`jawaban_pertanyaan_${item.id}`} 
                                                                                         onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, pilihan.isFreeText==1? item?.freeText:null)}/> 
+                                                                                    &nbsp; &nbsp;
                                                                                     {
                                                                                         pilihan.isFreeText?
                                                                                         <>
@@ -234,7 +235,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                         </ol>
                                                                         :
                                                                         <div className="d-flex align-items-center gap-2">
-                                                                            <b>Sangat Tidak Baik</b>
+                                                                            <b>Sangat Tidak Baik</b>&nbsp;
                                                                             {
                                                                                 (item?.template_pilihan??[]).map(pilihan => <div className="row" key={pilihan.ref}>
                                                                                     <center>{pilihan.jawaban}</center>
@@ -247,7 +248,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                         onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, null)}/>
                                                                                 </div>)
                                                                             }
-                                                                            <b>Sangat Baik</b>
+                                                                            &nbsp;<b>Sangat Baik</b>
                                                                         </div>
                                                                     }
                                                                 </div>

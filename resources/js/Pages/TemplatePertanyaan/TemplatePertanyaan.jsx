@@ -183,7 +183,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
                                                 />
                                             </th>
                                             <th>Jenis Pilihan</th>
-                                            <th>Bobot</th>
+                                            {/* <th>Bobot</th> */}
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -247,7 +247,7 @@ TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, chan
             <span className="badge bg-success">{item.jenis_pilihan=="rating5"? "5 rating":item.jenis_pilihan}</span>
         </td>
         <td>
-            <span className="badge bg-success">{item.bobot}</span>
+            {/* <span className="badge bg-success">{item.bobot}</span> */}
         </td>
         <td>
             <div className="d-flex justify-content-center gap-2">

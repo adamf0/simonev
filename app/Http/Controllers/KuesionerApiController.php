@@ -13,6 +13,13 @@ use Inertia\Inertia;
 
 class KuesionerApiController extends Controller
 {
+    function isDateBetween($date, $startDate, $endDate) {
+        $date = strtotime($date);
+        $startDate = strtotime($startDate);
+        $endDate = strtotime($endDate);
+    
+        return ($date >= $startDate || $date <= $endDate);
+    }
     function replaceDateFormatIfEndDate($date, $slug="", $yearValue=null){
         $split = explode("-",$date);
         if(count($split)<3) throw new InvalidFormatException("format tanggal $slug tidak valid");
@@ -31,8 +38,6 @@ class KuesionerApiController extends Controller
     
     public function listKuesioner(Request $request)
     {
-        sleep(3);
-
         $results = DB::table('kuesioner')
                         ->selectRaw(
                             "
@@ -48,100 +53,118 @@ class KuesionerApiController extends Controller
                             END) as peruntukan"
                         );
 
-                    if ($request->filled("bank_soal")) {
-                        $results = $results->where('bank_soal.judul', $request->bank_soal);
-                    }
+        if ($request->filled("bank_soal")) {
+            $results = $results->where('bank_soal.judul', $request->bank_soal);
+        }
 
-                    if ($request->filled("peruntukan")) {
-                        $kolom = match($request->peruntukan){
-                            "dosen"=>"nidn",
-                            "tendik"=>"nip",
-                            default=>"npm",
-                        };
-                        $results = $results->whereNotNull("kuesioner.$kolom");
-                    }
+        if ($request->filled("peruntukan")) {
+            $kolom = match($request->peruntukan){
+                "dosen"=>"nidn",
+                "tendik"=>"nip",
+                default=>"npm",
+            };
+            $results = $results->whereNotNull("kuesioner.$kolom");
+        }
 
-                    if ($request->filled("data")) {
-                        $kolom = match($request->peruntukan){
-                            "dosen"=>"nidn",
-                            "tendik"=>"nip",
-                            default=>"npm",
-                        };
-                        $results = $results->where("kuesioner.$kolom", $request->data);
-                    }
+        if ($request->filled("data")) {
+            $kolom = match($request->peruntukan){
+                "dosen"=>"nidn",
+                "tendik"=>"nip",
+                default=>"npm",
+            };
+            $results = $results->where("kuesioner.$kolom", $request->data);
+        }
 
-                    $results = $results->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
-                        ->orderByDesc('kuesioner.tanggal')
-                        ->paginate(5);
+        $results = $results->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
+            ->orderByDesc('kuesioner.tanggal')
+            ->get();
 
-                    $results->getCollection()->transform(function ($item) use($request){
-                        $yearEntry = date('Y', strtotime($item->tanggal));
-                        $item->rule = json_decode($item->rule, true);
+        $results = $results->transform(function ($item) use($request){
+                            $yearEntry = date('Y', strtotime($item->tanggal));
+                            $item->rule = json_decode($item->rule, true);
 
-                        $now = date('Y-m-d');
-                        $start = $item->rule['generate']['start'];
-                        $end = $item->rule['generate']['end'];
-                        $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") || strtotime($now) <= strtotime($end." 23:59:59");
+                            $now = date('Y-m-d');
+                            $start = $item->rule['generate']['start'];
+                            $end = $item->rule['generate']['end'];
+                            $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") || strtotime($now) <= strtotime($end." 23:59:59");
 
-                        if($item->rule['type']=="spesific" && $item->rule['target_type']=="npm" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
-                            if($item->rule['generate']['type']=="recursive"){
-                                $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                                $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
-                                
-                                $item->start_repair = $start;
-                                $item->end_repair = $end;
-                                $item->open_edit = date('Y', strtotime($now))==$yearEntry && (strtotime($now) >= strtotime($start." 00:00:00") || strtotime($now) <= strtotime($end." 23:59:59"));
+                            if($item->rule['type']=="spesific" && $item->rule['target_type']=="npm" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
+                                if($item->rule['generate']['type']=="recursive"){
+                                    $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                                    $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+                                    
+                                    $item->start_repair = $start;
+                                    $item->end_repair = $end;
+                                } else if($item->rule['generate']['type']=="once"){
+                                    $item->start_repair = $item->rule['generate']['start'];
+                                    $item->end_repair = $item->rule['generate']['end'];
+                                }
+                            } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="prodi" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
+                                if($item->rule['generate']['type']=="recursive"){
+                                    $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                                    $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+
+                                    $item->start_repair = $start;
+                                    $item->end_repair = $end;
+                                } else if($item->rule['generate']['type']=="once"){
+                                    $item->start_repair = $item->rule['generate']['start'];
+                                    $item->end_repair = $item->rule['generate']['end'];
+                                }
+                            } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="fakultas" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
+                                if($item->rule['generate']['type']=="recursive"){
+                                    $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                                    $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+
+                                    $item->start_repair = $start;
+                                    $item->end_repair = $end;
+                                } else if($item->rule['generate']['type']=="once"){
+                                    $item->start_repair = $item->rule['generate']['start'];
+                                    $item->end_repair = $item->rule['generate']['end'];
+                                }
+                            } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="unit" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
+                                if($item->rule['generate']['type']=="recursive"){
+                                    $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                                    $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+
+                                    $item->start_repair = $start;
+                                    $item->end_repair = $end;
+                                } else if($item->rule['generate']['type']=="once"){
+                                    $item->start_repair = $item->rule['generate']['start'];
+                                    $item->end_repair = $item->rule['generate']['end'];
+                                }
+                            } else if($item->rule['type']=="all"){
+                                if($item->rule['generate']['type']=="recursive"){
+                                    $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                                    $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+
+                                    $item->start_repair = $start;
+                                    $item->end_repair = $end;
+                                } else if($item->rule['generate']['type']=="once"){
+                                    $item->start_repair = $item->rule['generate']['start'];
+                                    $item->end_repair = $item->rule['generate']['end'];
+                                }
                             }
-                        } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="prodi" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
-                            if($item->rule['generate']['type']=="recursive"){
-                                $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                                $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+                            
+                            return $item;
+                        })
+                        ->filter(fn($item)=> strtotime(now()) >= strtotime($item->start_repair." 00:00:00") && strtotime(now()) <= strtotime($item->end_repair." 23:59:59"))
+                        ->values();
 
-                                $item->start_repair = $start;
-                                $item->end_repair = $end;
-                                $item->open_edit = date('Y', strtotime($now))==$yearEntry && (strtotime($now) >= strtotime($start." 00:00:00") || strtotime($now) <= strtotime($end." 23:59:59"));
-                            }
-                        } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="fakultas" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
-                            if($item->rule['generate']['type']=="recursive"){
-                                $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                                $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+        $perPage = 5;
+        $currentPage = $request?->page ?? 1;
+        $currentPage = $currentPage <= 0? 1:$currentPage;
 
-                                $item->start_repair = $start;
-                                $item->end_repair = $end;
-                                $item->open_edit = date('Y', strtotime($now))==$yearEntry && (strtotime($now) >= strtotime($start." 00:00:00") || strtotime($now) <= strtotime($end." 23:59:59"));
-                            }
-                        } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="unit" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
-                            if($item->rule['generate']['type']=="recursive"){
-                                $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                                $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
-
-                                $item->start_repair = $start;
-                                $item->end_repair = $end;
-                                $item->open_edit = date('Y', strtotime($now))==$yearEntry && (strtotime($now) >= strtotime($start." 00:00:00") || strtotime($now) <= strtotime($end." 23:59:59"));
-                            }
-                        } else if($item->rule['type']=="all"){
-                            if($item->rule['generate']['type']=="recursive"){
-                                $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                                $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
-
-                                $item->start_repair = $start;
-                                $item->end_repair = $end;
-                                $item->open_edit = date('Y', strtotime($now))==$yearEntry && (strtotime($now) >= strtotime($start." 00:00:00") || strtotime($now) <= strtotime($end." 23:59:59"));
-                            }
-                        }
-                        
-                        return $item;
-                    });
+        $currentPageResults = $results->forPage($currentPage, $perPage);
 
         return response()->json([
-            'data' => $results->items(),
-            'currentPage' => $results->currentPage(),
-            'total' => $results->total(),
-            'lastPage' => $results->lastPage(),
+            'data' => $currentPageResults,
+            'currentPage' => (int) $currentPage,
+            'total' => $results->count(),
+            'lastPage' => ceil($results->count() / $perPage),
         ]);
     }
     public function delete(Request $request){
-        sleep(3);
+        
         
         try {
             Kuesioner::whereIn('id',$request->id)->delete();
@@ -160,7 +183,7 @@ class KuesionerApiController extends Controller
         }
     }
     public function save(Request $request){
-        // sleep(3);
+        // 
         DB::beginTransaction();
 
         try {
@@ -354,5 +377,132 @@ class KuesionerApiController extends Controller
                 "messagetrace"=>$th->getMessage(),
             ],500);
         }
+    }
+    public function ListKuesionerActive(Request $request)
+    {
+        $peruntukan = $request->get('level');
+        $fakultas = $request->get('fakultas');
+        $prodi = $request->get('prodi');
+        $unit = $request->get('unit');
+        $target = match($peruntukan){
+            'mahasiswa'=>$request->get('npm'),
+            'dosen'=>$request->get('nidn'),
+            default=>$request->get('nip'),
+        };
+
+        $bankSoal = BankSoal::select('id','judul','deskripsi','peruntukan', 'rule', 'status')
+                            ->where('peruntukan',$peruntukan)
+                            ->where('status','active')
+                            ->where('hide','0')
+                            ->get()->transform(function($item){
+                                $item->rule = json_decode($item->rule);
+                                return $item;
+                            });
+        
+        $now = date('Y-m-d');
+        $filter = collect([]);
+        foreach($bankSoal as $item){
+            $start = date($this->replaceDateFormatIfEndDate($item->rule->generate->start,"slug"));
+            $end = date($this->replaceDateFormatIfEndDate($item->rule->generate->end,"slug"));
+
+            $item->start_repair = $item->rule->generate->start;
+            $item->end_repair = $item->rule->generate->end;
+
+            if($item->rule->type=="spesific" && $item->rule->target_type=="npm" && (in_array("all",$item->rule->target_list) || in_array($target,$item->rule->target_list)) ){
+                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
+                    $filter->add($item);
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                    $item->start_repair = $start;
+                    $item->end_repair = $end;
+                    $filter->add($item);
+                } 
+                else if($item->rule->generate->type=="nolimit"){
+                    $filter->add($item);
+                }
+            } else if($item->rule->type=="spesific" && $item->rule->target_type=="prodi" && (in_array("all",$item->rule->target_list) || in_array($prodi,$item->rule->target_list)) ){
+                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
+                    $filter->add($item);
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                    $item->start_repair = $start;
+                    $item->end_repair = $end;
+                    $filter->add($item);
+                } 
+                else if($item->rule->generate->type=="nolimit"){
+                    $filter->add($item);
+                }
+            } else if($item->rule->type=="spesific" && $item->rule->target_type=="fakultas" && (in_array("all",$item->rule->target_list) || in_array($fakultas,$item->rule->target_list)) ){
+                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
+                    $filter->add($item);
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                    $item->start_repair = $start;
+                    $item->end_repair = $end;
+                    $filter->add($item);
+                } 
+                else if($item->rule->generate->type=="nolimit"){
+                    $filter->add($item);
+                }
+            } else if($item->rule->type=="spesific" && $item->rule->target_type=="unit" && (in_array("all",$item->rule->target_list) || in_array($unit,$item->rule->target_list)) ){
+                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
+                    $filter->add($item);
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                    $item->start_repair = $start;
+                    $item->end_repair = $end;
+                    $filter->add($item);
+                } 
+                else if($item->rule->generate->type=="nolimit"){
+                    $filter->add($item);
+                }
+            } else if($item->rule->type=="all"){
+                if($item->rule->generate->type=="once" && $this->isDateBetween(date('Y-m-d'), $item->rule->generate->start, $item->rule->generate->end)){
+                    $filter->add($item);
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                    $item->start_repair = $start;
+                    $item->end_repair = $end;
+                    $filter->add($item);
+                } 
+                else if($item->rule->generate->type=="nolimit"){
+                    $filter->add($item);
+                }
+            }
+        }
+        $bankSoal = $filter->filter(function($items) use($now){
+            return strtotime($now) >= strtotime($items->start_repair." 00:00:00") && strtotime($now) <= strtotime($items->end_repair." 23:59:59");
+        })->values();
+
+        $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$now,$target){
+            $kolom = match($peruntukan){
+                'mahasiswa'=>'npm',
+                'dosen'=>'nidn',
+                default => 'nip'
+            };
+            $active = strtotime($now) >= strtotime($items->start_repair." 00:00:00") || strtotime($now) <= strtotime($items->end_repair." 23:59:59");
+            
+            $kuesioner = Kuesioner::where('id_bank_soal',$items->id)->where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
+            $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
+
+            if($kuesioner->count()>1){
+                $kuesioner = "E-K1";
+            } else if($kuesioner->count()==0){
+                $kuesioner = "E-K0";
+            } else {
+                $kuesioner = $kuesioner->first()?->id;
+            }
+            
+            $items->active_entry = $active;
+            $items->kuesioner = $kuesioner;
+
+            return $filtered;
+        });
+        
+        return response()->json($bankSoal);
+        // dd([
+        //     'bankSoal'=>$bankSoal,
+        //     'peruntukan'=>$peruntukan,
+        //     'prodi'=>$prodi,
+        //     'fakultas'=>$fakultas,
+        //     'unit'=>$unit,
+        //     'target'=>$target,
+        //     "level"=>$request->get('level')
+        // ]);
     }
 }
