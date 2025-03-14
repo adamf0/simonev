@@ -189,7 +189,7 @@ class AuthController extends Controller
             $path = str_replace(url('/'),"",$target);
             $validTarget = preg_match('/^\/kuesioner\/start/', $path);
             if(!$validTarget){
-                return view("access_denied");
+                return view("invalid_resource");
             }
 
             $akun = User::where("username", base64_decode($request->username,true))->where("password_plain", base64_decode($request->password,true))->first();
