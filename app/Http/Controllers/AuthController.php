@@ -177,15 +177,22 @@ class AuthController extends Controller
     {
         try {
             $validator      = validator($request->all(), [
-                'username' => ['required','min:3'],
-                'password' => ['required'],
+                'username' => ['required','regex:/^[a-zA-Z0-9+\/=]*$/'],
+                'password' => ['required','regex:/^[a-zA-Z0-9+\/=]*$/'],
+                'target' => ['required','regex:/^[a-zA-Z0-9+\/=]*$/'],
             ]);
 
             if(count($validator->errors())){
                 return view("access_denied");
             }
+            $target = base64_decode($request->target,true);
+            $path = str_replace(url('/'),"",$target);
+            $validTarget = preg_match('/^\/kuesioner\/start/', $path);
+            if(!$validTarget){
+                return view("access_denied");
+            }
 
-            $akun = User::where("username", $request->username)->where("password_plain", $request->password)->first();
+            $akun = User::where("username", base64_decode($request->username,true))->where("password_plain", base64_decode($request->password,true))->first();
 
             if($akun==null){
                 $akunSimak = $this->loginSimak($request->username, $request->password);
