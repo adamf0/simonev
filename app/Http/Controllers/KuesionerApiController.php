@@ -86,7 +86,7 @@ class KuesionerApiController extends Controller
                             $now = date('Y-m-d');
                             $start = $item->rule['generate']['start'];
                             $end = $item->rule['generate']['end'];
-                            $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") || strtotime($now) <= strtotime($end." 23:59:59");
+                            $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") && strtotime($now) <= strtotime($end." 23:59:59");
 
                             if($item->rule['type']=="spesific" && $item->rule['target_type']=="npm" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
                                 if($item->rule['generate']['type']=="recursive"){
@@ -147,7 +147,7 @@ class KuesionerApiController extends Controller
                             
                             return $item;
                         })
-                        ->filter(fn($item)=> strtotime(now()) >= strtotime($item->start_repair." 00:00:00") && strtotime(now()) <= strtotime($item->end_repair." 23:59:59"))
+                        ->filter(fn($item)=> date('Y', strtotime($item->tanggal)) || strtotime(now()) >= strtotime($item->start_repair." 00:00:00") && strtotime(now()) <= strtotime($item->end_repair." 23:59:59"))
                         ->values();
 
         $perPage = 5;
