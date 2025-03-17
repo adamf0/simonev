@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../../Component/Layout";
 import { Bounce, ToastContainer, toast } from 'react-toastify';
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -8,13 +8,13 @@ import { UPDATE_KUESIONER_FAILURE, UPDATE_KUESIONER_REQUEST, UPDATE_KUESIONER_SU
 import parse from "html-react-parser";
 import DOMPurify from "dompurify";
 
-function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
-    console.log(groupPertanyaan)
+function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level=null, mode="start"}) {
     const dispatch = useDispatch();
     const action_type = useSelector((state) => state.kuesioner.action_type);
     const errorMessage = useSelector((state) => state.kuesioner.error);
     const loading = useSelector((state) => state.kuesioner.loading); // Access loading state from Redux
 
+    const [allFilled, setAllFilled] = useState(pertanyaanRequired);
     const [groupPertanyaans, setGroupPertanyaans] = useState(
         Object.fromEntries(
             Object.entries(groupPertanyaan).map(([group, pertanyaan]) => [
@@ -65,7 +65,14 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
 
     useEffect(()=> console.log(groupPertanyaans),[groupPertanyaans])
 
-    function changePilihan(ref, id_template_pilihan, jenis_pilihan, freeText) {
+    function changePilihan(id_template_pertanyaan, ref, id_template_pilihan, jenis_pilihan, freeText) {
+        setAllFilled((prev) => {
+            if (!prev.includes(id_template_pertanyaan)) {
+                return [...prev, id_template_pertanyaan];
+            }
+            return prev.filter(item => item !== id_template_pertanyaan);
+        });
+
         setGroupPertanyaans((prev) => {
             const newData = { ...prev };
     
@@ -97,7 +104,14 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
         });
     }
     
-    function changePilihanFreeText(ref, id_template_pilihan, jenis_pilihan, freeText) {
+    function changePilihanFreeText(id_template_pertanyaan, ref, id_template_pilihan, jenis_pilihan, freeText) {
+        setAllFilled((prev) => {
+            if (!prev.includes(id_template_pertanyaan)) {
+                return [...prev, id_template_pertanyaan];
+            }
+            return prev.filter(item => item !== id_template_pertanyaan);
+        });
+
         setGroupPertanyaans((prev) => {
             const newData = { ...prev };
     
@@ -130,24 +144,29 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
     }
     
     function saveHandler() {
-        const data = Object.values(groupPertanyaans) 
-                    .flat() 
-                    .filter(item => Array.isArray(item.selected) && item.selected.length > 0) 
-                    .flatMap(item => {
-                        const freeTextOption = item.template_pilihan.find(pilihan => pilihan.isFreeText === 1);
-                        const isFreeTextSelected = freeTextOption && item.selected.includes(freeTextOption.id);
-                        const freeTextValue = isFreeTextSelected ? item.freeText ?? null : null;
+        console.log(allFilled)
+        if(allFilled.length>0){
+            alert("masih ada pertanyaan yg belum diisi")
+        } else{
+            const data = Object.values(groupPertanyaans) 
+                        .flat() 
+                        .filter(item => Array.isArray(item.selected) && item.selected.length > 0) 
+                        .flatMap(item => {
+                            const freeTextOption = item.template_pilihan.find(pilihan => pilihan.isFreeText === 1);
+                            const isFreeTextSelected = freeTextOption && item.selected.includes(freeTextOption.id);
+                            const freeTextValue = isFreeTextSelected ? item.freeText ?? null : null;
 
-                        return item.selected.map(id_pilihan => ({
-                            id_kuesioner: kuesioner.id,
-                            id_template_pertanyaan: item.id,
-                            id_template_pilihan: id_pilihan,
-                            freeText: id_pilihan === freeTextOption?.id ? freeTextValue : null
-                        }));
-                    });
-    
-        console.log(data);
-        dispatch(updateKuesioner("update", kuesioner.id, data))
+                            return item.selected.map(id_pilihan => ({
+                                id_kuesioner: kuesioner.id,
+                                id_template_pertanyaan: item.id,
+                                id_template_pilihan: id_pilihan,
+                                freeText: id_pilihan === freeTextOption?.id ? freeTextValue : null
+                            }));
+                        });
+        
+            console.log(data);
+            dispatch(updateKuesioner("update", kuesioner.id, data))
+        }
     }
     
 
@@ -202,37 +221,43 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                     Object.values(pertanyaan).map((item,index) => 
                                                         <div className="col-12">
                                                             <div className="row">
-                                                                <div className="col-12">{index+1}. {item.pertanyaan}</div>
+                                                                <div className="col-12">
+                                                                    {index+1}. {item.pertanyaan} {item.required && <small className="text-danger">wajib isi</small>}
+                                                                </div>
                                                                 <div className="col-12">
                                                                     {
                                                                         item.jenis_pilihan=="checkbox" || item.jenis_pilihan=="radio"?
-                                                                        <ol key={item.ref} className="list-group list-group-flush">
-                                                                            {
-                                                                                (item?.template_pilihan??[]).map(pilihan => <li className="list-group-item" key={pilihan.ref}>
-                                                                                    <input
-                                                                                        data-ref={item.ref} 
-                                                                                        type={item.jenis_pilihan=="checkbox"? "checkbox":"radio"} 
-                                                                                        checked={ item.selected.some(id => id === pilihan.id) } 
-                                                                                        className={mode != "start"? "no-click":""}
-                                                                                        name={`jawaban_pertanyaan_${item.id}`} 
-                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, pilihan.isFreeText==1? item?.freeText:null)}/> 
-                                                                                    &nbsp; &nbsp;
-                                                                                    {
-                                                                                        pilihan.isFreeText?
-                                                                                        <>
-                                                                                        <input data-ref={item.ref} 
-                                                                                            type="text" 
-                                                                                            className={"corm-control"}
-                                                                                            placeholder="masukkan jawaban lainnya"
-                                                                                            name={`jawaban_pertanyaan_${item.id}_free`} 
-                                                                                            value={item?.freeText}
-                                                                                            onChange={(e)=>changePilihanFreeText(item.ref, pilihan.id, item.jenis_pilihan, e.target.value)}/>
-                                                                                        </>:
-                                                                                        pilihan.jawaban
-                                                                                    }
-                                                                                </li>)
-                                                                            }
-                                                                        </ol>
+                                                                        <>
+                                                                            <ol key={item.ref} className="list-group list-group-flush">
+                                                                                {
+                                                                                    (item?.template_pilihan??[]).map(pilihan => <li className="list-group-item" key={pilihan.ref}>
+                                                                                        <input
+                                                                                            data-ref={item.ref} 
+                                                                                            type={item.jenis_pilihan=="checkbox"? "checkbox":"radio"} 
+                                                                                            checked={ item.selected.some(id => id === pilihan.id) } 
+                                                                                            className={mode != "start"? "no-click":""}
+                                                                                            name={`jawaban_pertanyaan_${item.id}`} 
+                                                                                            required={item.required}
+                                                                                            onChange={(e)=>changePilihan(item.id, item.ref, pilihan.id, item.jenis_pilihan, pilihan.isFreeText==1? item?.freeText:null)}/> 
+                                                                                        &nbsp; &nbsp;
+                                                                                        {
+                                                                                            pilihan.isFreeText?
+                                                                                            <>
+                                                                                            <input data-ref={item.ref} 
+                                                                                                type="text" 
+                                                                                                className={"corm-control"}
+                                                                                                placeholder="masukkan jawaban lainnya"
+                                                                                                name={`jawaban_pertanyaan_${item.id}_free`} 
+                                                                                                value={item?.freeText}
+                                                                                                onChange={(e)=>changePilihanFreeText(item.id, item.ref, pilihan.id, item.jenis_pilihan, e.target.value)}/>
+                                                                                            </>:
+                                                                                            pilihan.jawaban
+                                                                                        }
+                                                                                    </li>)
+                                                                                }
+                                                                            </ol>
+                                                                            {allFilled.includes(item.id) && <small className="text-danger">Ini belum dijawab</small>}
+                                                                        </>
                                                                         :
                                                                         <div className="d-flex align-items-center gap-2">
                                                                             <b>Sangat Tidak Baik</b>&nbsp;
@@ -245,7 +270,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, level=null, mode="start"}) {
                                                                                         checked={ item.selected.some(id => id === pilihan.id) } 
                                                                                         className={mode != "start"? "no-click":""}
                                                                                         name={`jawaban_pertanyaan_${item.id}`} 
-                                                                                        onChange={(e)=>changePilihan(item.ref, pilihan.id, item.jenis_pilihan, null)}/>
+                                                                                        onChange={(e)=>changePilihan(item.id, item.ref, pilihan.id, item.jenis_pilihan, null)}/>
                                                                                 </div>)
                                                                             }
                                                                             &nbsp;<b>Sangat Baik</b>

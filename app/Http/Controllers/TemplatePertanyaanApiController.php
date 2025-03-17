@@ -20,6 +20,9 @@ class TemplatePertanyaanApiController extends Controller
         if($request->filled('id_bank_soal')){
             $query = $query->where('id_bank_soal', $request->id_bank_soal);
         }
+        if($request->filled('required')){
+            $query = $query->where('required', $request->required);
+        }
 
         // Apply existing filters
         if ($request->filled('pertanyaan')) {
@@ -74,6 +77,7 @@ class TemplatePertanyaanApiController extends Controller
                     'jenis_pilihan' => 'required',
                     'bobot'         => 'required',
                     'kategori'      => 'required',
+                    'required'      => 'required',
                 ]
             );
     
@@ -96,6 +100,7 @@ class TemplatePertanyaanApiController extends Controller
             $TemplatePertanyaan->jenis_pilihan = $request->jenis_pilihan;
             $TemplatePertanyaan->bobot = $request->bobot;
             $TemplatePertanyaan->id_kategori = $request->kategori;
+            $TemplatePertanyaan->required = $request->required;
             if(!empty($request->subKategori)){
                 $TemplatePertanyaan->id_sub_kategori = $request->subKategori;   
             }

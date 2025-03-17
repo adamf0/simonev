@@ -15,7 +15,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     const loading = useSelector((state) => state.templatePertanyaan.loading); // Access loading state from Redux
 
     const [isModalDeleteVisible, setModalDeleteVisible] = useState(false);    
-    const [filters, setFilters] = useState({ kategori: '', sub_Kategori:'', judul: '', tipe: '', id_bank_soal: bankSoal.id});
+    const [filters, setFilters] = useState({ kategori: '', sub_Kategori:'', judul: '', tipe: '', required: '', id_bank_soal: bankSoal.id});
 
     const debounceTimeout = useRef(null);
 
@@ -182,6 +182,14 @@ function TemplatePertanyaan({bankSoal, level=null}) {
                                                     onChange={(e) => changeFilter("pertanyaan", e.target.value)}
                                                 />
                                             </th>
+                                            <th>
+                                                Jenis Pertanyaan
+                                                <select class="form-select" onChange={(e) => changeFilter("required", e.target.value)}>
+                                                    <option selected></option>
+                                                    <option value="1">Wajib Isi</option>
+                                                    <option value="0">Opsional</option>
+                                                </select>
+                                            </th>
                                             <th>Jenis Pilihan</th>
                                             {/* <th>Bobot</th> */}
                                             <th>Action</th>
@@ -244,10 +252,10 @@ TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, chan
         <td>{item.nama_sub}</td>
         <td>{item.pertanyaan}</td>
         <td>
-            <span className="badge bg-success">{item.jenis_pilihan=="rating5"? "5 rating":item.jenis_pilihan}</span>
+            {item.required? "Wajib Isi":"Opsional"}
         </td>
         <td>
-            {/* <span className="badge bg-success">{item.bobot}</span> */}
+            <span className="badge bg-success">{item.jenis_pilihan=="rating5"? "5 rating":item.jenis_pilihan}</span>
         </td>
         <td>
             <div className="d-flex justify-content-center gap-2">

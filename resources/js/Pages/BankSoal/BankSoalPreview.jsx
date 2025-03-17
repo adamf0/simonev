@@ -79,7 +79,9 @@ function BankSoalPreview({bankSoal=null, groupPertanyaan, level=null}) {
                                                     Object.values(pertanyaan).map((item,index) => 
                                                         <div className="col-12">
                                                             <div className="row">
-                                                                <div className="col-12">{index+1}. {item.pertanyaan}</div>
+                                                                <div className="col-12">
+                                                                    {index+1}. {item.pertanyaan} {item.required && <small className="text-danger">(wajib isi)</small>}
+                                                                </div>
                                                                 <div className="col-12">
                                                                     {
                                                                         item.jenis_pilihan=="checkbox" || item.jenis_pilihan=="radio"?

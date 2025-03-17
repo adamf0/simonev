@@ -239,6 +239,7 @@ class KuesionerController extends Controller
 
         $pertanyaan = TemplatePertanyaan::with(['Kategori','SubKategori','TemplatePilihan'])->where('id_bank_soal',$kuesioner->id_bank_soal)->get();
         $jawaban = KuesionerJawaban::where("id_kuesioner",$kuesioner->id)->get();
+        $pertanyaanRequired = $pertanyaan->where('required',1)->pluck('id');
 
         $pertanyaan = $pertanyaan->map(function($item) use($jawaban){
             $selected = $jawaban->where('id_template_pertanyaan',$item->id);
@@ -254,6 +255,6 @@ class KuesionerController extends Controller
         });
         $groupPertanyaan = $pertanyaan->groupBy("pattern");
 
-        return Inertia::render('Kuesioner/KuesionerForm', ['kuesioner'=>$kuesioner, 'groupPertanyaan'=>$groupPertanyaan, "level"=>session()->get('level'), "mode"=>$type]);
+        return Inertia::render('Kuesioner/KuesionerForm', ['kuesioner'=>$kuesioner, 'groupPertanyaan'=>$groupPertanyaan, 'pertanyaanRequired'=>$pertanyaanRequired, "level"=>session()->get('level'), "mode"=>$type]);
     }
 }

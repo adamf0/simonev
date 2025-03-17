@@ -39,11 +39,11 @@ export const fetchTemplatePertanyaans = (filters, page = 1) => {
   };
 };
 
-export const addTemplatePertanyaan = (id_bank_soal, pertanyaan, jenis_pilihan, bobot, kategori, subKategori) => {
+export const addTemplatePertanyaan = (id_bank_soal, pertanyaan, jenis_pilihan, bobot, kategori, subKategori, required) => {
   return async (dispatch) => {
     dispatch({ type: ADD_TEMPLATE_PERTANYAAN_REQUEST });
     try {
-      const response = await axios.post(api_templatePertanyaan_add, { id_bank_soal, pertanyaan, jenis_pilihan, bobot, kategori, subKategori });
+      const response = await axios.post(api_templatePertanyaan_add, { id_bank_soal, pertanyaan, jenis_pilihan, bobot, kategori, subKategori, required });
       dispatch({ type: ADD_TEMPLATE_PERTANYAAN_SUCCESS, payload: response.data, current_id:response.data.current_id });
     } catch (error) {
       const validation = error?.response?.data?.validation;
@@ -52,11 +52,11 @@ export const addTemplatePertanyaan = (id_bank_soal, pertanyaan, jenis_pilihan, b
   };
 };
 
-export const updateTemplatePertanyaan = (id=null, id_bank_soal, pertanyaan, jenis_pilihan, bobot, kategori, subKategori) => {
+export const updateTemplatePertanyaan = (id=null, id_bank_soal, pertanyaan, jenis_pilihan, bobot, kategori, subKategori, required) => {
   return async (dispatch) => {
     dispatch({ type: UPDATE_TEMPLATE_PERTANYAAN_REQUEST });
     try {
-      const response = await axios.post(api_templatePertanyaan_add, { id, id_bank_soal, pertanyaan, jenis_pilihan, bobot, kategori, subKategori });
+      const response = await axios.post(api_templatePertanyaan_add, { id, id_bank_soal, pertanyaan, jenis_pilihan, bobot, kategori, subKategori, required});
       dispatch({ type: UPDATE_TEMPLATE_PERTANYAAN_SUCCESS, payload: response.data, current_id:response.data.current_id });
     } catch (error) {
       const validation = error?.response?.data?.validation;

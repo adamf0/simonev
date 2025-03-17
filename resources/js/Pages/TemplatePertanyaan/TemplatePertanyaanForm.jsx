@@ -21,6 +21,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
     const [bobot, setBobot] = useState(1);
     const [kategori, setKategori] = useState(templatePertanyaan?.id_kategori);
     const [subKategori, setSubKategori] = useState(templatePertanyaan?.id_sub_kategori);
+    const [required, setrequired] = useState(templatePertanyaan?.required);
     const [listSubKategori, setListSubKategori] = useState([]);
 
     const templateJawabans = useSelector((state) => state.templateJawaban.templateJawabans);
@@ -131,15 +132,18 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
     const changeSubKategori = (value) => {
         setSubKategori(value);  
     };
+    const changeRequired = (value) => {
+        setRequired(value);  
+    };
     const changeBobot = (value) => {
         setBobot(value);  
     };
 
     function saveHandler(){
         if(type=="Add"){
-            dispatch(addTemplatePertanyaan(bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori));
+            dispatch(addTemplatePertanyaan(bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori, required));
         } else{
-            dispatch(updateTemplatePertanyaan(templatePertanyaan?.id, bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori));
+            dispatch(updateTemplatePertanyaan(templatePertanyaan?.id, bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori, required));
         }
     }
 
@@ -223,6 +227,16 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                     <option value="rating5" selected={jenisPilihan=="rating5"}>Rating 5 Pilihan</option>
                                     </select>
                                     <label htmlFor="jenisPilihanSelect">Jenis Pilihan <b className="text-danger">*</b></label>
+                                    <ErrorList errors={validation_pertanyaan?.jenisPilihan} />
+                                </div>
+
+                                <div className="form-floating">
+                                    <select className="form-select" id="requiredSelect" value={required} onChange={(e)=>changeRequired(e.target.value)}>
+                                    <option selected=""></option>
+                                    <option value="1" selected={required=="1"}>Wajib Pilih</option>
+                                    <option value="0" selected={required=="0"}>Opsional</option>
+                                    </select>
+                                    <label htmlFor="requiredSelect">Jenis Pilihan <b className="text-danger">*</b></label>
                                     <ErrorList errors={validation_pertanyaan?.jenisPilihan} />
                                 </div>
 
