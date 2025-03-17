@@ -162,6 +162,7 @@ class LaporanApiController extends Controller
         }, []);
 
         $dataset = [];
+        $totalCount = 0;
         foreach($labels as $l){
             $entry = DB::table('v_entry')
                 ->where($type=="prodi"? "prodi_jenjang":$type, $l)
@@ -169,8 +170,14 @@ class LaporanApiController extends Controller
                 ->where('total_required_filled',">",0)
                 ->where('total_required',DB::raw('total_required_filled'));
 
-            $dataset[] = $entry->count();
+            $count = $entry->count();
+            $dataset[] = $count;
+            $totalCount += $count;
         }
+
+        $percentages = array_map(function($count) use ($totalCount) {
+            return $totalCount > 0 ? round(($count / $totalCount) * 100, 2) : 0;
+        }, $dataset);
         
         $colors = $this->generateRandomColors(count($labels));
         return json_encode([

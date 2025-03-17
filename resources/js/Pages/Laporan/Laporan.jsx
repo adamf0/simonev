@@ -6,10 +6,11 @@ import { FETCH_CHART_FAKULTAS_FAILURE, FETCH_CHART_FAKULTAS_REQUEST, fetchChartF
 import { FETCH_CHART_PRODI_FAILURE, FETCH_CHART_PRODI_REQUEST, fetchChartProdi } from "./redux/actions/chartProdiActions";
 import { FETCH_CHART_UNIT_FAILURE, FETCH_CHART_UNIT_REQUEST, fetchChartUnit } from "./redux/actions/chartUnitActions";
 import 'react-calendar-datetime-picker/dist/style.css'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, Filler } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, Title, Filler, ChartDataLabels);
 
 function Laporan({level, listBankSoal=[]}) {
     const dispatch = useDispatch();
@@ -92,6 +93,39 @@ function Laporan({level, listBankSoal=[]}) {
         setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
     };
 
+    function buildOptionsChart(source){
+        return {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItem) {
+                            return source.labels[tooltipItem[0].dataIndex];
+                        },
+                        label: function(tooltipItem) {
+                            const total = source.datasets[0].data.reduce((acc, val) => acc + val, 0);
+                            const value = source.datasets[0].data[tooltipItem.dataIndex];
+                            const percentage = ((value / total) * 100).toFixed(2);
+                            return `Total: ${value} | Persentase: ${percentage}%`;
+                        }
+                    }
+                },
+                datalabels: {
+                    formatter: function(value, context) {
+                        const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                        const percentage = ((value / total) * 100).toFixed(2);
+                        return `${percentage}%`;  // Display percentage only
+                    },
+                    color: '#fff',  // White color for labels on the chart
+                    font: {
+                        weight: 'bold',
+                        size: 14
+                    }
+                }
+            }
+        }
+    }
+
     function renderChartFakultas(){
         if(cfActionType==FETCH_CHART_FAKULTAS_REQUEST){
             return "loading...";
@@ -100,8 +134,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cfFakultas || !cfFakultas.datasets || !cfFakultas.labels) {
                 return <p>No data available</p>;
         } else{
-            console.log(cfFakultas)
-            return <Pie data={cfFakultas} />
+            return <Pie data={cfFakultas} options={buildOptionsChart(cfFakultas)} />
         }
     }
     function renderChartProdi(){
@@ -112,7 +145,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cpProdi || !cpProdi.datasets || !cpProdi.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cpProdi} />
+            return <Pie data={cpProdi} options={buildOptionsChart(cpProdi)} />
         }
     }
     function renderChartUnit(){
@@ -123,7 +156,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cuUnit || !cuUnit.datasets || !cuUnit.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cuUnit} />
+            return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)}/>
         }
     }
 
