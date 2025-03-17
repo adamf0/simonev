@@ -66,7 +66,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
     useEffect(()=> console.log(groupPertanyaans),[groupPertanyaans])
 
     function changePilihan(id_template_pertanyaan, ref, id_template_pilihan, jenis_pilihan, freeText) {
-        setAllFilled((prev) => {
+        setAllFilled((prev) => { // masih kena bug
             if (!prev.includes(id_template_pertanyaan)) {
                 return [...prev, id_template_pertanyaan];
             }

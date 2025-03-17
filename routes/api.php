@@ -41,6 +41,7 @@ Route::get('/kuesioner/active', [KuesionerApiController::class, 'listKuesionerAc
 
 Route::get('/kuesioner/rekap', [LaporanApiController::class, 'rekap'])->name('api.kuesioner.rekap');
 Route::get('/kuesioner/laporan', [LaporanApiController::class, 'laporan'])->name('api.kuesioner.laporan');
+Route::get('/kuesioner/chart/{id_bank_soal}/{type}', [LaporanApiController::class, 'chart'])->name('api.kuesioner.chart');
 
 Route::get('/kategori', [KategoriApiController::class, 'listkategori'])->name('api.kategori.list');
 Route::post('/kategori/save', [KategoriApiController::class, 'save'])->name('api.kategori.add');

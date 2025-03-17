@@ -1,68 +1,78 @@
 sudo mysql_upgrade -u root -p
 "@rollup/rollup-linux-x64-gnu": "^4.34.8",
 
-$result = DB::table('kuesioner')
-                        ->selectRaw(
-                            "
-                            kuesioner.kode, 
-                            kuesioner.id_bank_soal,
-                            bank_soal.judul,
-                            bank_soal.deskripsi,
-                            bank_soal.rule, 
-                            CONCAT('[', GROUP_CONCAT(
-                                JSON_OBJECT(
-                                    'id', kuesioner.id,
-                                    'type', CASE 
-                                                WHEN kuesioner.npm IS NOT NULL THEN 'mahasiswa'
-                                                WHEN kuesioner.nidn IS NOT NULL THEN 'dosen'
-                                                WHEN kuesioner.nip IS NOT NULL THEN 'tendik'
-                                            END,
-                                    'value', CASE 
-                                                WHEN kuesioner.npm IS NOT NULL THEN kuesioner.npm
-                                                WHEN kuesioner.nidn IS NOT NULL THEN kuesioner.nidn
-                                                WHEN kuesioner.nip IS NOT NULL THEN kuesioner.nip
-                                            END,
-                                    'tanggal', CASE 
-                                                WHEN kuesioner.tanggal IS NOT NULL THEN kuesioner.tanggal
-                                            END
-                                )
-                            ), ']') AS peruntukan"
-                        );
+<table className="table table-striped text-center">
+                                        <thead>
+                                            <tr>
+                                                <th rowSpan={2}>Soal</th>
+                                                <th rowSpan={2}>Jawaban</th>
+                                                {
+                                                    level=="prodi" || level=="admin"? 
+                                                    <th colSpan={listAngkatan.length}>
+                                                        Mahasiswa
+                                                    </th>: 
+                                                    <></>
+                                                }
+                                                {
+                                                    level=="admin"?
+                                                    <th colSpan={listFakultas.length}>
+                                                        Fakultas
+                                                    </th> : 
+                                                    <></>
+                                                }
+                                                {
+                                                    level=="fakultas" || level=="admin"?
+                                                    <th colSpan={listProdi.length}>
+                                                        Prodi
+                                                    </th> : 
+                                                    <></>
+                                                }
+                                                {
+                                                    level=="admin"?
+                                                    <th colSpan={listUnit.length}>
+                                                        Unit
+                                                    </th> : 
+                                                    <></>
+                                                }
+                                            </tr>
+                                            <tr>
+                                                {
+                                                    level=="prodi" || level=="admin"? 
+                                                    listAngkatan.map(angkatan => <th style={{ whiteSpace: 'nowrap' }}>{angkatan}</th>): 
+                                                    <></>
+                                                }
+                                                {
+                                                    level=="admin"?
+                                                    listFakultas.map(fakultas => <th style={{ whiteSpace: 'nowrap' }}>{fakultas.nama_fakultas}</th>) : 
+                                                    <></>
+                                                }
+                                                {
+                                                    level=="fakultas" || level=="admin"?
+                                                    listProdi.map(prodi => <th style={{ whiteSpace: 'nowrap' }}>{prodi.nama_prodi}</th>) : 
+                                                    <></>
+                                                }
+                                                {
+                                                    level=="admin"?
+                                                    listUnit.map(unit => <th style={{ whiteSpace: 'nowrap' }}>{unit.text}</th>) : 
+                                                    <></>
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <Laporan.LaporansBody
+                                                action_type={action_type}
+                                                laporans={laporans}
+                                                loading={loading}
+                                                columnsAngkatan={listAngkatan}
+                                                columnsFakultas={listFakultas}
+                                                columnsProdi={listProdi}
+                                                columnsUnit={listUnit}
+                                                modePerhitungan={modePerhitungan}
+                                                level={level}/>
+                                    </table>
 
-        $result = $result->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
-                        ->groupBy('kuesioner.kode', 'kuesioner.id_bank_soal', 'bank_soal.judul', 'bank_soal.deskripsi', 'bank_soal.rule')
-                        ->where("kuesioner.kode",$kode)
-                        ->firstOrFail();
-
-        if($result != null){
-            $result->peruntukan = json_decode($result->peruntukan, true);
-        }
-
-select
-k.id,
-k.id_bank_soal,
-k.tanggal,
-k.nidn,
-d.kode_prodi,
-d.kode_fak,
-k.nip,
-k.npm,
-tpe.pertanyaan,
-tpe.bobot,
-tpi.jawaban,
-tpi.nilai 
-from template_pertanyaan tpe
-join template_pilihan tpi on tpe.id = tpi.id_template_soal
-join kuesioner k on k.id_bank_soal = tpe.id_bank_soal 
-join unpak_sipaksi.m_dosen d on d.NIDN = k.nidn
-ORDER by k.nidn,
-k.nip,
-k.npm,
-k.tanggal,
-k.id_bank_soal, tpe.pertanyaan;
-
-
-fitur duplicate bank soal [easy]
-+ bypass account from admin [easy]
-+ laporan [medium]
-masalah range date [medium]
+                                    <PaginationTable
+                                        total={action_type==FETCH_LAPORANS_REQUEST?  "":(laporans.total || 1)}
+                                        currentPage={laporans.currentPage}
+                                        itemsPerPage={5}
+                                        onPageChange={(page) => dispatch(fetchLaporans(filters, page))}
+                                    />

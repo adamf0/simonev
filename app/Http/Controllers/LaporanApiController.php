@@ -12,12 +12,31 @@ use App\Models\Prodi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use InvalidArgumentException;
 
 class LaporanApiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private function generateRandomColors($count){
+        $colors = [];
+        
+        while (count($colors) < $count) {
+            // Generate random RGB values
+            $r = rand(50, 255);  // Avoid 0 (black) and ensure enough color range
+            $g = rand(50, 255);  // Avoid 0 (black) and ensure enough color range
+            $b = rand(50, 255);  // Avoid 0 (black) and ensure enough color range
+            
+            // Generate RGBA color with random transparency
+            $rgba = "rgba($r, $g, $b, 0.5)"; // 0.5 is the transparency value
+            
+            // Avoid too light (white) and too dark (black)
+            if (!in_array($rgba, $colors)) {
+                $colors[] = $rgba;
+            }
+        }
+
+        return $colors;
+    }
+
     public function rekap(Request $request)
     {
         $query = Kuesioner::select(
@@ -99,6 +118,72 @@ class LaporanApiController extends Controller
             'currentPage' => $kuesioner->currentPage(),
             'total' => $kuesioner->total(),
             'lastPage' => $kuesioner->lastPage(),
+        ]);
+    }
+
+    public function chart($id_bank_soal, $type){
+        if(!in_array($type, ["fakultas","prodi","unit"])){
+            throw new InvalidArgumentException("type '$type' tidak terdaftar di sistem");
+        }
+        if(in_array($id_bank_soal, ["","undefinied",null])){
+            throw new InvalidArgumentException("bank soal '$id_bank_soal' tidak terdaftar di sistem");
+        }
+
+        $list = match($type){
+            "fakultas"=>Fakultas::select(DB::raw('nama_fakultas as text'))->distinct()->get(),
+            "prodi"=>Prodi::select(
+                DB::raw('
+                concat(
+                    `nama_prodi`, 
+                    " (",
+                    (
+                    case 
+                        when kode_jenjang = "C" then "S1"
+                        when kode_jenjang = "B" then "S2"
+                        when kode_jenjang = "A" then "S3"
+                        when kode_jenjang = "E" then "D3"
+                        when kode_jenjang = "D" then "D4"
+                        when kode_jenjang = "J" then "Profesi"
+                        else "?"
+                    end
+                    ),
+                    ")"
+                ) as text')
+            )->distinct()->get(),
+            "unit"=>Pengangkatan::select(DB::raw('unit_kerja as text'))->distinct()->get(),
+            default=>collect([])
+        };
+
+        $labels = $list->pluck('text')->reduce(function($carry, $item) {
+            if(!empty($item)){
+                $carry[] = $item;
+            }
+            return $carry;
+        }, []);
+
+        $dataset = [];
+        foreach($labels as $l){
+            $entry = DB::table('v_entry')
+                ->where($type=="prodi"? "prodi_jenjang":$type, $l)
+                ->where('id_bank_soal',$id_bank_soal)
+                ->where('total_required_filled',">",0)
+                ->where('total_required',DB::raw('total_required_filled'));
+
+            $dataset[] = $entry->count();
+        }
+        
+        $colors = $this->generateRandomColors(count($labels));
+        return json_encode([
+            "labels"=> $labels,
+            "datasets"=> [
+              [
+                "label"=> '# Total',
+                "data"=> $dataset,
+                "backgroundColor"=> $colors,
+                "borderColor"=> $colors,
+                "borderWidth"=> 1,
+              ],
+            ],
         ]);
     }
 

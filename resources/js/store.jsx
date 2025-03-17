@@ -10,6 +10,10 @@ import laporanReducer from './Pages/Laporan/redux/reducers/laporanReducer';
 import kategoriReducer from './Pages/Kategori/redux/reducers/kategoriReducer';
 import subkategoriReducer from './Pages/SubKategori/redux/reducers/subkategoriReducer';
 
+import chartFakultasReducer from './Pages/Laporan/redux/reducers/chartFakultasReducer';
+import chartProdiReducer from './Pages/Laporan/redux/reducers/chartProdiReducer';
+import chartUnitReducer from './Pages/Laporan/redux/reducers/chartUnitReducer';
+
 const store = createStore(
     combineReducers({
         bankSoal: bankSoalReducer,
@@ -21,6 +25,10 @@ const store = createStore(
         pengguna: penggunaReducer,
         kategori: kategoriReducer,
         subkategori: subkategoriReducer,
+
+        chartFakultas:chartFakultasReducer,
+        chartProdi:chartProdiReducer,
+        chartUnit:chartUnitReducer,
     }), 
     applyMiddleware(thunk)
 );

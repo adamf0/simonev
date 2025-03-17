@@ -2,59 +2,136 @@ import React, { useEffect, useState } from "react";
 import Layout from "../../Component/Layout";
 import 'react-calendar-datetime-picker/dist/style.css'
 import { useDispatch, useSelector } from "react-redux";
-import PaginationTable from "../../Component/Pagination";
-import { FETCH_LAPORANS_FAILURE, FETCH_LAPORANS_REQUEST, fetchLaporans } from "./redux/actions/laporanActions";
-import { DtCalendar } from 'react-calendar-datetime-picker'
+import { FETCH_CHART_FAKULTAS_FAILURE, FETCH_CHART_FAKULTAS_REQUEST, fetchChartFakultas } from "./redux/actions/chartFakultasActions";
+import { FETCH_CHART_PRODI_FAILURE, FETCH_CHART_PRODI_REQUEST, fetchChartProdi } from "./redux/actions/chartProdiActions";
+import { FETCH_CHART_UNIT_FAILURE, FETCH_CHART_UNIT_REQUEST, fetchChartUnit } from "./redux/actions/chartUnitActions";
 import 'react-calendar-datetime-picker/dist/style.css'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Pie } from 'react-chartjs-2';
 
-function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkatan=[], listBankSoal=[]}) {
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+function Laporan({level, listBankSoal=[]}) {
     const dispatch = useDispatch();
-    const laporans = useSelector((state) => state.laporan.laporans);
-    const action_type = useSelector((state) => state.laporan.action_type);
-    const errorMessage = useSelector((state) => state.laporan.error);
-    const loading = useSelector((state) => state.laporan.loading); // Access loading state from Redux
+    
+    const cfFakultas = useSelector((state) => state.chartFakultas.chartFakultas);
+    const cfActionType = useSelector((state) => state.chartFakultas.action_type);
+    const cfErrorMessage = useSelector((state) => state.chartFakultas.error);
+    const cfLoading = useSelector((state) => state.chartFakultas.loading); 
 
-    const [filters, setFilters] = useState({start_date: '', end_date: '', level: level, bankSoal: ''});
-    const [modePerhitungan, setModePerhitungan] = useState("total");
-    const [date, setDate] = useState(null);
+    const cpProdi = useSelector((state) => state.chartProdi.chartProdi);
+    const cpActionType = useSelector((state) => state.chartProdi.action_type);
+    const cpErrorMessage = useSelector((state) => state.chartProdi.error);
+    const cpLoading = useSelector((state) => state.chartProdi.loading); 
+
+    const cuUnit = useSelector((state) => state.chartUnit.chartUnit);
+    const cuActionType = useSelector((state) => state.chartUnit.action_type);
+    const cuErrorMessage = useSelector((state) => state.chartUnit.error);
+    const cuLoading = useSelector((state) => state.chartUnit.loading); 
+
+    const [filters, setFilters] = useState({level: level, bankSoal: ''});
+
     const [bankSoal, setBankSoal] = useState(null);
+    const [chartFakultas, setChartFakultas] = useState(false);
+    const [chartProdi, setChartProdi] = useState(false);
+    const [chartUnit, setChartUnit] = useState(false);
+    const [colChart, setColChart] = useState(0);
+    const [sourceChartFakultas, setSourceChartFakultas] = useState({
+        labels: ["no data"],
+        datasets: [
+          {
+            data: [0],
+          }
+        ]
+    });
+    const [sourceChartProdi, setSourceChartProdi] = useState({
+        labels: ["no data"],
+        datasets: [
+          {
+            data: [0],
+          }
+        ]
+    });
+    const [sourceChartUnit, setSourceChartUnit] = useState({
+        labels: ["no data"],
+        datasets: [
+          {
+            data: [0],
+          }
+        ]
+    });
 
     useEffect(()=>{
-        console.log("loading:",loading);
-        console.log("action_type:",action_type);
-    },[loading,action_type])
+        console.log("loading:",cfLoading);
+        console.log("action_type:",cfActionType);
+    },[cfLoading,cfActionType])
+
+    useEffect(()=>{
+        console.log("loading:",cpLoading);
+        console.log("action_type:",cpActionType);
+    },[cpLoading,cpActionType])
+
+    useEffect(()=>{
+        console.log("loading:",cuLoading);
+        console.log("action_type:",cuActionType);
+    },[cuLoading,cuActionType])
 
     useEffect(() => {
-        dispatch(fetchLaporans(filters));
+        if (chartFakultas) {
+            dispatch(fetchChartFakultas(bankSoal));
+        }
+        if (chartProdi) {
+            dispatch(fetchChartProdi(bankSoal));
+        }
+        if (chartUnit) {
+            dispatch(fetchChartUnit(bankSoal));
+        }
     }, [filters]);
 
-    useEffect(() => {
-        changeFilter("date",date);
-    }, [date]);
-
     const changeFilter = (key, value) => {
-        if(key=="date"){
-            if(value!=null && value?.from != null && value?.to != null){
-                setFilters(prevFilters => ({ ...prevFilters, start_date: `${value?.from?.year}-${String(value?.from?.month).padStart(2, '0')}-${String(value?.from?.day).padStart(2, '0')}`, end_date: `${value?.to?.year}-${String(value?.to?.month).padStart(2, '0')}-${String(value?.to?.day).padStart(2, '0')}` }));
-            } 
-            else{
-                setFilters(prevFilters => ({ ...prevFilters, start_date: "", end_date: "" }));
-            }
-        } else{
-            setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
-        }
+        setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
     };
+
+    function renderChartFakultas(){
+        if(cfActionType==FETCH_CHART_FAKULTAS_REQUEST){
+            return "loading...";
+        } else if(cfActionType==FETCH_CHART_FAKULTAS_FAILURE){
+            return cfErrorMessage;
+        } else if (!cfFakultas || !cfFakultas.datasets || !cfFakultas.labels) {
+                return <p>No data available</p>;
+        } else{
+            console.log(cfFakultas)
+            return <Pie data={cfFakultas} />
+        }
+    }
+    function renderChartProdi(){
+        if(cpActionType==FETCH_CHART_PRODI_REQUEST){
+            return "loading...";
+        } else if(cpActionType==FETCH_CHART_PRODI_FAILURE){
+            return cpErrorMessage;
+        } else if (!cpProdi || !cpProdi.datasets || !cpProdi.labels) {
+            return <p>No data available</p>;
+        } else{
+            return <Pie data={cpProdi} />
+        }
+    }
+    function renderChartUnit(){
+        if(cuActionType==FETCH_CHART_UNIT_REQUEST){
+            return "loading...";
+        } else if(cuActionType==FETCH_CHART_UNIT_FAILURE){
+            return cuErrorMessage;
+        } else if (!cuUnit || !cuUnit.datasets || !cuUnit.labels) {
+            return <p>No data available</p>;
+        } else{
+            return <Pie data={cuUnit} />
+        }
+    }
 
     return (
             <>
                 <Layout level={level}>
                     <div className="header">
                         <h1 className="header-title">Laporan Kuesioner</h1>
-                        {/* <nav>
-                            <ol className="breadcrumb">
-                                <li className="breadcrumb-item header-subtitle">RekapKuesioner</li>
-                            </ol>
-                        </nav> */}
                     </div>
 
                     <div className="row">
@@ -66,7 +143,28 @@ function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkata
                                 <div className="col-12">
                                     <label>Bank Soal</label>
                                     <select className="form-select" onChange={(e)=>{
+                                            const bs = listBankSoal.find(l => l.id == e.target.value) 
+                                            console.log(bs.peruntukan)
+
                                             setBankSoal(e.target.value)
+                                            if(bs.peruntukan=="mahasiswa"){
+                                                setChartFakultas(true)
+                                                setChartProdi(true)
+                                                setChartUnit(false)
+                                                setColChart(2)
+                                            }
+                                            if(bs.peruntukan=="dosen"){
+                                                setChartFakultas(true)
+                                                setChartProdi(false)
+                                                setChartUnit(false)
+                                                setColChart(1)
+                                            }
+                                            if(bs.peruntukan=="tendik"){
+                                                setChartFakultas(false)
+                                                setChartProdi(false)
+                                                setChartUnit(true)
+                                                setColChart(1)
+                                            }
                                             changeFilter("bankSoal",e.target.value);
                                         }}>
                                         <option value=""></option>
@@ -78,16 +176,7 @@ function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkata
                                     </select>
                                 </div>
                                 <div className="col-12">
-                                    <label>Tanggal</label>
-                                        <DtCalendar
-                                            onChange={setDate}
-                                            showWeekend
-                                            type={'range'}
-                                        />
-                                </div>
-                                <div className="col-12">
                                     <button className="btn btn-primary" onClick={()=>{
-                                        setDate(null)
                                         setBankSoal(null)
                                     }}>Hapus filter</button>
                                 </div>
@@ -95,93 +184,43 @@ function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkata
                         </div>
                         <div className="col-xl-9 col-lg-9 col-md-9 col-sm-12">
                             <div className="card d-flex flex-row gap-2 px-4 py-3">
-                                {/* Sidebar Tab di Kiri */}
-                                <ul className="nav flex-column nav-pills col-xl-2 col-lg-2 col-md-2 col-sm-2">
-                                    <li className="nav-item">
-                                        <a className={`nav-link ${modePerhitungan=='total'? 'active':''}`} aria-current="page" href="#" onClick={()=>setModePerhitungan("total")}>Total</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className={`nav-link ${modePerhitungan=='bobot+nilai'? 'active':''}`} href="#" onClick={()=>setModePerhitungan("bobot+nilai")}>Bobot * Nilai</a>
-                                    </li>
-                                </ul>
-
-                                {/* Tabel di Kanan */}
-                                <div className="col-xl-10 col-lg-10 col-md-10 col-sm-10 flex-fill table-responsive">
-                                    <table className="table table-striped text-center">
-                                        <thead>
-                                            <tr>
-                                                <th rowSpan={2}>Soal</th>
-                                                <th rowSpan={2}>Jawaban</th>
-                                                {
-                                                    level=="prodi" || level=="admin"? 
-                                                    <th colSpan={listAngkatan.length}>
-                                                        Mahasiswa
-                                                    </th>: 
-                                                    <></>
-                                                }
-                                                {
-                                                    level=="admin"?
-                                                    <th colSpan={listFakultas.length}>
-                                                        Fakultas
-                                                    </th> : 
-                                                    <></>
-                                                }
-                                                {
-                                                    level=="fakultas" || level=="admin"?
-                                                    <th colSpan={listProdi.length}>
-                                                        Prodi
-                                                    </th> : 
-                                                    <></>
-                                                }
-                                                {
-                                                    level=="admin"?
-                                                    <th colSpan={listUnit.length}>
-                                                        Unit
-                                                    </th> : 
-                                                    <></>
-                                                }
-                                            </tr>
-                                            <tr>
-                                                {
-                                                    level=="prodi" || level=="admin"? 
-                                                    listAngkatan.map(angkatan => <th style={{ whiteSpace: 'nowrap' }}>{angkatan}</th>): 
-                                                    <></>
-                                                }
-                                                {
-                                                    level=="admin"?
-                                                    listFakultas.map(fakultas => <th style={{ whiteSpace: 'nowrap' }}>{fakultas.nama_fakultas}</th>) : 
-                                                    <></>
-                                                }
-                                                {
-                                                    level=="fakultas" || level=="admin"?
-                                                    listProdi.map(prodi => <th style={{ whiteSpace: 'nowrap' }}>{prodi.nama_prodi}</th>) : 
-                                                    <></>
-                                                }
-                                                {
-                                                    level=="admin"?
-                                                    listUnit.map(unit => <th style={{ whiteSpace: 'nowrap' }}>{unit.text}</th>) : 
-                                                    <></>
-                                                }
-                                            </tr>
-                                        </thead>
-                                        <Laporan.LaporansBody
-                                                action_type={action_type}
-                                                laporans={laporans}
-                                                loading={loading}
-                                                columnsAngkatan={listAngkatan}
-                                                columnsFakultas={listFakultas}
-                                                columnsProdi={listProdi}
-                                                columnsUnit={listUnit}
-                                                modePerhitungan={modePerhitungan}
-                                                level={level}/>
-                                    </table>
-
-                                    <PaginationTable
-                                        total={action_type==FETCH_LAPORANS_REQUEST?  "":(laporans.total || 1)}
-                                        currentPage={laporans.currentPage}
-                                        itemsPerPage={5}
-                                        onPageChange={(page) => dispatch(fetchLaporans(filters, page))}
-                                    />
+                                <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 flex-fill">
+                                    {
+                                        colChart==0 && 
+                                        <p>No Data</p>
+                                    }
+                                    {
+                                        colChart>0 && 
+                                        <div className="row">
+                                            {
+                                                chartFakultas && 
+                                                <div className={colChart==1? `col-12`:`col-${12/colChart}`}>
+                                                    <div className="row">
+                                                        <h4>Fakultas</h4>
+                                                        {renderChartFakultas()}
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                chartProdi && 
+                                                <div className={colChart==1? `col-12`:`col-${12/colChart}`}>
+                                                    <div className="row">
+                                                        <h4>Prodi</h4>
+                                                        {renderChartProdi()}
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                chartUnit && 
+                                                <div className={colChart==1? `col-12`:`col-${12/colChart}`}>
+                                                    <div className="row">
+                                                        <h4>Unit</h4>
+                                                        {renderChartUnit()}
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -190,154 +229,5 @@ function Laporan({level, listFakultas=[], listProdi=[], listUnit=[], listAngkata
             </>
     );
 }
-
-Laporan.LaporansBody = ({ action_type, laporans, loading, columnsAngkatan, columnsFakultas, columnsProdi, columnsUnit, modePerhitungan='total', level}) => {
-    if (action_type === FETCH_LAPORANS_REQUEST) {
-        return <Laporan.LoadingRow />;
-    } else if (action_type === FETCH_LAPORANS_FAILURE) {
-        return <Laporan.ErrorRow />;
-    } else {
-        const totalAngkatan = columnsAngkatan.map(angkatan =>
-            laporans.record?.reduce((sum, item) => {
-                const nilai = Number(item[`mahasiswa_${angkatan}`]) || 0;
-                return modePerhitungan === 'total'
-                    ? sum + nilai
-                    : sum + (nilai * (Number(item[`bobot`]) || 0) * (Number(item[`nilai`]) || 0));
-            }, 0)
-        );
-        
-        const totalFakultas = columnsFakultas.map(fakultas =>
-            laporans.record?.reduce((sum, item) => {
-                const nilai = Number(item[`fakultas_${fakultas.kode_fakultas}`]) || 0;
-                return modePerhitungan === 'total'
-                    ? sum + nilai
-                    : sum + (nilai * (Number(item[`bobot`]) || 0) * (Number(item[`nilai`]) || 0));
-            }, 0)
-        );
-        
-        const totalProdi = columnsProdi.map(prodi =>
-            laporans.record?.reduce((sum, item) => {
-                const nilai = Number(item[`prodi_${prodi.kode_prodi}`]) || 0;
-                return modePerhitungan === 'total'
-                    ? sum + nilai
-                    : sum + (nilai * (Number(item[`bobot`]) || 0) * (Number(item[`nilai`]) || 0));
-            }, 0)
-        );
-        
-        const totalUnit = columnsUnit.map(unit =>
-            laporans.record?.reduce((sum, item) => {
-                const nilai = Number(item[`unit_${unit.unit_kerja}`]) || 0;
-                return modePerhitungan === 'total'
-                    ? sum + nilai
-                    : sum + (nilai * (Number(item[`bobot`]) || 0) * (Number(item[`nilai`]) || 0));
-            }, 0)
-        );
-        
-        return (
-            <tbody>
-                {laporans.record?.map(item => (
-                    <Laporan.LaporansRow 
-                        key={item.id}
-                        item={item}
-                        loading={loading}
-                        columnsAngkatan={columnsAngkatan}
-                        columnsFakultas={columnsFakultas}
-                        columnsProdi={columnsProdi}
-                        columnsUnit={columnsUnit}
-                        modePerhitungan={modePerhitungan}
-                        level={level}
-                    />
-                ))}
-                <tr style={{ fontWeight: 'bold', backgroundColor: '#f8f9fa' }}>
-                    <td colSpan={2}>Total</td>
-                    {
-                        level=="prodi" || level=="admin"? 
-                        totalAngkatan.map((total, index) => <td key={`total-angkatan-${index}`}>{total}</td>) : 
-                        <></>
-                    }
-                    {
-                        level=="admin"?
-                        totalFakultas.map((total, index) => <td key={`total-fakultas-${index}`}>{total}</td>) : 
-                        <></>
-                    }
-                    {
-                        level=="fakultas" || level=="admin"?
-                        totalProdi.map((total, index) => <td key={`total-prodi-${index}`}>{total}</td>) : 
-                        <></>
-                    }
-                    {
-                        level=="admin"?
-                        totalUnit.map((total, index) => <td key={`total-unit-${index}`}>{total}</td>) : 
-                        <></>
-                    }
-                </tr>
-            </tbody>
-        );
-    }
-};
-Laporan.LaporansRow = ({ item, loading, columnsAngkatan, columnsFakultas, columnsProdi, columnsUnit, modePerhitungan='total', level }) => { 
-    return (
-        <tr key={item.id}>
-            <td>{item.pertanyaan}</td>
-            <td>{item.jawaban}</td>
-            {
-                level=="prodi" || level=="admin"? 
-                columnsAngkatan.map(angkatan => (
-                    <td key={`angkatan_${angkatan}`}>
-                        {modePerhitungan === 'total' 
-                            ? item[`mahasiswa_${angkatan}`] 
-                            : (Number(item[`mahasiswa_${angkatan}`]) || 0) * (Number(item[`bobot`]) || 0) * (Number(item[`nilai`]) || 0)}
-                    </td>
-                )) : 
-                <></>
-            }
-            {
-                level=="admin"?
-                columnsFakultas.map(fakultas => (
-                    <td key={`fakultas_${fakultas.kode_fakultas}`}>
-                        {modePerhitungan === 'total' 
-                            ? item[`fakultas_${fakultas.kode_fakultas}`] 
-                            : (Number(item[`fakultas_${fakultas.kode_fakultas}`]) || 0) * (Number(item[`bobot`]) || 0) * (Number(item[`nilai`]) || 0)}
-                    </td>
-                )) : 
-                <></>
-            }
-            {
-                level=="fakultas" || level=="admin"?
-                columnsProdi.map(prodi => (
-                    <td key={`prodi_${prodi.kode_prodi}`}>
-                        {modePerhitungan === 'total' 
-                            ? item[`prodi_${prodi.kode_prodi}`] 
-                            : (Number(item[`prodi_${prodi.kode_prodi}`]) || 0) * (Number(item[`bobot`]) || 0) * (Number(item[`nilai`]) || 0)}
-                    </td>
-                )) : 
-                <></>
-            }
-            {
-                level=="admin"?
-                columnsUnit.map(unit => (
-                    <td key={`unit_${unit.unit_kerja}`}>
-                        {modePerhitungan === 'total' 
-                            ? item[`unit_${unit.unit_kerja}`] 
-                            : (Number(item[`unit_${unit.unit_kerja}`]) || 0) * (Number(item[`bobot`]) || 0) * (Number(item[`nilai`]) || 0)}
-                    </td>
-                )) : 
-                <></>
-            }
-        </tr>
-    );
-}
-Laporan.LoadingRow = () => (
-    <tr key="loading">
-        <td className="text-center" colSpan={5}>Memuat data...</td>
-    </tr>
-);
-Laporan.ErrorRow = () => (
-    <tr key="error">
-        <td className="text-center" colSpan={5}>
-            <button className="btn btn-primary">Refresh</button>
-        </td>
-    </tr>
-);
 
 export default Laporan;

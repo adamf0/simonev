@@ -86,7 +86,7 @@ class LaporanController extends Controller
                             ->pluck('tahun_masuk'),
             default=>collect([]),
         };
-        $listBankSoal = BankSoal::select('id',DB::raw('judul as text'))->get();
+        $listBankSoal = BankSoal::select('id',DB::raw('judul as text'),'peruntukan')->get();
 
         return Inertia::render('Laporan/Laporan',[
             "level"=>$level,
