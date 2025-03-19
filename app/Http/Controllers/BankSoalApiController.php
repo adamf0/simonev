@@ -161,6 +161,7 @@ class BankSoalApiController extends Controller
                 [
                     'judul' => 'required|string|max:255',
                     'peruntukan' => 'required|string|max:255',
+                    'peruntukan' => 'required|string|max:255',
                 ]
             );
     

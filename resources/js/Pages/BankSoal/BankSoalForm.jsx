@@ -254,7 +254,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                         </div>
 
                                         <div className="form-floating">
-                                            <select className="form-select" id="targetSelect" value={target} onChange={(e)=>setTarget(e.target.value)} disabled={peruntukan==null || peruntukan=="" || peruntukan == undefined || tipe=="semua"}>
+                                            <select className="form-select" id="targetSelect" value={target} onChange={(e)=>setTarget(e.target.value)} disabled={peruntukan==null || peruntukan=="" || peruntukan == undefined}>
                                             <option selected=""></option>
                                             {
                                                 peruntukan=="mahasiswa"? 
@@ -274,7 +274,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                                 </> : <></>
                                             }
                                             </select>
-                                            <label htmlFor="targetSelect">Target {tipe=="spesific"? <b className="text-danger">*</b>:<></>}</label>
+                                            <label htmlFor="targetSelect">Target {tipe=="spesific" || tipe=="all"? <b className="text-danger">*</b>:<></>}</label>
                                             <ErrorList errors={validation?.target} />
                                         </div>
 
