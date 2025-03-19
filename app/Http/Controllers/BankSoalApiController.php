@@ -137,6 +137,8 @@ class BankSoalApiController extends Controller
             $bankSoal = new BankSoal();
             $bankSoal->judul = $request->judul;
             $bankSoal->status = 'active';
+            $bankSoal->createdBy = "admin";
+            $bankSoal->branch = 0;
             $bankSoal->save();
     
             return response()->json([
