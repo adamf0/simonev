@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BankSoal;
+use App\Models\Prodi;
 use App\Models\TemplatePertanyaan;
 use App\Models\TemplatePilihan;
 use Carbon\Exceptions\InvalidFormatException;
@@ -35,6 +36,35 @@ class BankSoalApiController extends Controller
             if(isset($rule["generate"]["end"])){
                 $rule["generate"]["end"] = $rule["generate"]["end"];
             }
+
+            if($rule["target_type"]=="prodi"){
+                $target_list = Prodi::select(
+                    DB::raw('
+                    concat(
+                        `nama_prodi`, 
+                        " (",
+                        (
+                        case 
+                            when kode_jenjang = "C" then "S1"
+                            when kode_jenjang = "B" then "S2"
+                            when kode_jenjang = "A" then "S3"
+                            when kode_jenjang = "E" then "D3"
+                            when kode_jenjang = "D" then "D4"
+                            when kode_jenjang = "J" then "Profesi"
+                            else "?"
+                        end
+                        ),
+                        ")"
+                    ) as text')
+                )
+                ->whereIn('kode_prodi',$rule["target_list"])
+                ->get()
+                ->pluck('text')
+                ->toArray();
+
+                $number = 3;
+                $rule["target_list"] = count($target_list)>$number? array_merge(array_slice($target_list, 0, $number), ["+".(count($target_list)-$number)." prodi"]):$target_list;
+            } 
 
             $item->rule = $rule;
             return $item;
@@ -98,7 +128,7 @@ class BankSoalApiController extends Controller
     
             if(count($validator->errors())){
                 return response()->json([
-                    "message"=>"validasi tidak valid",
+                    "message"=>"request tidak valid",
                     "validation"=>$validator->errors()->toArray(),
                     "trace"=>null
                 ], 400);
@@ -134,7 +164,7 @@ class BankSoalApiController extends Controller
     
             if(count($validator->errors())){
                 return response()->json([
-                    "message"=>"validasi tidak valid",
+                    "message"=>"request tidak valid",
                     "validation"=>$validator->errors()->toArray(),
                     "trace"=>null
                 ], 400);
@@ -182,7 +212,7 @@ class BankSoalApiController extends Controller
 
             if(count($validator->errors())) {
                 return response()->json([
-                    "message" => "validasi tidak valid",
+                    "message" => "request tidak valid",
                     "validation" => $validator->errors()->toArray(),
                     "trace" => null
                 ], 400);
@@ -247,7 +277,7 @@ class BankSoalApiController extends Controller
 
             if(count($validator->errors())) {
                 return response()->json([
-                    "message" => "validasi tidak valid",
+                    "message" => "request tidak valid",
                     "validation" => $validator->errors()->toArray(),
                     "trace" => null
                 ], 400);
@@ -268,20 +298,27 @@ class BankSoalApiController extends Controller
                 ], 500);
             }
 
-            $bankSoal = BankSoal::findOrFail($request->id);
-            
+            $bankSoal = BankSoal::findOrFail($request->id);            
             $newBankSoal = $bankSoal->replicate();
-            $newBankSoal->judul = $request->judul; // Judul baru bisa diubah sesuai request
 
             $rule = json_decode($newBankSoal->rule, true);
-            if($rule["target_type"]!="npm"){
+            if($rule["target_type"]!="prodi"){
                 return response()->json([
-                    "message" => "perintah branch di tolak karena target tipe bukan npm",
+                    "message" => "perintah branch di tolak karena target tipe bukan prodi",
                     "validation" => [],
                     "trace" => null
                 ], 500);
             }
-            dd($newBankSoal); //[PR]
+            $rule["target_list"] = $request->target;
+            $newBankSoal->rule = json_encode($rule);
+            $newBankSoal->createdBy = "fakultas";
+            $newBankSoal->branch = $bankSoal->id;
+
+            $rule = json_decode($bankSoal->rule, true);
+            $rule["target_list"] = Prodi::select('kode_prodi')->whereNotIn('kode_prodi', $request->target)->get()->pluck('kode_prodi')->toArray();
+            $bankSoal->rule = json_encode($rule);
+            
+            $bankSoal->save();
             $newBankSoal->save();
 
             // Menyalin template pertanyaan

@@ -57,7 +57,7 @@ class KategoriApiController extends Controller
     
             if(count($validator->errors())){
                 return response()->json([
-                    "message"=>"validasi tidak valid",
+                    "message"=>"request tidak valid",
                     "validation"=>$validator->errors()->toArray(),
                     "trace"=>null
                 ], 400);
@@ -92,7 +92,7 @@ class KategoriApiController extends Controller
     
             if(count($validator->errors())){
                 return response()->json([
-                    "message"=>"validasi tidak valid",
+                    "message"=>"request tidak valid",
                     "validation"=>$validator->errors()->toArray(),
                     "trace"=>null
                 ], 400);

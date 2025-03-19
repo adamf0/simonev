@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../Component/Layout";
 import Modal from "../../Component/Modal";
 import PaginationTable from "../../Component/Pagination";
-import { fetchBankSoals, addBankSoal, deleteBankSoal, changeStatus, setBankSoals, COPY_BANK_SOAL_FAILURE, COPY_BANK_SOAL_SUCCESS, DELETE_BANK_SOAL_SUCCESS, ADD_BANK_SOAL_SUCCESS, FETCH_BANK_SOALS_REQUEST, FETCH_BANK_SOALS_FAILURE, DELETE_BANK_SOAL_FAILURE, ADD_BANK_SOAL_FAILURE, copyBankSoal, branchBankSoal } from "./redux/actions/bankSoalActions";
+import { fetchBankSoals, addBankSoal, deleteBankSoal, changeStatus, setBankSoals, COPY_BANK_SOAL_FAILURE, COPY_BANK_SOAL_SUCCESS, DELETE_BANK_SOAL_SUCCESS, ADD_BANK_SOAL_SUCCESS, FETCH_BANK_SOALS_REQUEST, FETCH_BANK_SOALS_FAILURE, DELETE_BANK_SOAL_FAILURE, ADD_BANK_SOAL_FAILURE, copyBankSoal, branchBankSoal, BRANCH_BANK_SOAL_FAILURE, BRANCH_BANK_SOAL_SUCCESS } from "./redux/actions/bankSoalActions";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { format } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
@@ -33,11 +33,13 @@ function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listM
         console.log("loading:",loading);
         console.log("action_type:",action_type);
 
-        if(action_type==DELETE_BANK_SOAL_SUCCESS){
-            setModalDeleteVisible(false);
-            dispatch(fetchBankSoals());
-        }
-        if(action_type==DELETE_BANK_SOAL_FAILURE || action_type==ADD_BANK_SOAL_FAILURE || action_type==COPY_BANK_SOAL_FAILURE || action_type==FETCH_BANK_SOALS_FAILURE ){
+        if(action_type==DELETE_BANK_SOAL_FAILURE || action_type==ADD_BANK_SOAL_FAILURE || action_type==FETCH_BANK_SOALS_FAILURE || action_type==COPY_BANK_SOAL_FAILURE || action_type==BRANCH_BANK_SOAL_FAILURE ){
+            if(action_type==BRANCH_BANK_SOAL_FAILURE){
+                setModalBranchVisible(false);
+            }
+            if(action_type==COPY_BANK_SOAL_FAILURE){
+                setModalCopyVisible(false);
+            }
             toast.error(errorMessage?.response?.data?.message, {
                 position: "bottom-right",
                 autoClose: 2000,
@@ -50,6 +52,10 @@ function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listM
                 transition: Bounce,
             });
         }
+        if(action_type==DELETE_BANK_SOAL_SUCCESS){
+            setModalDeleteVisible(false);
+            dispatch(fetchBankSoals());
+        }
         if(action_type==ADD_BANK_SOAL_SUCCESS){
             setModalAddVisible(false);
             dispatch(fetchBankSoals());
@@ -58,6 +64,12 @@ function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listM
             setModalCopyVisible(false);
             setJudul(null);
             setCopyJudul(null);
+            dispatch(fetchBankSoals());
+        }
+        if(action_type==BRANCH_BANK_SOAL_SUCCESS){
+            setModalBranchVisible(false);
+            setList([]);
+            setCopyId(null);
             dispatch(fetchBankSoals());
         }
     },[loading,action_type])
@@ -270,7 +282,7 @@ function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listM
                     title="Branch"
                     onClose={() => {
                         setModalBranchVisible(false)
-                        setProdi([])
+                        setList([])
                         setCopyId(null);
                     }}
                     showClose={!loading}
@@ -504,7 +516,7 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
                         <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                     {
-                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0) && 
+                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && item.rule?.target_type=="prodi") && 
                         <button className="btn" disabled={loading} onClick={() => createBranch(item.id)}>
                             <i className="bi bi-signpost-split text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
