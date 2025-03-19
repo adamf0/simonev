@@ -328,13 +328,16 @@ function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listM
                                     <div className="d-flex flex-wrap justify-content-between gap-2">
                                         <div></div>
                                         <div className="d-flex flex-wrap justify-content-xl-end gap-2">
-                                            <button
-                                                disabled={loading}
-                                                className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
-                                                onClick={() => setModalAddVisible(true)}
-                                            >
-                                                Tambah
-                                            </button>
+                                            {
+                                                level=="admin" && 
+                                                <button
+                                                    disabled={loading}
+                                                    className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
+                                                    onClick={() => setModalAddVisible(true)}
+                                                >
+                                                    Tambah
+                                                </button>
+                                            }
                                             { 
                                                 getTotalSelected() ?  
                                                 <button className="btn btn-sm btn-danger d-flex align-items-center gap-2" type="button" disabled={false} onClick={() => onDelete()}>
