@@ -7,7 +7,7 @@ function Footer() {
                 <div className="row text-muted">
                     <div className="col-12 text-end">
                         <p className="mb-0">
-                            &copy; 2022 - <a href="dashboard-default.html" className="text-muted">Sync Simak</a>
+                            &copy; 2022 - <a href="dashboard-default.html" className="text-muted">SIMONEV</a>
                         </p>
                     </div>
                 </div>

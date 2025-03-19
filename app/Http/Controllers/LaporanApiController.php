@@ -9,6 +9,7 @@ use App\Models\KuesionerJawaban;
 use App\Models\Mahasiswa;
 use App\Models\Pengangkatan;
 use App\Models\Prodi;
+use App\Models\TemplatePertanyaan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -26,7 +27,7 @@ class LaporanApiController extends Controller
             $b = rand(50, 255);  // Avoid 0 (black) and ensure enough color range
             
             // Generate RGBA color with random transparency
-            $rgba = "rgba($r, $g, $b, 0.5)"; // 0.5 is the transparency value
+            $rgba = "rgba($r, $g, $b, 1)"; // 0.5 is the transparency value
             
             // Avoid too light (white) and too dark (black)
             if (!in_array($rgba, $colors)) {
@@ -192,6 +193,70 @@ class LaporanApiController extends Controller
               ],
             ],
         ]);
+    }
+
+    public function laporanV2($id_bank_soal){
+        $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
+                            ->where('id_bank_soal',$id_bank_soal)
+                            ->get()
+                            ->map(function($pertanyaan) use(&$id_bank_soal){
+                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal){
+                                    $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                                                ->where('kuesioner.id_bank_soal', $id_bank_soal)
+                                                ->where('id_template_pertanyaan',$pertanyaan->id)
+                                                ->where('id_template_jawaban',$jawaban->id)
+                                                ->count();
+                                                
+                                    $jawaban->total = $results;
+                                });
+
+                                $labels = $pertanyaan->TemplatePilihan->pluck('jawaban')->toArray();
+                                $data = $pertanyaan->TemplatePilihan->pluck('total')->toArray();
+
+                                if($pertanyaan->jenis_pilihan=="rating5"){
+                                    $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
+                                    $pertanyaan->chart = [
+                                        "labels" => $labels,
+                                        "datasets" => [
+                                            [
+                                                "label" => 'Dataset 1',
+                                                "data" => $data,
+                                                "backgroundColor" => $colors,
+                                            ],
+                                        ],
+                                    ];
+                                } else{
+                                    $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
+                                    $pertanyaan->chart = [
+                                        "labels"=> $labels,
+                                        "datasets"=> [
+                                          [
+                                            "label"=> '# Total',
+                                            "data"=> $data,
+                                            "backgroundColor"=> $colors,
+                                            "borderColor"=> $colors,
+                                            "borderWidth"=> 1,
+                                          ],
+                                        ],
+                                    ];
+                                }
+                                return $pertanyaan;
+                            })
+                            ->reduce(function($carry, $item) {
+                                $kategori = $item->Kategori?->nama_kategori ?? "unknown";
+                                $sub_kategori = $item->SubKategori?->nama_sub ?? "";
+                                $pattern = "$kategori#$sub_kategori";
+
+                                $carry[$pattern][] = [
+                                    "pertanyaan"=>$item->pertanyaan,
+                                    "jenis_pilihan"=>$item->jenis_pilihan,
+                                    "chart"=>$item->chart,
+                                ];
+
+                                return $carry;
+                            }, []);
+
+        return json_encode($listPertanyaan);
     }
 
     public function laporan(Request $request){

@@ -1,6 +1,8 @@
 sudo mysql_upgrade -u root -p
 "@rollup/rollup-linux-x64-gnu": "^4.34.8",
 
+[{"pertanyaan":"1+1","chart":[{"label":"20","data":[0],"backgroundColor":["rgba(71, 138, 135, 0.5)"]},{"label":"21","data":[2],"backgroundColor":["rgba(145, 166, 217, 0.5)"]}]},{"pertanyaan":"siapa saya","chart":[{"label":"ya tidak tau","data":[0],"backgroundColor":["rgba(75, 218, 102, 0.5)"]},{"label":"hmm...","data":[2],"backgroundColor":["rgba(209, 193, 60, 0.5)"]}]},{"pertanyaan":"apa","chart":{"labels":["1","2","3","4","5"],"datasets":[{"axis":"x","label":["1","2","3","4","5"],"data":[0,0,0,0,2],"fill":false,"backgroundColor":["rgba(81, 71, 130, 0.5)","rgba(57, 211, 168, 0.5)","rgba(156, 87, 153, 0.5)","rgba(150, 84, 69, 0.5)","rgba(205, 208, 134, 0.5)"],"borderColor":["rgba(81, 71, 130, 0.5)","rgba(57, 211, 168, 0.5)","rgba(156, 87, 153, 0.5)","rgba(150, 84, 69, 0.5)","rgba(205, 208, 134, 0.5)"],"borderWidth":1}]}}]
+
 <table className="table table-striped text-center">
                                         <thead>
                                             <tr>

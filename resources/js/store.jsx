@@ -13,6 +13,7 @@ import subkategoriReducer from './Pages/SubKategori/redux/reducers/subkategoriRe
 import chartFakultasReducer from './Pages/Laporan/redux/reducers/chartFakultasReducer';
 import chartProdiReducer from './Pages/Laporan/redux/reducers/chartProdiReducer';
 import chartUnitReducer from './Pages/Laporan/redux/reducers/chartUnitReducer';
+import chartReducer from './Pages/Laporan/redux/reducers/chartReducer';
 
 const store = createStore(
     combineReducers({
@@ -29,6 +30,7 @@ const store = createStore(
         chartFakultas:chartFakultasReducer,
         chartProdi:chartProdiReducer,
         chartUnit:chartUnitReducer,
+        chart:chartReducer,
     }), 
     applyMiddleware(thunk)
 );

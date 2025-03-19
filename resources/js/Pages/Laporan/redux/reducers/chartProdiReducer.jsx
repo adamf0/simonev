@@ -5,7 +5,14 @@
   } from '../actions/chartProdiActions';
   
   const initialState = {
-    chartProdi: {},
+    chartProdi: {
+            labels: ["no data"],
+            datasets: [
+              {
+                data: [0],
+              }
+            ]
+        },
     filters: {},
     loading: false,
     error: null,

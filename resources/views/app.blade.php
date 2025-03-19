@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-    <title>SYNC-SIMAK 1</title>
+    <title>SIMONEV</title>
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
@@ -46,6 +46,18 @@
         .no-click {
             pointer-events: none; /* Prevent clicks */
             cursor: not-allowed;  /* Change cursor to indicate no interaction */
+        }
+
+        .grid-top{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+            grid-template-rows: repeat(auto-fill, minmax(450px,1fr));
+        }
+
+        .grid{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px,1fr));
+            grid-template-rows: repeat(auto-fill, minmax(400px,1fr));
         }
     </style>
     <script> const global = globalThis; </script>

@@ -5,7 +5,14 @@
   } from '../actions/chartFakultasActions';
   
   const initialState = {
-    chartFakultas: {},
+    chartFakultas: {
+            labels: ["no data"],
+            datasets: [
+              {
+                data: [0],
+              }
+            ]
+        },
     filters: {},
     loading: false,
     error: null,

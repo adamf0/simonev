@@ -6,11 +6,12 @@ import { FETCH_CHART_FAKULTAS_FAILURE, FETCH_CHART_FAKULTAS_REQUEST, fetchChartF
 import { FETCH_CHART_PRODI_FAILURE, FETCH_CHART_PRODI_REQUEST, fetchChartProdi } from "./redux/actions/chartProdiActions";
 import { FETCH_CHART_UNIT_FAILURE, FETCH_CHART_UNIT_REQUEST, fetchChartUnit } from "./redux/actions/chartUnitActions";
 import 'react-calendar-datetime-picker/dist/style.css'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, Filler } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, Filler, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { Bar, Pie } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { FETCH_CHART_FAILURE, FETCH_CHART_REQUEST, fetchChart } from "./redux/actions/chartActions";
 
-ChartJS.register(ArcElement, Tooltip, Legend, Title, Filler, ChartDataLabels);
+ChartJS.register(ArcElement, Tooltip, Legend, Title, Filler, ChartDataLabels, CategoryScale, LinearScale, BarElement);
 
 function Laporan({level, listBankSoal=[]}) {
     const dispatch = useDispatch();
@@ -30,6 +31,11 @@ function Laporan({level, listBankSoal=[]}) {
     const cuErrorMessage = useSelector((state) => state.chartUnit.error);
     const cuLoading = useSelector((state) => state.chartUnit.loading); 
 
+    const chart = useSelector((state) => state.chart.chart);
+    const ActionType = useSelector((state) => state.chart.action_type);
+    const ErrorMessage = useSelector((state) => state.chart.error);
+    const Loading = useSelector((state) => state.chart.loading); 
+
     const [filters, setFilters] = useState({level: level, bankSoal: ''});
 
     const [bankSoal, setBankSoal] = useState(null);
@@ -37,30 +43,6 @@ function Laporan({level, listBankSoal=[]}) {
     const [chartProdi, setChartProdi] = useState(false);
     const [chartUnit, setChartUnit] = useState(false);
     const [colChart, setColChart] = useState(0);
-    const [sourceChartFakultas, setSourceChartFakultas] = useState({
-        labels: ["no data"],
-        datasets: [
-          {
-            data: [0],
-          }
-        ]
-    });
-    const [sourceChartProdi, setSourceChartProdi] = useState({
-        labels: ["no data"],
-        datasets: [
-          {
-            data: [0],
-          }
-        ]
-    });
-    const [sourceChartUnit, setSourceChartUnit] = useState({
-        labels: ["no data"],
-        datasets: [
-          {
-            data: [0],
-          }
-        ]
-    });
 
     useEffect(()=>{
         console.log("loading:",cfLoading);
@@ -77,16 +59,26 @@ function Laporan({level, listBankSoal=[]}) {
         console.log("action_type:",cuActionType);
     },[cuLoading,cuActionType])
 
+    useEffect(()=>{
+        console.log("loading:",Loading);
+        console.log("action_type:",ActionType);
+    },[Loading,ActionType])
+
     useEffect(() => {
-        if (chartFakultas) {
+        if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
             dispatch(fetchChartFakultas(bankSoal));
         }
-        if (chartProdi) {
+        if (![null, "", undefined].includes(bankSoal) && chartProdi) {
             dispatch(fetchChartProdi(bankSoal));
         }
-        if (chartUnit) {
+        if (![null, "", undefined].includes(bankSoal) && chartUnit) {
             dispatch(fetchChartUnit(bankSoal));
         }
+
+        if(![null, "", undefined].includes(bankSoal)){
+            dispatch(fetchChart(bankSoal));
+        }
+        
     }, [filters]);
 
     const changeFilter = (key, value) => {
@@ -159,6 +151,61 @@ function Laporan({level, listBankSoal=[]}) {
             return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)}/>
         }
     }
+    function renderChart() {
+        console.log(chart); 
+    
+        if(ActionType==FETCH_CHART_REQUEST){
+            return <div class="card px-4 py-3">
+            <div class="grid-top">
+                <div class="col-12">
+                    <p>loading ...</p>
+                </div>
+            </div>
+        </div>;
+        } else if(ActionType==FETCH_CHART_FAILURE){
+            return ErrorMessage;
+        } else if (!chart || Object.keys(chart).length === 0) {
+            return <div class="card px-4 py-3">
+                <div class="grid-top">
+                    <div class="col-12">
+                        <p>No Data</p>
+                    </div>
+                </div>
+            </div>;
+        }
+        
+        return Object.keys(chart).map((key) => {
+            const splitKey = key.split("#").filter(item => item !== "" && item !== null && item !== undefined);
+
+            let title = "unknown";
+            if(splitKey.length==1){
+                title = splitKey[0]
+            } else if(splitKey.length>1){
+                title = splitKey.join(" > ")
+            }
+
+            return <div key={key} class="card d-flex flex-row">
+                <div class="col-12">
+                    <h3 class="text-primary bg-primary text-white px-3 py-3">{title}</h3>
+                    <div class="grid px-4 py-3">
+                        {
+                            chart[key].map((c, i) => (
+                                <div key={i} className="row">
+                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">{c.pertanyaan}</div>
+                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                        {c.jenis_pilihan === "rating5" 
+                                            ? <Bar data={c.chart} options={buildOptionsChart(c.chart)} />
+                                            : <Pie data={c.chart} options={buildOptionsChart(c.chart)} />}
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
+        });
+    }
+      
 
     return (
             <>
@@ -167,39 +214,40 @@ function Laporan({level, listBankSoal=[]}) {
                         <h1 className="header-title">Laporan Kuesioner</h1>
                     </div>
 
-                    <div className="row">
-                        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-12">
-                            <div className="card d-flex gap-2 px-4 py-3">
-                                <div className="col-12">
+                    <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-4 col-sm-12">
+                            <div class="card d-flex gap-2 px-4 py-3">
+                                <div class="col-12">
                                     <h3>Filter</h3>
                                 </div>
-                                <div className="col-12">
+                                <div class="col-12">
                                     <label>Bank Soal</label>
                                     <select className="form-select" onChange={(e)=>{
-                                            const bs = listBankSoal.find(l => l.id == e.target.value) 
-                                            console.log(bs.peruntukan)
+                                        const bs = listBankSoal.find(l => l.id == e.target.value) 
+                                        console.log(bs.peruntukan)
 
-                                            setBankSoal(e.target.value)
-                                            if(bs.peruntukan=="mahasiswa"){
-                                                setChartFakultas(true)
-                                                setChartProdi(true)
-                                                setChartUnit(false)
-                                                setColChart(2)
-                                            }
-                                            if(bs.peruntukan=="dosen"){
-                                                setChartFakultas(true)
-                                                setChartProdi(false)
-                                                setChartUnit(false)
-                                                setColChart(1)
-                                            }
-                                            if(bs.peruntukan=="tendik"){
-                                                setChartFakultas(false)
-                                                setChartProdi(false)
-                                                setChartUnit(true)
-                                                setColChart(1)
-                                            }
-                                            changeFilter("bankSoal",e.target.value);
-                                        }}>
+                                        setBankSoal(e.target.value)
+                                        if(bs.peruntukan=="mahasiswa"){
+                                            setChartFakultas(true)
+                                            setChartProdi(true)
+                                            setChartUnit(false)
+                                            setColChart(2)
+                                        }
+                                        if(bs.peruntukan=="dosen"){
+                                            setChartFakultas(true)
+                                            setChartProdi(false)
+                                            setChartUnit(false)
+                                            setColChart(1)
+                                        }
+                                        if(bs.peruntukan=="tendik"){
+                                            setChartFakultas(false)
+                                            setChartProdi(false)
+                                            setChartUnit(true)
+                                            setColChart(1)
+                                        }
+
+                                        changeFilter("bankSoal",e.target.value);
+                                    }}>
                                         <option value=""></option>
                                         {
                                             listBankSoal.map(b => {
@@ -208,27 +256,28 @@ function Laporan({level, listBankSoal=[]}) {
                                         }
                                     </select>
                                 </div>
-                                <div className="col-12">
-                                    <button className="btn btn-primary" onClick={()=>{
-                                        setBankSoal(null)
-                                    }}>Hapus filter</button>
+                                <div class="col-12">
+                                    <button className="btn btn-primary" onClick={()=>{setBankSoal(null)}}>Hapus filter</button>
                                 </div>
                             </div>
                         </div>
-                        <div className="col-xl-9 col-lg-9 col-md-9 col-sm-12">
-                            <div className="card d-flex flex-row gap-2 px-4 py-3">
-                                <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 flex-fill">
-                                    {
+
+                        <div class="col-xl-9 col-lg-9 col-md-8 col-sm-12">
+                            <div class="card px-4 py-3">
+                                <div className="grid-top">
+                                {
                                         colChart==0 && 
-                                        <p>No Data</p>
+                                        <div class="col-12">
+                                            <p>No Data</p>
+                                        </div>
                                     }
                                     {
                                         colChart>0 && 
-                                        <div className="row">
+                                        <>
                                             {
                                                 chartFakultas && 
-                                                <div className={colChart==1? `col-12`:`col-${12/colChart}`}>
-                                                    <div className="row">
+                                                <div className="row">
+                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                                         <h4>Fakultas</h4>
                                                         {renderChartFakultas()}
                                                     </div>
@@ -236,8 +285,8 @@ function Laporan({level, listBankSoal=[]}) {
                                             }
                                             {
                                                 chartProdi && 
-                                                <div className={colChart==1? `col-12`:`col-${12/colChart}`}>
-                                                    <div className="row">
+                                                <div className="row">
+                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                                         <h4>Prodi</h4>
                                                         {renderChartProdi()}
                                                     </div>
@@ -245,17 +294,19 @@ function Laporan({level, listBankSoal=[]}) {
                                             }
                                             {
                                                 chartUnit && 
-                                                <div className={colChart==1? `col-12`:`col-${12/colChart}`}>
-                                                    <div className="row">
+                                                <div className="row">
+                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                                         <h4>Unit</h4>
                                                         {renderChartUnit()}
                                                     </div>
                                                 </div>
                                             }
-                                        </div>
+                                        </>
                                     }
                                 </div>
                             </div>
+                            
+                            {renderChart()}
                         </div>
                     </div>
                 </Layout>

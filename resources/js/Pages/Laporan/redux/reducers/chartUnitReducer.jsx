@@ -5,7 +5,14 @@
   } from '../actions/chartUnitActions';
   
   const initialState = {
-    chartUnit: {},
+    chartUnit: {
+            labels: ["no data"],
+            datasets: [
+              {
+                data: [0],
+              }
+            ]
+        },
     filters: {},
     loading: false,
     error: null,

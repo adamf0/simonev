@@ -21,7 +21,7 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
     const [bobot, setBobot] = useState(1);
     const [kategori, setKategori] = useState(templatePertanyaan?.id_kategori);
     const [subKategori, setSubKategori] = useState(templatePertanyaan?.id_sub_kategori);
-    const [required, setrequired] = useState(templatePertanyaan?.required);
+    const [required, setRequired] = useState(templatePertanyaan?.required);
     const [listSubKategori, setListSubKategori] = useState([]);
 
     const templateJawabans = useSelector((state) => state.templateJawaban.templateJawabans);
