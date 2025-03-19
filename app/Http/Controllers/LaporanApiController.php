@@ -207,6 +207,7 @@ class LaporanApiController extends Controller
                                                 ->where('id_template_jawaban',$jawaban->id)
                                                 ->count();
                                                 
+                                    $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
                                     $jawaban->total = $results;
                                 });
 
