@@ -37,7 +37,7 @@ class BankSoalApiController extends Controller
                 $rule["generate"]["end"] = $rule["generate"]["end"];
             }
 
-            if($rule["target_type"]=="prodi"){
+            if(isset($rule["target_type"]) && $rule["target_type"]=="prodi"){
                 $target_list = Prodi::select(
                     DB::raw('
                     concat(
