@@ -121,13 +121,6 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
     }    
     
     function changePilihanFreeText(id_template_pertanyaan, ref, id_template_pilihan, jenis_pilihan, freeText) {
-        setAllFilled((prev) => {
-            if (!prev.includes(id_template_pertanyaan)) {
-                return [...prev, id_template_pertanyaan];
-            }
-            return prev.filter(item => item !== id_template_pertanyaan);
-        });
-
         setGroupPertanyaans((prev) => {
             const newData = { ...prev };
     
@@ -153,6 +146,28 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                     }
                     return pertanyaan;
                 });
+            });
+
+            // Setelah update groupPertanyaans, update allFilled
+            setAllFilled((prev) => {
+                // Pastikan prev.filled adalah array
+                const filled = Array.isArray(prev.filled) ? [...prev.filled] : [];
+    
+                // Periksa apakah pertanyaan sudah dijawab
+                Object.values(newData).forEach((pertanyaanList) => {
+                    pertanyaanList.forEach((pertanyaan) => {
+                        // Jika pertanyaan telah dijawab (ada pilihan yang dipilih), tambahkan ke dalam filled
+                        if (pertanyaan.selected.length > 0 && !filled.includes(pertanyaan.id)) {
+                            filled.push(pertanyaan.id);
+                        }
+                        // Jika pertanyaan belum dijawab, hapus dari filled
+                        if (pertanyaan.selected.length === 0 && filled.includes(pertanyaan.id)) {
+                            filled.splice(filled.indexOf(pertanyaan.id), 1);
+                        }
+                    });
+                });
+    
+                return { ...prev, filled };
             });
     
             return newData;
