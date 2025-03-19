@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../Component/Layout";
 import Modal from "../../Component/Modal";
 import PaginationTable from "../../Component/Pagination";
-import { fetchBankSoals, addBankSoal, deleteBankSoal, changeStatus, setBankSoals, COPY_BANK_SOAL_FAILURE, COPY_BANK_SOAL_SUCCESS, DELETE_BANK_SOAL_SUCCESS, ADD_BANK_SOAL_SUCCESS, FETCH_BANK_SOALS_REQUEST, FETCH_BANK_SOALS_FAILURE, DELETE_BANK_SOAL_FAILURE, ADD_BANK_SOAL_FAILURE, copyBankSoal } from "./redux/actions/bankSoalActions";
+import { fetchBankSoals, addBankSoal, deleteBankSoal, changeStatus, setBankSoals, COPY_BANK_SOAL_FAILURE, COPY_BANK_SOAL_SUCCESS, DELETE_BANK_SOAL_SUCCESS, ADD_BANK_SOAL_SUCCESS, FETCH_BANK_SOALS_REQUEST, FETCH_BANK_SOALS_FAILURE, DELETE_BANK_SOAL_FAILURE, ADD_BANK_SOAL_FAILURE, copyBankSoal, branchBankSoal } from "./redux/actions/bankSoalActions";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { format } from "date-fns";
+import { v4 as uuidv4 } from "uuid";
 // import { Inertia } from '@inertiajs/inertia';
 
-function BankSoal({level=null}) {
+function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listMahahsiswa=[]}) {
     const dispatch = useDispatch();
     const bankSoals = useSelector((state) => state.bankSoal.bankSoals);
     const action_type = useSelector((state) => state.bankSoal.action_type);
@@ -19,10 +20,12 @@ function BankSoal({level=null}) {
     const [isModalDeleteVisible, setModalDeleteVisible] = useState(false);
     const [isModalAddVisible, setModalAddVisible] = useState(false);
     const [isModalCopyVisible, setModalCopyVisible] = useState(false);
+    const [isModalBranchVisible, setModalBranchVisible] = useState(false);
     const [judulModal, setJudulModal] = useState(null);
     const [judul, setJudul] = useState(null);
     const [copyJudul, setCopyJudul] = useState(null);
     const [copyId, setCopyId] = useState(null);
+    const [list, setList] = useState([]);
 
     const debounceTimeout = useRef(null);
 
@@ -104,6 +107,11 @@ function BankSoal({level=null}) {
         setModalCopyVisible(true);
     }
 
+    function createBranchHandler(id) {
+        setModalBranchVisible(true);
+        setCopyId(id);
+    }
+
     function copyHandler(){
         dispatch(copyBankSoal(copyId, copyJudul));
     }
@@ -118,6 +126,34 @@ function BankSoal({level=null}) {
 
     function changeStatusHandler(id, status) {
         dispatch(changeStatus(id, status)); // Dispatch change status action
+    }
+
+    function branchHandler(){
+        dispatch(branchBankSoal(copyId, list, level));
+    }
+
+    function renderOptionListTarget(level) {
+        console.log("renderOptionListTarget")
+        return useMemo(() => {
+            if (level === "fakultas") {
+                return listProdi.map(item => (
+                    <option selected={list.includes(item.id)} key={uuidv4()} value={item.id}>{item.id} - {item.nama}</option>
+                ));
+            }
+            return <></>;
+        }, [listMahahsiswa, listUnit, listProdi]);
+    }
+
+    function handleListSelectChange(e) {
+        const selectedOption = e.target.value;
+    
+        setList(prevList => {
+            if (prevList.includes(selectedOption)) {
+                return prevList.filter(item => item !== selectedOption);
+            } else {
+                return [...prevList, selectedOption];
+            }
+        });
     }
 
     // Debounced filter change
@@ -229,6 +265,40 @@ function BankSoal({level=null}) {
                         </button>
                     }
                 />
+                <Modal
+                    isVisible={isModalBranchVisible}
+                    title="Branch"
+                    onClose={() => {
+                        setModalBranchVisible(false)
+                        setProdi([])
+                        setCopyId(null);
+                    }}
+                    showClose={!loading}
+                    content={
+                        <div className="row gap-2">
+                            <div className="form-floating">
+                                <select className="form-select form-select-default" id="listSelect" value={list} onChange={(e)=>handleListSelectChange(e)} multiple>
+                                <option value="" selected={list.includes("")}></option>
+                                {renderOptionListTarget(level)}
+                                </select>
+                                <label htmlFor="listSelect">List Target <b className="text-danger">*</b></label>
+                            </div>
+                        </div>
+                    }
+                    footer={
+                        <button
+                            className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
+                            type="button"
+                            disabled={loading}
+                            onClick={() => branchHandler()}
+                        >
+                            {/* {loading.target === "btn-save-modal" && loading.val && (
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            )} */}
+                            Simpan
+                        </button>
+                    }
+                />
                 <Layout level={level}>
                     <div className="header">
                         <h1 className="header-title">Template Kuesioner</h1>
@@ -296,6 +366,7 @@ function BankSoal({level=null}) {
                                         </tr>
                                     </thead>
                                     <BankSoal.BankSoalsBody
+                                            level={level}
                                             action_type={action_type}
                                             bankSoals={bankSoals}
                                             loading={loading}
@@ -305,6 +376,7 @@ function BankSoal({level=null}) {
                                             openPertanyaan={openPertanyaan}
                                             openCopy={openCopy}
                                             previewPertanyaan={previewPertanyaan}
+                                            createBranch={createBranchHandler}
                                     />
                                 </table>
 
@@ -324,7 +396,7 @@ function BankSoal({level=null}) {
     );
 }
 
-BankSoal.BankSoalsBody = ({ action_type, bankSoals, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan }) => {
+BankSoal.BankSoalsBody = ({ level, action_type, bankSoals, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan, createBranch }) => {
     if (action_type === FETCH_BANK_SOALS_REQUEST) {
         return <BankSoal.LoadingRow />;
     } else if (action_type === FETCH_BANK_SOALS_FAILURE) {
@@ -335,6 +407,7 @@ BankSoal.BankSoalsBody = ({ action_type, bankSoals, loading, changeSelected, ope
                 {bankSoals.record?.map(item => (
                     <BankSoal.BankSoalsRow 
                         key={item.id}
+                        level={level}
                         item={item}
                         loading={loading}
                         changeSelected={changeSelected}
@@ -343,13 +416,14 @@ BankSoal.BankSoalsBody = ({ action_type, bankSoals, loading, changeSelected, ope
                         openPertanyaan={openPertanyaan}
                         openCopy={openCopy}
                         previewPertanyaan={previewPertanyaan}
+                        createBranch={createBranch}
                     />
                 ))}
             </tbody>
         );
     }
 };
-BankSoal.BankSoalsRow = ({ item, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan }) => { 
+BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan, createBranch }) => { 
     function renderAturan(item){
         let output = [<span class="badge bg-secondary">{item.peruntukan}</span>];
         if(item.rule!=null || rule!="" || rule!="{}" || rule!=undefined){
@@ -374,7 +448,9 @@ BankSoal.BankSoalsRow = ({ item, loading, changeSelected, openEdit, changeStatus
     return (
         <tr key={item.id}>
             <td>
-                <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+                {
+                    (level=="admin" || item.branch!=0) && <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+                }
             </td>
             <td>{item.judul}</td>
             <td className="d-none d-xl-table-cell">{item.deskripsi}</td>
@@ -392,29 +468,47 @@ BankSoal.BankSoalsRow = ({ item, loading, changeSelected, openEdit, changeStatus
             </td>
             <td>
                 <div className="d-flex justify-content-center gap-2">
-                    <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
-                        <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
-                    </button>
-                    <button
-                        className="btn"
-                        disabled={loading}
-                        onClick={() => changeStatusHandler(item.id, item.status !== 'active' ? 'active' : 'non-active')}
-                    >
-                        {item.status === "non-active" ? (
-                            <i className="bi bi-check-circle text-black" style={{ fontSize: "1.2rem" }}></i>
-                        ) : (
-                            <i className="bi bi-x-circle text-black" style={{ fontSize: "1.2rem" }}></i>
-                        )}
-                    </button>
-                    <button className="btn" disabled={loading} onClick={() => openCopy(item.id, item.judul)}>
-                        <i className="bi bi-copy text-black" style={{ fontSize: "1.2rem" }}></i>
-                    </button>
-                    <button className="btn" disabled={loading} onClick={() => openPertanyaan(item.id)}>
-                        <i className="bi bi-arrow-right-circle text-black" style={{ fontSize: "1.2rem" }}></i>
-                    </button>
+                    {
+                        (item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0) && 
+                        <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
+                            <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
+                        </button>
+                    }
+                    {
+                        (item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0) && 
+                        <button
+                            className="btn"
+                            disabled={loading}
+                            onClick={() => changeStatusHandler(item.id, item.status !== 'active' ? 'active' : 'non-active')}
+                        >
+                            {item.status === "non-active" ? (
+                                <i className="bi bi-check-circle text-black" style={{ fontSize: "1.2rem" }}></i>
+                            ) : (
+                                <i className="bi bi-x-circle text-black" style={{ fontSize: "1.2rem" }}></i>
+                            )}
+                        </button>
+                    }
+                    {
+                        (item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0) && 
+                        <button className="btn" disabled={loading} onClick={() => openCopy(item.id, item.judul)}>
+                            <i className="bi bi-copy text-black" style={{ fontSize: "1.2rem" }}></i>
+                        </button>
+                    }
+                    {
+                        (item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0) && 
+                        <button className="btn" disabled={loading} onClick={() => openPertanyaan(item.id)}>
+                            <i className="bi bi-arrow-right-circle text-black" style={{ fontSize: "1.2rem" }}></i>
+                        </button>
+                    }
                     <button className="btn" disabled={loading} onClick={() => previewPertanyaan(item.id)}>
                         <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
+                    {
+                        (item.createdBy=="admin" && item.branch==0) && 
+                        <button className="btn" disabled={loading} onClick={() => createBranch(item.id)}>
+                            <i className="bi bi-signpost-split text-black" style={{ fontSize: "1.2rem" }}></i>
+                        </button>
+                    }
                 </div>
             </td>
         </tr>

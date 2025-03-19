@@ -22,7 +22,11 @@ class BankSoalController extends Controller
 
     public function bankSoal()
     {
-        return Inertia::render('BankSoal/BankSoal', ["level"=>session()->get('level')]);
+        $prodi = Prodi::select(DB::raw("kode_prodi as id"),DB::raw("nama_prodi as nama"))->where('kode_fak',session()->get('fakultas'))->get();
+        $mahasiswa = collect([]); //AkunSimak::select(DB::raw("userid as id"), "nama")->where("level","MAHASISWA")->get()
+        $unit = Pengangkatan::select('unit_kerja')->distinct()->get();
+
+        return Inertia::render('BankSoal/BankSoal', ["level"=>session()->get('level'), "listUnit"=>$unit, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa,]);
     }
 
     public function bankSoalEdit($id_bank_soal)

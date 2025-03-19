@@ -17,7 +17,10 @@
     SET_BANK_SOALS,
     COPY_BANK_SOAL_REQUEST,
     COPY_BANK_SOAL_SUCCESS,
-    COPY_BANK_SOAL_FAILURE
+    COPY_BANK_SOAL_FAILURE,
+    BRANCH_BANK_SOAL_REQUEST,
+    BRANCH_BANK_SOAL_SUCCESS,
+    BRANCH_BANK_SOAL_FAILURE
   } from '../actions/bankSoalActions';
   
   const initialState = {
@@ -45,6 +48,7 @@
       case ADD_BANK_SOAL_REQUEST:
       case UPDATE_BANK_SOAL_REQUEST:
       case COPY_BANK_SOAL_REQUEST:
+      case BRANCH_BANK_SOAL_REQUEST:
       case DELETE_BANK_SOAL_REQUEST:
       case CHANGE_STATUS_REQUEST:
         return { ...state, loading: true, action_type:action.type };
@@ -64,6 +68,7 @@
       case ADD_BANK_SOAL_SUCCESS:
       case UPDATE_BANK_SOAL_SUCCESS:
       case COPY_BANK_SOAL_SUCCESS:
+      case BRANCH_BANK_SOAL_SUCCESS:
       case DELETE_BANK_SOAL_SUCCESS:
       case CHANGE_STATUS_SUCCESS:
         return { ...state, loading: false, action_type:action.type };
@@ -72,6 +77,7 @@
       case ADD_BANK_SOAL_FAILURE:
       case UPDATE_BANK_SOAL_FAILURE:
       case COPY_BANK_SOAL_FAILURE:
+      case BRANCH_BANK_SOAL_FAILURE:
       case DELETE_BANK_SOAL_FAILURE:
       case CHANGE_STATUS_FAILURE:
         return { ...state, loading: false, error: action.error, validation: action?.validation, action_type:action.type };

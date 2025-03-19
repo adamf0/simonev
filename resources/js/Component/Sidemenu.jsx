@@ -44,14 +44,16 @@ function Sidemenu({ isOpen, level }) {
                                     <span className="align-middle">Kategori Kuesioner</span>
                                 </a>
                             </li>
-                            <li className={`sidebar-item ${activeItem === '/bankSoal' ? 'active' : ''}`}>
-                                <a className="sidebar-link" href="/bankSoal" onClick={() => handleItemClick('/bankSoal')}>
-                                    <i className="align-middle ti ti-abc me-2"></i>
-                                    <span className="align-middle">Template Kuesioner</span>
-                                </a>
-                            </li>
                             </> : 
                             <></>
+                        }
+                        {
+                            (level=="admin" || level=="fakultas") && <li className={`sidebar-item ${activeItem === '/bankSoal' ? 'active' : ''}`}>
+                            <a className="sidebar-link" href="/bankSoal" onClick={() => handleItemClick('/bankSoal')}>
+                                <i className="align-middle ti ti-abc me-2"></i>
+                                <span className="align-middle">Template Kuesioner</span>
+                            </a>
+                        </li>
                         }
                         <li className={`sidebar-item ${activeItem === '/laporan' ? 'active' : ''}`}>
                             

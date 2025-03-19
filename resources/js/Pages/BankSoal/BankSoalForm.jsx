@@ -31,7 +31,7 @@ function splitDate(dateString) {
     return [year, month, day ];
 }
 
-function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listFakultas=[], listProdi=[], listMahahsiswa=[], level=null}) {
+function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listProdi=[], listMahahsiswa=[], level=null}) {
     const json = JSON.parse(dataBankSoal?.rule ?? "{}");
     const [yearStart, monthStart, dayStart] = splitDate(json.generate?.start);
     const [yearEnd, monthEnd, dayEnd] = splitDate(json.generate?.end);

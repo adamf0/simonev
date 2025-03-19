@@ -24,12 +24,17 @@ export const COPY_BANK_SOAL_REQUEST = 'COPY_BANK_SOAL_REQUEST';
 export const COPY_BANK_SOAL_SUCCESS = 'COPY_BANK_SOAL_SUCCESS';
 export const COPY_BANK_SOAL_FAILURE = 'COPY_BANK_SOAL_FAILURE';
 
+export const BRANCH_BANK_SOAL_REQUEST = 'BRANCH_BANK_SOAL_REQUEST';
+export const BRANCH_BANK_SOAL_SUCCESS = 'BRANCH_BANK_SOAL_SUCCESS';
+export const BRANCH_BANK_SOAL_FAILURE = 'BRANCH_BANK_SOAL_FAILURE';
+
 export const SET_BANK_SOALS = 'SET_BANK_SOALS';
 
 const api_bankSoal_list = '/api/bankSoal';
 const api_bankSoal_add = '/api/bankSoal/save';
 const api_bankSoal_update = '/api/bankSoal/update';
 const api_bankSoal_copy = '/api/bankSoal/copy';
+const api_bankSoal_branch = '/api/bankSoal/branch';
 const api_bankSoal_delete = '/api/bankSoal/delete';
 const api_bankSoal_status = '/api/bankSoal/status';
 
@@ -85,6 +90,19 @@ export const copyBankSoal = (id,judul) => {
     } catch (error) {
       const validation = error?.response?.data?.validation;
       dispatch({ type: COPY_BANK_SOAL_FAILURE, error, validation });
+    }
+  };
+};
+
+export const branchBankSoal = (id,target,level) => {
+  return async (dispatch) => {
+    dispatch({ type: BRANCH_BANK_SOAL_REQUEST });
+    try {
+      const response = await axios.post(api_bankSoal_branch, { id, target, level });
+      dispatch({ type: BRANCH_BANK_SOAL_SUCCESS, payload: response.data });
+    } catch (error) {
+      const validation = error?.response?.data?.validation;
+      dispatch({ type: BRANCH_BANK_SOAL_FAILURE, error, validation });
     }
   };
 };

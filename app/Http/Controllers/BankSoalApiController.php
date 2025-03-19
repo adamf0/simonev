@@ -230,4 +230,95 @@ class BankSoalApiController extends Controller
             ], 500);
         }
     }
+    public function branch(Request $request)
+    {
+        
+        DB::beginTransaction();
+        try {
+            // Validasi input
+            $validator = validator(
+                $request->all(),
+                [
+                    'id' => 'required',
+                    'target' => 'required',
+                    'level' => 'required',
+                ]
+            );
+
+            if(count($validator->errors())) {
+                return response()->json([
+                    "message" => "validasi tidak valid",
+                    "validation" => $validator->errors()->toArray(),
+                    "trace" => null
+                ], 400);
+            } 
+
+            if(!is_array($request->target) || count($request->target)==0){
+                return response()->json([
+                    "message" => "data target kosong",
+                    "validation" => [],
+                    "trace" => null
+                ], 500);
+            }
+            if(empty($request->leven)!="fakultas"){
+                return response()->json([
+                    "message" => "perintah branch di tolak karena saat ini pengguna selain fakultas",
+                    "validation" => [],
+                    "trace" => null
+                ], 500);
+            }
+
+            $bankSoal = BankSoal::findOrFail($request->id);
+            
+            $newBankSoal = $bankSoal->replicate();
+            $newBankSoal->judul = $request->judul; // Judul baru bisa diubah sesuai request
+
+            $rule = json_decode($newBankSoal->rule, true);
+            if($rule["target_type"]!="npm"){
+                return response()->json([
+                    "message" => "perintah branch di tolak karena target tipe bukan npm",
+                    "validation" => [],
+                    "trace" => null
+                ], 500);
+            }
+            dd($newBankSoal);
+            $newBankSoal->save();
+
+            // Menyalin template pertanyaan
+            $templatePertanyaan = TemplatePertanyaan::where('id_bank_soal', $request->id)
+                                                    ->get(); 
+
+            foreach ($templatePertanyaan as $template) {
+                // Menyalin setiap template pertanyaan
+                $newTemplate = $template->replicate();
+                $newTemplate->id_bank_soal = $newBankSoal->id;  // Menetapkan id bank soal baru
+                $newTemplate->save();
+
+                // Menyalin pilihan jawaban terkait
+                $templatePilihan = TemplatePilihan::where('id_template_soal', $template->id)
+                                                ->get();
+
+                foreach ($templatePilihan as $pilihan) {
+                    $newPilihan = $pilihan->replicate();
+                    $newPilihan->id_template_soal = $newTemplate->id;  // Menetapkan id template soal baru
+                    $newPilihan->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                "message" => "berhasil duplikat data template kuesioner",
+                "validation" => [],
+                "trace" => null
+            ], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                "message" => "ups ada error",
+                "validation" => [],
+                "trace" => $th->getTrace()
+            ], 500);
+        }
+    }
 }

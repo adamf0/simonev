@@ -23,6 +23,7 @@ Route::get('/bankSoal', [BankSoalApiController::class, 'listBankSoal'])->name('a
 Route::post('/bankSoal/save', [BankSoalApiController::class, 'save'])->name('api.bankSoal.add');
 Route::post('/bankSoal/update', [BankSoalApiController::class, 'update'])->name('api.bankSoal.update');
 Route::post('/bankSoal/copy', [BankSoalApiController::class, 'copy'])->name('api.bankSoal.copy');
+Route::post('/bankSoal/branch', [BankSoalApiController::class, 'branch'])->name('api.bankSoal.branch');
 Route::get('/bankSoal/status/{id}/{status}', [BankSoalApiController::class, 'status'])->name('api.bankSoal.status');
 Route::post('/bankSoal/delete', [BankSoalApiController::class, 'delete'])->name('api.bankSoal.delete');
 
