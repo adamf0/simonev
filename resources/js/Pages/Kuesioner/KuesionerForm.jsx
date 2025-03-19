@@ -161,7 +161,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
     
     function saveHandler() {
         console.log(allFilled)
-        if(allFilled.filled.length!=allFilled.required.length){
+        if(allFilled.filled.length>=allFilled.required.length){
             alert("masih ada pertanyaan yg belum diisi")
         } else{
             const data = Object.values(groupPertanyaans) 
@@ -238,7 +238,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                                                         <div className="col-12">
                                                             <div className="row">
                                                                 <div className="col-12">
-                                                                    {index+1}. {item.pertanyaan} {item.required && <small className="text-danger">*</small>}
+                                                                    {index+1}. {item.pertanyaan} {item.required==1 && <small className="text-danger">*</small>}
                                                                 </div>
                                                                 <div className="col-12">
                                                                     {
@@ -272,7 +272,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                                                                                     </li>)
                                                                                 }
                                                                             </ol>
-                                                                            {!allFilled.filled.includes(item.id) && <small className="text-danger">Ini belum dijawab</small>}
+                                                                            {(!allFilled.filled.includes(item.id) && item.required==1) && <small className="text-danger">Ini belum dijawab</small>}
                                                                         </>
                                                                         :
                                                                         <>
