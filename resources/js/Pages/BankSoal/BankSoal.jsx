@@ -469,13 +469,13 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
             <td>
                 <div className="d-flex justify-content-center gap-2">
                     {
-                        (item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0) && 
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) && 
                         <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
                             <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
                     }
                     {
-                        (item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0) && 
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) &&
                         <button
                             className="btn"
                             disabled={loading}
@@ -489,13 +489,13 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
                         </button>
                     }
                     {
-                        (item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0) && 
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) &&
                         <button className="btn" disabled={loading} onClick={() => openCopy(item.id, item.judul)}>
                             <i className="bi bi-copy text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
                     }
                     {
-                        (item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0) && 
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) &&
                         <button className="btn" disabled={loading} onClick={() => openPertanyaan(item.id)}>
                             <i className="bi bi-arrow-right-circle text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
@@ -504,7 +504,7 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
                         <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                     {
-                        (item.createdBy=="admin" && item.branch==0) && 
+                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0) && 
                         <button className="btn" disabled={loading} onClick={() => createBranch(item.id)}>
                             <i className="bi bi-signpost-split text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
