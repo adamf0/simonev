@@ -132,9 +132,9 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                             return {
                                 ...pertanyaan,
                                 freeText: freeText,
-                                selected: isSelected
+                                selected: freeText.length>0? pertanyaan.selected:(isSelected
                                     ? pertanyaan.selected.filter((id) => id !== id_template_pilihan)
-                                    : [...pertanyaan.selected, id_template_pilihan], 
+                                    : [...pertanyaan.selected, id_template_pilihan]), 
                             };
                         } else {
                             return {
