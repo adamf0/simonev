@@ -160,8 +160,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
     }
     
     function saveHandler() {
-        console.log(allFilled)
-        if(allFilled.filled.length>=allFilled.required.length){
+        if(allFilled.filled.length<allFilled.required.length){
             alert("masih ada pertanyaan yg belum diisi")
         } else{
             const data = Object.values(groupPertanyaans) 
