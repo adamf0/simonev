@@ -14,7 +14,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
     const errorMessage = useSelector((state) => state.kuesioner.error);
     const loading = useSelector((state) => state.kuesioner.loading); // Access loading state from Redux
 
-    const [allFilled, setAllFilled] = useState(pertanyaanRequired);
+    const [allFilled, setAllFilled] = useState({required: pertanyaanRequired, filled: []});
     const [groupPertanyaans, setGroupPertanyaans] = useState(
         Object.fromEntries(
             Object.entries(groupPertanyaan).map(([group, pertanyaan]) => [
@@ -63,16 +63,10 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
             }
     },[loading,action_type])
 
-    useEffect(()=> console.log(groupPertanyaans),[groupPertanyaans])
+    // useEffect(()=> console.log(groupPertanyaans),[groupPertanyaans])
+    useEffect(()=> console.log(allFilled),[allFilled])
 
     function changePilihan(id_template_pertanyaan, ref, id_template_pilihan, jenis_pilihan, freeText) {
-        setAllFilled((prev) => { // masih kena bug
-            if (!prev.includes(id_template_pertanyaan)) {
-                return [...prev, id_template_pertanyaan];
-            }
-            return prev.filter(item => item !== id_template_pertanyaan);
-        });
-
         setGroupPertanyaans((prev) => {
             const newData = { ...prev };
     
@@ -86,7 +80,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                                 freeText: freeText,
                                 selected: isSelected
                                     ? pertanyaan.selected.filter((id) => id !== id_template_pilihan)
-                                    : [...pertanyaan.selected, id_template_pilihan], 
+                                    : [...pertanyaan.selected, id_template_pilihan],
                             };
                         } else {
                             return {
@@ -100,9 +94,31 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                 });
             });
     
+            // Setelah update groupPertanyaans, update allFilled
+            setAllFilled((prev) => {
+                // Pastikan prev.filled adalah array
+                const filled = Array.isArray(prev.filled) ? [...prev.filled] : [];
+    
+                // Periksa apakah pertanyaan sudah dijawab
+                Object.values(newData).forEach((pertanyaanList) => {
+                    pertanyaanList.forEach((pertanyaan) => {
+                        // Jika pertanyaan telah dijawab (ada pilihan yang dipilih), tambahkan ke dalam filled
+                        if (pertanyaan.selected.length > 0 && !filled.includes(pertanyaan.id)) {
+                            filled.push(pertanyaan.id);
+                        }
+                        // Jika pertanyaan belum dijawab, hapus dari filled
+                        if (pertanyaan.selected.length === 0 && filled.includes(pertanyaan.id)) {
+                            filled.splice(filled.indexOf(pertanyaan.id), 1);
+                        }
+                    });
+                });
+    
+                return { ...prev, filled };
+            });
+    
             return newData;
         });
-    }
+    }    
     
     function changePilihanFreeText(id_template_pertanyaan, ref, id_template_pilihan, jenis_pilihan, freeText) {
         setAllFilled((prev) => {
@@ -145,7 +161,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
     
     function saveHandler() {
         console.log(allFilled)
-        if(allFilled.length>0){
+        if(allFilled.filled.length!=allFilled.required.length){
             alert("masih ada pertanyaan yg belum diisi")
         } else{
             const data = Object.values(groupPertanyaans) 
@@ -222,7 +238,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                                                         <div className="col-12">
                                                             <div className="row">
                                                                 <div className="col-12">
-                                                                    {index+1}. {item.pertanyaan} {item.required && <small className="text-danger">wajib isi</small>}
+                                                                    {index+1}. {item.pertanyaan} {item.required && <small className="text-danger">*</small>}
                                                                 </div>
                                                                 <div className="col-12">
                                                                     {
@@ -256,9 +272,10 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                                                                                     </li>)
                                                                                 }
                                                                             </ol>
-                                                                            {allFilled.includes(item.id) && <small className="text-danger">Ini belum dijawab</small>}
+                                                                            {!allFilled.filled.includes(item.id) && <small className="text-danger">Ini belum dijawab</small>}
                                                                         </>
                                                                         :
+                                                                        <>
                                                                         <div className="d-flex align-items-center gap-2">
                                                                             <b>Sangat Tidak Baik</b>&nbsp;
                                                                             {
@@ -275,6 +292,8 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                                                                             }
                                                                             &nbsp;<b>Sangat Baik</b>
                                                                         </div>
+                                                                        {!allFilled.filled.includes(item.id) && <small className="text-danger">Ini belum dijawab</small>}
+                                                                        </>
                                                                     }
                                                                 </div>
                                                             </div>
