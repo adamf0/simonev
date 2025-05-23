@@ -52,7 +52,7 @@ class KuesionerController extends Controller
         };
 
         $bankSoal = BankSoal::where('peruntukan',$peruntukan)->where('status','active')->get()->transform(function($item){
-            $item->rule = json_decode($item->rule);
+            $item->rule = $item?->rule==null? (object)[]:json_decode($item?->rule);
             return $item;
         });
         
