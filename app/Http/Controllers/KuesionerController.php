@@ -52,72 +52,72 @@ class KuesionerController extends Controller
         };
 
         $bankSoal = BankSoal::where('peruntukan',$peruntukan)->where('status','active')->get()->transform(function($item){
-            $item->rule = $item?->rule==null? (object)[]:json_decode($item?->rule);
+            $item->rule = json_decode($item->rule);
             return $item;
         });
         
         $now = date('Y-m-d');
         $filter = collect([]);
         foreach($bankSoal as $item){
-            $start = date($this->replaceDateFormatIfEndDate($item?->rule?->generate->start,"slug"));
-            $end = date($this->replaceDateFormatIfEndDate($item?->rule?->generate->end,"slug"));
+            $start = date($this->replaceDateFormatIfEndDate($item->rule->generate->start,"slug"));
+            $end = date($this->replaceDateFormatIfEndDate($item->rule->generate->end,"slug"));
 
-            $item->start_repair = $item?->rule?->generate->start;
-            $item->end_repair = $item?->rule?->generate->end;
+            $item->start_repair = $item->rule->generate->start;
+            $item->end_repair = $item->rule->generate->end;
 
-            if($item?->rule?->type=="spesific" && $item?->rule?->target_type=="npm" && (in_array("all",$item?->rule?->target_list) || in_array($target,$item?->rule?->target_list)) ){
-                if($item?->rule?->generate->type=="once" && $this->isDateBetween($now, $item?->rule?->generate->start, $item?->rule?->generate->end)){
+            if($item->rule->type=="spesific" && $item->rule->target_type=="npm" && (in_array("all",$item->rule->target_list) || in_array($target,$item->rule->target_list)) ){
+                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
                     $filter->add($item);
-                } else if($item?->rule?->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
                     $item->start_repair = $start;
                     $item->end_repair = $end;
                     $filter->add($item);
                 } 
-                else if($item?->rule?->generate->type=="nolimit"){
+                else if($item->rule->generate->type=="nolimit"){
                     $filter->add($item);
                 }
-            } else if($item?->rule?->type=="spesific" && $item?->rule?->target_type=="prodi" && (in_array("all",$item?->rule?->target_list) || in_array($prodi,$item?->rule?->target_list)) ){
-                if($item?->rule?->generate->type=="once" && $this->isDateBetween($now, $item?->rule?->generate->start, $item?->rule?->generate->end)){
+            } else if($item->rule->type=="spesific" && $item->rule->target_type=="prodi" && (in_array("all",$item->rule->target_list) || in_array($prodi,$item->rule->target_list)) ){
+                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
                     $filter->add($item);
-                } else if($item?->rule?->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
                     $item->start_repair = $start;
                     $item->end_repair = $end;
                     $filter->add($item);
                 } 
-                else if($item?->rule?->generate->type=="nolimit"){
+                else if($item->rule->generate->type=="nolimit"){
                     $filter->add($item);
                 }
-            } else if($item?->rule?->type=="spesific" && $item?->rule?->target_type=="fakultas" && (in_array("all",$item?->rule?->target_list) || in_array($fakultas,$item?->rule?->target_list)) ){
-                if($item?->rule?->generate->type=="once" && $this->isDateBetween($now, $item?->rule?->generate->start, $item?->rule?->generate->end)){
+            } else if($item->rule->type=="spesific" && $item->rule->target_type=="fakultas" && (in_array("all",$item->rule->target_list) || in_array($fakultas,$item->rule->target_list)) ){
+                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
                     $filter->add($item);
-                } else if($item?->rule?->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
                     $item->start_repair = $start;
                     $item->end_repair = $end;
                     $filter->add($item);
                 } 
-                else if($item?->rule?->generate->type=="nolimit"){
+                else if($item->rule->generate->type=="nolimit"){
                     $filter->add($item);
                 }
-            } else if($item?->rule?->type=="spesific" && $item?->rule?->target_type=="unit" && (in_array("all",$item?->rule?->target_list) || in_array($unit,$item?->rule?->target_list)) ){
-                if($item?->rule?->generate->type=="once" && $this->isDateBetween($now, $item?->rule?->generate->start, $item?->rule?->generate->end)){
+            } else if($item->rule->type=="spesific" && $item->rule->target_type=="unit" && (in_array("all",$item->rule->target_list) || in_array($unit,$item->rule->target_list)) ){
+                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
                     $filter->add($item);
-                } else if($item?->rule?->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
                     $item->start_repair = $start;
                     $item->end_repair = $end;
                     $filter->add($item);
                 } 
-                else if($item?->rule?->generate->type=="nolimit"){
+                else if($item->rule->generate->type=="nolimit"){
                     $filter->add($item);
                 }
-            } else if($item?->rule?->type=="all"){
-                if($item?->rule?->generate->type=="once" && $this->isDateBetween(date('Y-m-d'), $item?->rule?->generate->start, $item?->rule?->generate->end)){
+            } else if($item->rule->type=="all"){
+                if($item->rule->generate->type=="once" && $this->isDateBetween(date('Y-m-d'), $item->rule->generate->start, $item->rule->generate->end)){
                     $filter->add($item);
-                } else if($item?->rule?->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
                     $item->start_repair = $start;
                     $item->end_repair = $end;
                     $filter->add($item);
                 } 
-                else if($item?->rule?->generate->type=="nolimit"){
+                else if($item->rule->generate->type=="nolimit"){
                     $filter->add($item);
                 }
             }
