@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class EPribadi extends Model
 {
     protected $table = 'e_pribadi';
-    // protected $connection = 'simpeg';
+    protected $connection = 'simpeg';
     protected $fillable = ['*'];
 
     public function Payroll():HasOne{
