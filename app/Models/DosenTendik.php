@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class DosenTendik extends Model
 {
     protected $table = 'v_tendik';
-    // protected $connection = 'simpeg';
+    protected $connection = 'simpeg';
     protected $fillable = ['*'];
 
     function EPribadi():HasOne{
