@@ -75,6 +75,7 @@ class KuesionerApiController extends Controller
             $results = $results->where("kuesioner.$kolom", $request->data);
 
             $bank_soal = $bank_soal->selectRaw("
+                id as null,
                 id as id_bank_soal,
                 CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
                 CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
@@ -261,10 +262,11 @@ class KuesionerApiController extends Controller
                     )
                     ->values();
 
-        dd($results, $results2);
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
+        $x = $results->filter(fn($row) => !in_array($row?->id_bank_soal, $resultsIds));
+        dd($results, $results2,$resultsIds, $x);
 
-        $resource = $results2->merge($results->filter(fn($row) => !in_array($row?->id, $resultsIds))->values())->values();
+        $resource = $results2->merge($x)->values()->values();
         $perPage = 5;
         $currentPage = $request?->page ?? 1;
         $currentPage = $currentPage <= 0? 1:$currentPage;
