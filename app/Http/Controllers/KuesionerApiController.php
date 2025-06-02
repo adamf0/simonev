@@ -49,7 +49,7 @@ class KuesionerApiController extends Controller
                         ->selectRaw(
                             "
                             kuesioner.*, 
-                            bank_soal.id as id_bank_soal,
+                            kuesioner.id_bank_soal as id_bank_soal,
                             bank_soal.judul,
                             bank_soal.deskripsi,
                             bank_soal.rule,
