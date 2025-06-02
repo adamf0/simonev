@@ -258,7 +258,7 @@ class KuesionerApiController extends Controller
                     )
                     ->values();
 
-        $resource = $results2->merge($results);
+        $resource = $results2->merge($results)->values();
         $perPage = 5;
         $currentPage = $request?->page ?? 1;
         $currentPage = $currentPage <= 0? 1:$currentPage;
