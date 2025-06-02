@@ -98,7 +98,6 @@ class KuesionerApiController extends Controller
                 $kolom, $request->data,
                 $kolom, $kolom, $kolom
             ])
-            ->where("peruntukan", $request->peruntukan)
             ->where(fn($q) => 
                 $q->where(function($query) use ($request, $target_type) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = '?'", [$target_type])
