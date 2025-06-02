@@ -79,34 +79,33 @@ class KuesionerApiController extends Controller
                 "mahasiswa"=>"mahasiswa",
                 default=>"all",
             };
-            $bank_soal = $bank_soal->selectRaw(
-                            "
-                            (CASE 
-                                WHEN '$kolom'='npm' THEN $request->data
-                                ELSE null
-                            END) as npm,
-                            (CASE 
-                                WHEN '$kolom'='nidn' THEN $request->data
-                                ELSE null
-                            END) as nidn,
-                            (CASE 
-                                WHEN '$kolom'='nip' THEN $request->data
-                                ELSE null
-                            END) as nip, 
-                            bank_soal.judul,
-                            bank_soal.deskripsi,
-                            bank_soal.rule,
-                            (CASE 
-                                WHEN '$kolom'='npm' THEN 'mahasiswa'
-                                WHEN '$kolom'='nidn' THEN 'dosen'
-                                WHEN '$kolom'='nip' THEN 'tendik'
-                                ELSE null
-                            END) as peruntukan"
-                        )
-                        ->where(function($query) use($target_type){
-                            return $query->where("rule","like",'%"target_type":"'.$target_type.'"%')
-                                        ->orWhere("rule","like",'%"target_type":"all"%');
-                        })->orWhere("rule","like",'%'.$request->data.'%');
+            $bank_soal = $bank_soal->selectRaw("
+                CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
+                CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
+                CASE WHEN ? = 'nip' THEN ? ELSE NULL END AS nip,
+                bank_soal.judul,
+                bank_soal.deskripsi,
+                bank_soal.rule,
+                CASE 
+                    WHEN ? = 'npm' THEN 'mahasiswa'
+                    WHEN ? = 'nidn' THEN 'dosen'
+                    WHEN ? = 'nip' THEN 'tendik'
+                    ELSE NULL
+                END AS peruntukan
+            ", [
+                $kolom, $request->data,
+                $kolom, $request->data,
+                $kolom, $request->data,
+                $kolom, $kolom, $kolom
+            ])
+            ->where(function($query) use ($request) {
+                $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = 'npm'")
+                    ->where(function($sub) use ($request) {
+                        $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
+                            ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
+                    });
+            })
+            ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = 'all'");
         }
 
         $results = $results->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
