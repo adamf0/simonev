@@ -252,7 +252,7 @@ class KuesionerApiController extends Controller
                             
                             return $item;
                     })
-                    ->filter(fn($item)=> date('Y', strtotime($item->tanggal)) || strtotime(now()) >= strtotime($item->start_repair." 00:00:00") && strtotime(now()) <= strtotime($item->end_repair." 23:59:59"))
+                    ->filter(fn($item)=> date('Y') || strtotime(now()) >= strtotime($item->start_repair." 00:00:00") && strtotime(now()) <= strtotime($item->end_repair." 23:59:59"))
                     ->values();
 
         dd($results2,$bank_soal->get(),$bank_soal->toRawSql());
