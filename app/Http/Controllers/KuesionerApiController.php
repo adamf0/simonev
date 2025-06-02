@@ -73,12 +73,6 @@ class KuesionerApiController extends Controller
         if ($request->filled("data")) {
             $results = $results->where("kuesioner.$kolom", $request->data);
 
-            $target_type = match($request->peruntukan){
-                "dosen"=>"dosen",
-                "tendik"=>"unit",
-                "mahasiswa"=>"mahasiswa",
-                default=>"all",
-            };
             $bank_soal = $bank_soal->selectRaw("
                 CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
                 CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
@@ -99,7 +93,7 @@ class KuesionerApiController extends Controller
                 $kolom, $kolom, $kolom
             ])
             ->where(fn($q) => 
-                $q->where(function($query) use ($request, $target_type) {
+                $q->where(function($query) use ($request, $kolom) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = ?", [$kolom])
                         ->where(function($sub) use ($request) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
