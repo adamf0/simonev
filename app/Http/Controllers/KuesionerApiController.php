@@ -263,7 +263,7 @@ class KuesionerApiController extends Controller
 
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $tmp = $results2->filter(function($row) use($resultsIds){
-            dd($item);
+            dd($row);
             return in_array($row, $resultsIds);
         })->values();
 
