@@ -76,7 +76,6 @@ class KuesionerApiController extends Controller
 
             $bank_soal = $bank_soal->selectRaw("
                 id as id_bank_soal,
-                id as null,
                 CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
                 CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
                 CASE WHEN ? = 'nip' THEN ? ELSE NULL END AS nip,
