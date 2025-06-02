@@ -80,9 +80,9 @@ class KuesionerApiController extends Controller
                 default=>"all",
             };
             $bank_soal = $bank_soal->selectRaw("
-                CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
-                CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
-                CASE WHEN ? = 'nip' THEN ? ELSE NULL END AS nip,
+                CASE WHEN ? = 'npm' THEN '?' ELSE NULL END AS npm,
+                CASE WHEN ? = 'nidn' THEN '?' ELSE NULL END AS nidn,
+                CASE WHEN ? = 'nip' THEN '?' ELSE NULL END AS nip,
                 bank_soal.judul,
                 bank_soal.deskripsi,
                 bank_soal.rule,
@@ -103,7 +103,7 @@ class KuesionerApiController extends Controller
                 $q->where(function($query) use ($request, $target_type) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = '?'", [$target_type])
                         ->where(function($sub) use ($request) {
-                            $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
+                            $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE('?'))", [$request->data])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
                         });
                 })
