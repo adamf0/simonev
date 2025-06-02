@@ -183,7 +183,7 @@ class KuesionerApiController extends Controller
 
         $results2 = $bank_soal->get()
                     ->transform(function ($item) use($request){
-                            $yearEntry = date('Y', now());
+                            $yearEntry = date('Y');
                             $item->rule = json_decode($item->rule, true);
 
                             $now = date('Y-m-d');
