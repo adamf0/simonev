@@ -67,13 +67,10 @@ class KuesionerApiController extends Controller
             $results = $results->where('bank_soal.judul', $request->bank_soal);
         }
 
-        if ($request->filled("peruntukan")) {
+        if($request->filled("peruntukan") && $request->filled("data")){
             $results = $results->whereNotNull("kuesioner.$kolom");
-        }
-
-        if ($request->filled("data")) {
+            
             $results = $results->where("kuesioner.$kolom", $request->data);
-
             $bank_soal = $bank_soal->selectRaw("
                 id as id_bank_soal,
                 CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
@@ -105,6 +102,10 @@ class KuesionerApiController extends Controller
                 })
                 ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = 'all'")
             );
+        } else{
+            return response()->json([
+                "message"=>"parameter peruntukan dan data wajib digunakan",
+            ],500);
         }
 
         $results = $results->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
@@ -263,7 +264,6 @@ class KuesionerApiController extends Controller
 
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $x = $results->filter(fn($row) => !in_array($row?->id_bank_soal, $resultsIds));
-        dd($results, $results2,$resultsIds, $x->values());
 
         $resource = $results2->merge($x->values())->values();
         $perPage = 5;
