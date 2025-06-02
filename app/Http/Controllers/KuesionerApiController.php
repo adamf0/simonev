@@ -100,7 +100,7 @@ class KuesionerApiController extends Controller
             ])
             ->where(fn($q) => 
                 $q->where(function($query) use ($request, $target_type) {
-                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = ?", [$target_type])
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = ?", [$kolom])
                         ->where(function($sub) use ($request) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
