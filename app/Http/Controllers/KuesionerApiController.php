@@ -82,24 +82,24 @@ class KuesionerApiController extends Controller
             $bank_soal = $bank_soal->selectRaw(
                             "
                             (CASE 
-                                WHEN $kolom='npm' THEN $request->data
+                                WHEN '$kolom'='npm' THEN $request->data
                                 ELSE null
                             END) as npm,
                             (CASE 
-                                WHEN $kolom='nidn' THEN $request->data
+                                WHEN '$kolom'='nidn' THEN $request->data
                                 ELSE null
                             END) as nidn,
                             (CASE 
-                                WHEN $kolom='nip' THEN $request->data
+                                WHEN '$kolom'='nip' THEN $request->data
                                 ELSE null
                             END) as nip, 
                             bank_soal.judul,
                             bank_soal.deskripsi,
                             bank_soal.rule,
                             (CASE 
-                                WHEN $kolom='npm' THEN 'mahasiswa'
-                                WHEN $kolom='nidn' THEN 'dosen'
-                                WHEN $kolom='nip' THEN 'tendik'
+                                WHEN '$kolom'='npm' THEN 'mahasiswa'
+                                WHEN '$kolom'='nidn' THEN 'dosen'
+                                WHEN '$kolom'='nip' THEN 'tendik'
                                 ELSE null
                             END) as peruntukan"
                         )
