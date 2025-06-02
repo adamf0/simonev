@@ -36,7 +36,7 @@ Route::post('/templateJawaban/save', [TemplatePertanyaanApiController::class, 's
 Route::post('/templateJawaban/delete', [TemplatePertanyaanApiController::class, 'deletePilihan'])->name('api.templatePilihan.deletePilihan');
 
 Route::get('/kuesioner', [KuesionerApiController::class, 'listKuesioner'])->name('api.kuesioner.list');
-Route::post('/kuesioner/save2', [KuesionerApiController::class, 'save'])->name('api.kuesioner.add');
+Route::post('/kuesioner/save', [KuesionerApiController::class, 'save'])->name('api.kuesioner.add');
 Route::post('/kuesioner/delete', [KuesionerApiController::class, 'delete'])->name('api.kuesioner.delete');
 Route::get('/kuesioner/active', [KuesionerApiController::class, 'listKuesionerActive'])->name('api.kuesioner.listActive');
 
