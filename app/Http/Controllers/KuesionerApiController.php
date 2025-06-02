@@ -103,7 +103,10 @@ class KuesionerApiController extends Controller
                                 ELSE null
                             END) as peruntukan"
                         )
-                        ->where("rule","like",'%"target_type":"'.$target_type.'"%')->orWhere("rule","like",'%'.$request->data.'%');
+                        ->where(function($query) use($target_type){
+                            return $query->where("rule","like",'%"target_type":"'.$target_type.'"%')
+                                        ->orWhere("rule","like",'%"target_type":"all"%');
+                        })->orWhere("rule","like",'%'.$request->data.'%');
         }
 
         $results = $results->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
