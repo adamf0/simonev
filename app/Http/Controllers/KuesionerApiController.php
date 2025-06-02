@@ -98,14 +98,17 @@ class KuesionerApiController extends Controller
                 $kolom, $request->data,
                 $kolom, $kolom, $kolom
             ])
-            ->where(function($query) use ($request) {
-                $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = 'npm'")
-                    ->where(function($sub) use ($request) {
-                        $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
-                            ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
-                    });
-            })
-            ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = 'all'");
+            ->where("peruntukan", $request->peruntukan)
+            ->where(fn($q) => 
+                $q->where(function($query) use ($request, $target_type) {
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = '?'", [$target_type])
+                        ->where(function($sub) use ($request) {
+                            $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
+                        });
+                })
+                ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = 'all'")
+            );
         }
 
         $results = $results->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
@@ -185,7 +188,6 @@ class KuesionerApiController extends Controller
                         ->filter(fn($item)=> date('Y', strtotime($item->tanggal)) || strtotime(now()) >= strtotime($item->start_repair." 00:00:00") && strtotime(now()) <= strtotime($item->end_repair." 23:59:59"))
                         ->values();
 
-        return $bank_soal->toRawSql();
         $results2 = $bank_soal->get()
                     ->transform(function ($item) use($request){
                             $yearEntry = date('Y', strtotime($item->tanggal));
