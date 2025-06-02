@@ -258,18 +258,18 @@ class KuesionerApiController extends Controller
                     )
                     ->values();
 
-        dd($results2,$bank_soal->get());
+        $resource = $results2->merge($results);
         $perPage = 5;
         $currentPage = $request?->page ?? 1;
         $currentPage = $currentPage <= 0? 1:$currentPage;
 
-        $currentPageResults = $results2->forPage($currentPage, $perPage);
+        $currentPageResults = $resource->forPage($currentPage, $perPage);
 
         return response()->json([
             'data' => $currentPageResults,
             'currentPage' => (int) $currentPage,
-            'total' => $results2->count(),
-            'lastPage' => ceil($results2->count() / $perPage),
+            'total' => $resource->count(),
+            'lastPage' => ceil($resource->count() / $perPage),
         ]);
     }
     public function delete(Request $request){
