@@ -261,6 +261,7 @@ class KuesionerApiController extends Controller
                     )
                     ->values();
 
+        dd($results, $results2);
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
 
         $resource = $results2->merge($results->filter(fn($row) => !in_array($row?->id, $resultsIds))->values())->values();
