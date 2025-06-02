@@ -236,16 +236,18 @@ Kuesioner.KuesionersBody = ({ action_type, kuesioners, loading, changeSelected, 
     } else {
         return (
             <tbody>
-                {kuesioners.record?.map(item => (
-                    <Kuesioner.KuesionersRow 
-                        key={item.id}
-                        item={item}
-                        loading={loading}
-                        changeSelected={changeSelected}
-                        startKuesioner={startKuesioner}
-                        viewKuesioner={viewKuesioner}
-                    />
-                ))}
+                {kuesioners.record?.map(function(item){
+                    if(item.hasCreated){
+                        return <Kuesioner.KuesionersRow 
+                            key={item.id}
+                            item={item}
+                            loading={loading}
+                            changeSelected={changeSelected}
+                            startKuesioner={startKuesioner}
+                            viewKuesioner={viewKuesioner}
+                        />;
+                    }
+                })}
             </tbody>
         );
     }
