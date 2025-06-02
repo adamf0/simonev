@@ -79,6 +79,7 @@ class KuesionerApiController extends Controller
                 CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
                 CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
                 CASE WHEN ? = 'nip' THEN ? ELSE NULL END AS nip,
+                DATE_FORMAT(now(),'%d/%m/%Y') as tanggal,
                 bank_soal.judul,
                 bank_soal.deskripsi,
                 bank_soal.rule,
