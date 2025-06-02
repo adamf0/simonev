@@ -49,6 +49,7 @@ class KuesionerApiController extends Controller
                         ->selectRaw(
                             "
                             kuesioner.*, 
+                            bank_soal.id as id_bank_soal,
                             bank_soal.judul,
                             bank_soal.deskripsi,
                             bank_soal.rule,
@@ -74,6 +75,7 @@ class KuesionerApiController extends Controller
             $results = $results->where("kuesioner.$kolom", $request->data);
 
             $bank_soal = $bank_soal->selectRaw("
+                id as id_bank_soal,
                 CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
                 CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
                 CASE WHEN ? = 'nip' THEN ? ELSE NULL END AS nip,
