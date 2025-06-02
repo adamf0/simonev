@@ -262,8 +262,12 @@ class KuesionerApiController extends Controller
                     ->values();
 
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
+        $tmp = $results2->filter(function($row) use($resultsIds){
+            dd($item);
+            return in_array($row, $resultsIds);
+        })->values();
 
-        $resource = $results->merge($results2->filter(fn($row) => in_array($row, $resultsIds))->values())->values();
+        $resource = $results->merge($tmp)->values();
         $perPage = 5;
         $currentPage = $request?->page ?? 1;
         $currentPage = $currentPage <= 0? 1:$currentPage;
