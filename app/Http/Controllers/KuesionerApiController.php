@@ -112,6 +112,7 @@ class KuesionerApiController extends Controller
             ->orderByDesc('kuesioner.tanggal')
             ->get();
 
+        dd($bank_soal->toRawSql(0));
         $results = $results->transform(function ($item) use($request){
                             $yearEntry = date('Y', strtotime($item->tanggal));
                             $item->rule = json_decode($item->rule, true);
