@@ -270,7 +270,7 @@ class KuesionerApiController extends Controller
         $currentPage = $request?->page ?? 1;
         $currentPage = $currentPage <= 0? 1:$currentPage;
 
-        $currentPageResults = $resource->forPage($currentPage, $perPage);
+        $currentPageResults = $resource->forPage($currentPage, $perPage)->values();
 
         return response()->json([
             'data' => $currentPageResults,
