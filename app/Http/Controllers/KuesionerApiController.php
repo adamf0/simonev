@@ -94,7 +94,7 @@ class KuesionerApiController extends Controller
             ])
             ->where(fn($q) => 
                 $q->where(function($query) use ($request, $kolom) {
-                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = ?", [$kolom])
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, ?)", [$kolom, 'all'])
                         ->where(function($sub) use ($request) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
@@ -112,7 +112,7 @@ class KuesionerApiController extends Controller
             ->orderByDesc('kuesioner.tanggal')
             ->get();
 
-        dd($bank_soal->toRawSql(0));
+        dd($bank_soal->toRawSql());
         $results = $results->transform(function ($item) use($request){
                             $yearEntry = date('Y', strtotime($item->tanggal));
                             $item->rule = json_decode($item->rule, true);
