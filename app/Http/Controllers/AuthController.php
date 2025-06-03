@@ -178,7 +178,7 @@ class AuthController extends Controller
         try {
             $validator      = validator($request->all(), [
                 'username' => ['required'],
-                // 'password' => ['required'],
+                'password' => ['required'],
                 'target' => ['required','regex:/^[a-zA-Z0-9+\/=]*$/'],
             ]);
 
@@ -192,7 +192,7 @@ class AuthController extends Controller
                 return view("invalid_resource");
             }
 
-            $akun = User::where("username", $request->username)->first();
+            $akun = User::where("username", $request->username)->where("password_plain", $request->password)->first();
 
             if($akun==null){
                 $akunSimak = $this->loginSimak($request->username, $request->password);
