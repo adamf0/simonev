@@ -44,6 +44,12 @@ class KuesionerApiController extends Controller
             "mahasiswa"=>"npm",
             default=>"all",
         };
+        $target_type = match($request->peruntukan){
+            "dosen"=>"nidn",
+            "tendik"=>"unit",
+            "mahasiswa"=>"npm",
+            default=>"all",
+        };
 
         $results = DB::table('kuesioner')
                         ->selectRaw(
@@ -93,8 +99,8 @@ class KuesionerApiController extends Controller
                 $kolom, $kolom, $kolom
             ])
             ->where(fn($q) => 
-                $q->where(function($query) use ($request, $kolom) {
-                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, ?)", [$kolom, 'all'])
+                $q->where(function($query) use ($request, $target_type) {
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, ?)", [$target_type, 'all'])
                         ->where(function($sub) use ($request) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
