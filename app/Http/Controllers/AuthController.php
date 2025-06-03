@@ -225,7 +225,7 @@ class AuthController extends Controller
                     $request->session()->put("level",$akunSimak?->level);
                 }
     
-                return redirect()->route('kuesioner');
+                return redirect($path);
             } else{
 
                 $request->session()->regenerate();
