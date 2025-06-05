@@ -59,6 +59,7 @@ class KuesionerApiController extends Controller
                             bank_soal.judul,
                             bank_soal.deskripsi,
                             bank_soal.rule,
+                            bank_soal.status,
                             (CASE 
                                 WHEN kuesioner.npm IS NOT NULL THEN 'mahasiswa'
                                 WHEN kuesioner.nidn IS NOT NULL THEN 'dosen'
@@ -74,7 +75,7 @@ class KuesionerApiController extends Controller
         }
 
         if($request->filled("peruntukan") && $request->filled("data")){
-            $results = $results->whereNotNull("kuesioner.$kolom");
+            $results = $results->where("bank_soal.status","active")->whereNotNull("kuesioner.$kolom");
             
             $results = $results->where("kuesioner.$kolom", $request->data);
             $bank_soal = $bank_soal->selectRaw("
@@ -86,6 +87,7 @@ class KuesionerApiController extends Controller
                 bank_soal.judul,
                 bank_soal.deskripsi,
                 bank_soal.rule,
+                bank_soal.status,
                 CASE 
                     WHEN ? = 'npm' THEN 'mahasiswa'
                     WHEN ? = 'nidn' THEN 'dosen'
@@ -99,7 +101,8 @@ class KuesionerApiController extends Controller
                 $kolom, $kolom, $kolom
             ])
             ->where(fn($q) => 
-                $q->where(function($query) use ($request, $target_type) {
+                $q->where("bank_soal.status","active")
+                    ->where(function($query) use ($request, $target_type) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, ?)", [$target_type, 'all'])
                         ->where(function($sub) use ($request) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
