@@ -101,8 +101,8 @@ class KuesionerApiController extends Controller
         }
 
         $results = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
-                        ->orderByDesc('tanggal')
-                        ->get();
+                        ->orderByDesc('tanggal');
+                        // ->get();
 
         return $results->toRawSql();
 
