@@ -55,13 +55,12 @@ class KuesionerApiController extends Controller
         $bank_soal = DB::table("bank_soal");
 
         if ($request->filled("bank_soal")) {
-            $results = $results->where('bank_soal.judul', $request->bank_soal);
+            $results = $results->where('judul', $request->bank_soal);
         }
 
         if($request->filled("peruntukan") && $request->filled("data")){
-            $results = $results->where("bank_soal.status","active")->whereNotNull("kuesioner.$kolom");
+            $results = $results->where("status","active")->whereNotNull("$kolom")->where("$kolom", $request->data);
             
-            $results = $results->where("kuesioner.$kolom", $request->data);
             $bank_soal = $bank_soal->selectRaw("
                 id as id_bank_soal,
                 CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
@@ -104,7 +103,7 @@ class KuesionerApiController extends Controller
         $results = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
                         ->orderByDesc('kuesioner.tanggal')
                         ->get();
-                        
+
         return $results->toRawSql();
 
         // $results = $results->transform(function ($item) use($request){
