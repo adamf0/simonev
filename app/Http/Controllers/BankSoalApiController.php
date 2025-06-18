@@ -304,15 +304,8 @@ class BankSoalApiController extends Controller
             $bankSoal = BankSoal::findOrFail($request->id);            
             
             $newBankSoal = $bankSoal->replicate();
-
             $newRule = $request->target;
-            if($newRule["target_type"]!="prodi"){
-                return response()->json([
-                    "message" => "perintah branch di tolak karena target tipe bukan prodi",
-                    "validation" => [],
-                    "trace" => null
-                ], 500);
-            }
+
             //$newRule["target_list"] = $request->target;
             $newBankSoal->rule = json_encode($newRule);
             $newBankSoal->createdBy = "fakultas";
@@ -320,6 +313,13 @@ class BankSoalApiController extends Controller
             $newBankSoal->save();
 
             $oldRule = json_decode($bankSoal->rule, true);
+            if($oldRule["target_type"]!="prodi"){
+                return response()->json([
+                    "message" => "perintah branch di tolak karena target tipe bukan prodi",
+                    "validation" => [],
+                    "trace" => null
+                ], 500);
+            }
             if($request->level=="fakultas"){
                 $listKode = Prodi::select('kode_fak')->whereIn("kode_prodi",$request->target)->get()->pluck('kode_fak')->toArray();
                 $listKode = array_values(array_unique($listKode));
