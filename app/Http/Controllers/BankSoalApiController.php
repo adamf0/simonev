@@ -318,7 +318,16 @@ class BankSoalApiController extends Controller
             $newBankSoal->branch = $bankSoal->id;
 
             $rule = json_decode($bankSoal->rule, true);
-            $rule["target_list"] = Prodi::select('kode_prodi')->whereNotIn('kode_prodi', $request->target)->get()->pluck('kode_prodi')->toArray();
+            if($request->level=="fakultas"){
+                $listKode = Prodi::select('kode_fak')->whereIn("kode_prodi",$request->target)->get()->pluck('kode_fak')->toArray();
+                $listKode = array_values(array_unique($listKode));
+                $listTargetAvailable = Prodi::select('kode_prodi')->whereIn("kode_fak",$listKode)->whereNotIn('kode_prodi', $request->target)->get()->pluck('kode_prodi')->toArray();
+
+                $rule["target_list"] = $listTargetAvailable;
+            } else{
+                $rule["target_list"] = [];
+            }
+            
             $bankSoal->rule = json_encode($rule);
             
             $bankSoal->save();

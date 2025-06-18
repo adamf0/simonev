@@ -121,6 +121,8 @@ class KuesionerController extends Controller
                     $filter->add($item);
                 }
             }
+
+            // dd($item->rule->type, $item->rule->generate->type, $item->rule->target_type, $item->rule->target_list, $item, $start);
         }
         $bankSoal = $filter->filter(function($items) use($now){
             return strtotime($now) >= strtotime($items->start_repair." 00:00:00") && strtotime($now) <= strtotime($items->end_repair." 23:59:59");

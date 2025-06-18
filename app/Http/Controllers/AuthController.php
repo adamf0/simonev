@@ -24,7 +24,10 @@ class AuthController extends Controller
         $akunSimak = AkunSimak::with([
             'Dosen',
             'Dosen.EPribadi',
-            'Dosen.EPribadi.Payroll'
+            'Dosen.EPribadi.Payroll',
+            'Mahasiswa',
+            'Mahasiswa.Fakultas',
+            'Mahasiswa.Prodi'
         ])
         ->where('username',$username)
         ->get()
@@ -51,10 +54,10 @@ class AuthController extends Controller
             "id"=>$akunSimak->userid,
             "nip"=>null,
             "nidn"=>$akunSimak->Dosen?->NIDN,
-            "npm"=>null,
+            "npm"=>$level=="mahasiswa"? $akunSimak->Mahasiswa?->NIM:null,
             "nama"=>$akunSimak->nama,
-            "fakultas"=>strtolower($akunSimak->Dosen?->Fakultas?->nama_fakultas),
-            "prodi"=>strtolower($akunSimak->Dosen?->Prodi?->nama_prodi),
+            "fakultas"=>$level=="mahasiswa"? strtolower($akunSimak->Mahasiswa?->Fakultas?->nama_fakultas):strtolower($akunSimak->Dosen?->Fakultas?->nama_fakultas),
+            "prodi"=>$level=="mahasiswa"? strtolower($akunSimak->Mahasiswa?->kode_prodi):strtolower($akunSimak->Dosen?->Prodi?->nama_prodi),
             "unit"=>null,
             "level"=>$level,
         ];

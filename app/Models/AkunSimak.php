@@ -14,4 +14,7 @@ class AkunSimak extends Model
     public function Dosen():HasOne{
         return $this->hasOne(Dosen::class, 'NIDN', 'userid');
     }
+    public function Mahasiswa():HasOne{
+        return $this->hasOne(Mahasiswa::class, 'NIM', 'userid');
+    }
 }

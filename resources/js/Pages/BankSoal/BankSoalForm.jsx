@@ -143,7 +143,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
         const newRule = {
             "type":tipe,
             "target_type":target,
-            "target_list":list,
+            "target_list":tipe=="spesific"? list:["all"],
             "generate":{
                 "type":tipeGenerate,
                 "start":start,
@@ -154,9 +154,8 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
     }
 
     function renderOptionListTarget(target) {
-        console.log("renderOptionListTarget")
-        return useMemo(() => {
-            if (target === "npm") {
+        console.log("renderOptionListTarget", target)
+        if (target === "npm") {
                 // return listMahahsiswa.map(item => (
                 //     <option selected={list.includes(item.id)} key={uuidv4()} value={item.id}>{item.id} - {item.nama}</option>
                 // ));
@@ -171,7 +170,6 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                 ));
             }
             return <></>;
-        }, [target, listMahahsiswa, listUnit, listProdi, list]);
     }
 
     const handleEditorChange = (newState) => {
@@ -278,15 +276,19 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                             <ErrorList errors={validation?.target} />
                                         </div>
 
-                                        <div className="form-floating">
-                                            <select className="form-select form-select-default" id="listSelect" value={list} onChange={(e)=>handleListSelectChange(e)} disabled={peruntukan==null || peruntukan=="" || peruntukan == undefined || tipe=="semua"} multiple>
-                                            <option value="" selected={list.includes("")}></option>
-                                            <option value="all" selected={list.includes("all")}>Semua Target</option>
-                                            {renderOptionListTarget(target)}
-                                            </select>
-                                            <label htmlFor="listSelect">List Target {tipe=="spesific"? <b className="text-danger">*</b>:<></>}</label>
-                                            <ErrorList errors={validation?.list} />
-                                        </div>
+                                        {
+                                            tipe=="spesific" &&
+                                            <div className="form-floating">
+                                                <select className="form-select form-select-default" id="listSelect" value={list} onChange={(e)=>handleListSelectChange(e)} multiple>
+                                                <option value="" selected={list.includes("")}></option>
+                                                <option value="all" selected={list.includes("all")}>Semua Target</option>
+
+                                                {renderOptionListTarget(target)}
+                                                </select>
+                                                <label htmlFor="listSelect">List Target <b className="text-danger">*</b></label>
+                                                <ErrorList errors={validation?.list} />
+                                            </div>
+                                        }
 
                                         <div className="form-floating">
                                             <select className="form-select" id="tipeGenerateSelect" value={tipeGenerate} onChange={(e)=>setTipeGenerate(e.target.value)} disabled={peruntukan==null || peruntukan=="" || peruntukan == undefined}>
