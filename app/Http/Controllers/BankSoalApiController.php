@@ -312,6 +312,7 @@ class BankSoalApiController extends Controller
                     "trace" => null
                 ], 500);
             }
+            $newRule["type"] = 'spesific';
             $newRule["target_list"] = $request->target;
             $newBankSoal->rule = json_encode($newRule);
             $newBankSoal->createdBy = "fakultas";
