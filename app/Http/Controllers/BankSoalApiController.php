@@ -324,6 +324,7 @@ class BankSoalApiController extends Controller
                 $listTargetAvailable = Prodi::select('kode_prodi')->whereIn("kode_fak",$listKode)->whereNotIn('kode_prodi', $request->target)->get()->pluck('kode_prodi')->toArray();
 
                 $rule["target_list"] = $listTargetAvailable;
+                $rule["type"] = 'spesific';
             } else{
                 $rule["target_list"] = [];
             }
