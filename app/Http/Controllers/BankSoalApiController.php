@@ -302,37 +302,37 @@ class BankSoalApiController extends Controller
             }
 
             $bankSoal = BankSoal::findOrFail($request->id);            
+            
             $newBankSoal = $bankSoal->replicate();
 
-            $rule = json_decode($newBankSoal->rule, true);
-            if($rule["target_type"]!="prodi"){
+            $newRule = $request->target;
+            if($newRule["target_type"]!="prodi"){
                 return response()->json([
                     "message" => "perintah branch di tolak karena target tipe bukan prodi",
                     "validation" => [],
                     "trace" => null
                 ], 500);
             }
-            $rule["target_list"] = $request->target;
-            $newBankSoal->rule = json_encode($rule);
+            //$newRule["target_list"] = $request->target;
+            $newBankSoal->rule = json_encode($newRule);
             $newBankSoal->createdBy = "fakultas";
             $newBankSoal->branch = $bankSoal->id;
+            $newBankSoal->save();
 
-            $rule = json_decode($bankSoal->rule, true);
+            $oldRule = json_decode($bankSoal->rule, true);
             if($request->level=="fakultas"){
                 $listKode = Prodi::select('kode_fak')->whereIn("kode_prodi",$request->target)->get()->pluck('kode_fak')->toArray();
                 $listKode = array_values(array_unique($listKode));
                 $listTargetAvailable = Prodi::select('kode_prodi')->whereIn("kode_fak",$listKode)->whereNotIn('kode_prodi', $request->target)->get()->pluck('kode_prodi')->toArray();
 
-                $rule["target_list"] = $listTargetAvailable;
-                $rule["type"] = 'spesific';
+                $oldRule["target_list"] = $listTargetAvailable;
+                $oldRule["type"] = 'spesific';
             } else{
-                $rule["target_list"] = [];
+                $oldRule["target_list"] = [];
             }
             
-            $bankSoal->rule = json_encode($rule);
-            
+            $bankSoal->rule = json_encode($oldRule);
             $bankSoal->save();
-            $newBankSoal->save();
 
             // Menyalin template pertanyaan
             $templatePertanyaan = TemplatePertanyaan::where('id_bank_soal', $request->id)
