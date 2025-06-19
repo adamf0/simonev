@@ -55,7 +55,7 @@ class KuesionerController extends Controller
             $item->rule = json_decode($item->rule);
             return $item;
         });
-        dd($bankSoal);
+        dd($bankSoal, session()->all());
         
         $now = date('Y-m-d');
         $filter = collect([]);
