@@ -326,19 +326,19 @@ class KuesionerApiController extends Controller
                     default=>'nip',
                 };
 
-                dd(
-                    in_array($bankSoal['rule']['type'],["spesific","all"]),
-                    $bankSoal['rule']['target_type']=="prodi", 
-                    gettype($bankSoal['rule']['target_list']),
-                    $bankSoal['rule']['target_list'],
-                    in_array("all", $bankSoal['rule']['target_list']), 
-                    in_array($request->prodi,array_map('strtolower', $bankSoal['rule']['target_list']))
-                );
+                // dd(
+                //     in_array($bankSoal['rule']['type'],["spesific","all"]),
+                //     $bankSoal['rule']['target_type']=="prodi", 
+                //     gettype($bankSoal['rule']['target_list']),
+                //     $bankSoal['rule']['target_list'],
+                //     in_array("all", $bankSoal['rule']['target_list']), 
+                //     in_array($request->prodi,array_map('strtolower', $bankSoal['rule']['target_list']))
+                // );
                 if(
                     in_array($bankSoal['rule']['type'],["spesific","all"]) && 
                     $bankSoal['rule']['target_type']=="npm" && 
                     (
-                        in_array($bankSoal['rule']['target_list'], ["all"]) || 
+                        in_array("all",$bankSoal['rule']['target_list']) || 
                         in_array($request->target,array_map('strtolower', $bankSoal['rule']['target_list']))
                     )
                 ){
@@ -353,7 +353,7 @@ class KuesionerApiController extends Controller
                     in_array($bankSoal['rule']['type'],["spesific","all"]) && 
                     $bankSoal['rule']['target_type']=="prodi" && 
                     (
-                        in_array($bankSoal['rule']['target_list'], ["all"]) || 
+                        in_array("all",$bankSoal['rule']['target_list']) || 
                         in_array($request->prodi,array_map('strtolower', $bankSoal['rule']['target_list']))
                     )
                 ){
@@ -368,7 +368,7 @@ class KuesionerApiController extends Controller
                     in_array($bankSoal['rule']['type'],["spesific","all"]) && 
                     $bankSoal['rule']['target_type']=="fakultas" && 
                     (
-                        in_array($bankSoal['rule']['target_list'], ["all"]) || 
+                        in_array("all",$bankSoal['rule']['target_list']) || 
                         in_array($request->fakultas,array_map('strtolower', $bankSoal['rule']['target_list']))
                     )
                 ){
@@ -383,7 +383,7 @@ class KuesionerApiController extends Controller
                     in_array($bankSoal['rule']['type'],["spesific","all"]) && 
                     $bankSoal['rule']['target_type']=="unit" && 
                     (
-                        in_array($bankSoal['rule']['target_list'], ["all"]) || 
+                        in_array("all",$bankSoal['rule']['target_list']) || 
                         in_array($request->unit,array_map('strtolower', $bankSoal['rule']['target_list']))
                     )
                 ){
