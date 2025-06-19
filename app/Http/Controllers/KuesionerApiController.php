@@ -333,7 +333,7 @@ class KuesionerApiController extends Controller
                     [
                         in_array($bankSoal['rule']['type'],["spesific","all"]),
                         $bankSoal['rule']['target_type']=="prodi",
-                        in_array($bankSoal['rule']['target_list'], ["all"]),
+                        in_array(["all"],array_map('strtolower', $bankSoal['rule']['target_list'])),
                         in_array($request->prodi,array_map('strtolower', $bankSoal['rule']['target_list']))
                     ]
                 );
