@@ -326,7 +326,14 @@ class KuesionerApiController extends Controller
                     default=>'nip',
                 };
 
-                // dd($bankSoal['rule']['type'], $bankSoal['rule']['target_type'], array_map('strtolower',$bankSoal['rule']['target_list']));
+                dd(
+                    in_array($bankSoal['rule']['type'],["spesific","all"]),
+                    $bankSoal['rule']['target_type']=="prodi", 
+                    gettype($bankSoal['rule']['target_list']),
+                    $bankSoal['rule']['target_list'],
+                    in_array($bankSoal['rule']['target_list'], ["all"]), 
+                    in_array($request->prodi,array_map('strtolower', $bankSoal['rule']['target_list']))
+                );
                 if(
                     in_array($bankSoal['rule']['type'],["spesific","all"]) && 
                     $bankSoal['rule']['target_type']=="npm" && 
