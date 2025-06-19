@@ -129,6 +129,13 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
             setList([]);
         }
     };
+    const changePeruntukan = (value) => {
+        if(value!=null && value!=peruntukan){
+            setPeruntukan(value)
+            setTarget(null)
+            setList([]);
+        }
+    }
     function saveHandler(){
         let start = null;
         let end = null;
@@ -225,7 +232,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                 </div>
 
                                 <div className="form-floating">
-                                    <select className="form-select" id="peruntukanSelect" value={peruntukan} onChange={(e)=>setPeruntukan(e.target.value)}>
+                                    <select className="form-select" id="peruntukanSelect" value={peruntukan} onChange={(e)=>changePeruntukan(e.target.value)}>
                                     <option selected=""></option>
                                     <option value="mahasiswa" selected={peruntukan=="mahasiswa"}>Mahasiswa</option>
                                     <option value="dosen" selected={peruntukan=="dosen"}>Dosen</option>
