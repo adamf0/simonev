@@ -267,7 +267,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                                 </> : 
                                                 peruntukan=="tendik"? 
                                                 <>
-                                                <option value="nip" selected={target=="nip"}>NIDN</option>
+                                                <option value="nip" selected={target=="nip"}>NIP</option>
                                                 <option value="unit" selected={target=="unit"}>Unit</option>
                                                 </> : <></>
                                             }
