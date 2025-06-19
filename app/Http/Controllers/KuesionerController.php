@@ -64,6 +64,7 @@ class KuesionerController extends Controller
 
             $item->start_repair = $item->rule->generate->start;
             $item->end_repair = $item->rule->generate->end;
+            $item->rule->target_list = array_map('strtolower', $item->rule->target_list);
 
             if($item->rule->type=="spesific" && $item->rule->target_type=="npm" && (in_array("all",$item->rule->target_list) || in_array($target,$item->rule->target_list)) ){
                 if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){

@@ -186,6 +186,7 @@ class KuesionerApiController extends Controller
                             $start = $item->rule['generate']['start'];
                             $end = $item->rule['generate']['end'];
                             $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") && strtotime($now) <= strtotime($end." 23:59:59");
+                            $item->rule['target_list'] = array_map('strtolower', $item->rule['target_list']);
 
                             if($item->rule['type']=="spesific" && $item->rule['target_type']=="npm" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
                                 if($item->rule['generate']['type']=="recursive"){
