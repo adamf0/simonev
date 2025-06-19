@@ -321,9 +321,9 @@ class BankSoalApiController extends Controller
 
             $oldRule = json_decode($bankSoal->rule, true);
             if($request->level=="fakultas"){
-                $listKode = Prodi::select('kode_fak')->whereIn("kode_prodi",$request->target)->get()->pluck('kode_fak')->toArray();
-                $listKode = array_values(array_unique($listKode));
-                $listTargetAvailable = Prodi::select('kode_prodi')->whereIn("kode_fak",$listKode)->whereNotIn('kode_prodi', $request->target)->get()->pluck('kode_prodi')->toArray();
+                // $listKode = Prodi::select('kode_fak')->whereIn("kode_prodi",$request->target)->get()->pluck('kode_fak')->toArray();
+                // $listKode = array_values(array_unique($listKode));
+                $listTargetAvailable = Prodi::select('kode_prodi')->whereNotIn('kode_prodi', $request->target)->get()->pluck('kode_prodi')->toArray();
 
                 $oldRule["target_list"] = $listTargetAvailable;
                 $oldRule["type"] = 'spesific';
