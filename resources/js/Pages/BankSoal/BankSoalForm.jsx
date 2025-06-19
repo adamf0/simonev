@@ -170,7 +170,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                 return <></>
             } else if (target === "unit") {
                 return listUnit.filter(item => item.unit_kerja.length>0).map(item => (
-                    <option selected={list.includes(item.unit_kerja)} key={uuidv4()} value={item.unit_kerja}>{item.unit_kerja}</option>
+                    <option selected={list.includes(item.unit_kerja.toLowerCase())} key={uuidv4()} value={item.unit_kerja}>{item.unit_kerja}</option>
                 ));
             } else if (target === "prodi") {
                 return listProdi.map(item => (
