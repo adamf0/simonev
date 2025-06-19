@@ -132,6 +132,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
     const changePeruntukan = (value) => {
         if(value!=null && value!=peruntukan){
             setPeruntukan(value)
+            setTipe(null)
             setTarget(null)
             setList([]);
         }
