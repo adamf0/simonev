@@ -326,8 +326,8 @@ class KuesionerApiController extends Controller
                     default=>'nip',
                 };
 
-                dd($bankSoal['rule']['type'], $bankSoal['rule']['target_type'], array_map('strtolower',$bankSoal['rule']['target_list']));
-                if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="npm" && in_array($request->target,array_map('strtolower', $bankSoal['rule']['target_list']))){
+                //dd($bankSoal['rule']['type'], $bankSoal['rule']['target_type'], array_map('strtolower',$bankSoal['rule']['target_list']));
+                if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="npm" && (in_array($request->target, ["all"]) || in_array($request->target,array_map('strtolower', $bankSoal['rule']['target_list'])))){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
@@ -335,7 +335,7 @@ class KuesionerApiController extends Controller
                         $bankSoal['start_repair'] = $bankSoal['rule']['generate']['start'];
                         $bankSoal['end_repair'] = $bankSoal['rule']['generate']['end'];
                     }
-                } else if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="prodi" && in_array($request->prodi,array_map('strtolower', $bankSoal['rule']['target_list']))){
+                } else if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="prodi" && (in_array($request->target, ["all"]) || in_array($request->prodi,array_map('strtolower', $bankSoal['rule']['target_list'])))){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
@@ -343,7 +343,7 @@ class KuesionerApiController extends Controller
                         $bankSoal['start_repair'] = $bankSoal['rule']['generate']['start'];
                         $bankSoal['end_repair'] = $bankSoal['rule']['generate']['end'];
                     }
-                } else if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="fakultas" && in_array($request->fakultas,array_map('strtolower', $bankSoal['rule']['target_list']))){
+                } else if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="fakultas" && (in_array($request->target, ["all"]) || in_array($request->fakultas,array_map('strtolower', $bankSoal['rule']['target_list'])))){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
@@ -351,7 +351,7 @@ class KuesionerApiController extends Controller
                         $bankSoal['start_repair'] = $bankSoal['rule']['generate']['start'];
                         $bankSoal['end_repair'] = $bankSoal['rule']['generate']['end'];
                     }
-                } else if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="unit" && in_array($request->unit,array_map('strtolower', $bankSoal['rule']['target_list']))){
+                } else if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="unit" && (in_array($request->target, ["all"]) || in_array($request->unit,array_map('strtolower', $bankSoal['rule']['target_list'])))){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
@@ -359,7 +359,7 @@ class KuesionerApiController extends Controller
                         $bankSoal['start_repair'] = $bankSoal['rule']['generate']['start'];
                         $bankSoal['end_repair'] = $bankSoal['rule']['generate']['end'];
                     }
-                } else if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']==null && in_array($request->unit,array_map('strtolower', $bankSoal['rule']['target_list']))){
+                } else if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']==null && (in_array($request->target, ["all"]) || in_array($request->unit,array_map('strtolower', $bankSoal['rule']['target_list'])))){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $bankSoal['start_repair'] = $start;
                         $bankSoal['end_repair'] = $end;
