@@ -326,7 +326,7 @@ class KuesionerApiController extends Controller
                     default=>'nip',
                 };
 
-                // dd($bankSoal['rule']['type'], $bankSoal['rule']['target_type'], $bankSoal['rule']['target_list']);
+                dd($bankSoal['rule']['type'], $bankSoal['rule']['target_type'], $bankSoal['rule']['target_list']);
                 if(in_array($bankSoal['rule']['type'],["spesific","all"]) && $bankSoal['rule']['target_type']=="npm" && in_array($request->target,$bankSoal['rule']['target_list'])){
                     if($bankSoal['rule']['generate']['type']=="recursive"){
                         $bankSoal['start_repair'] = $start;
