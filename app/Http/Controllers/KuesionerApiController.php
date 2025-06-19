@@ -316,6 +316,7 @@ class KuesionerApiController extends Controller
             if($request->event=="add"){
                 $bankSoal = BankSoal::findOrFail($request->id_bank_soal);
                 $bankSoal->rule = json_decode($bankSoal->rule, true);
+                $bankSoal->rule['target_list'] = array_map('strtolower', $bankSoal->rule['target_list']);
 
                 $start = $bankSoal->rule['generate']['start'];
                 $end = $bankSoal->rule['generate']['end'];
