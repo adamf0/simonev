@@ -25,13 +25,13 @@ class BankSoalController extends Controller
         $prodi = Prodi::select(DB::raw("kode_prodi as id"),DB::raw("nama_prodi as nama"))->where('kode_fak',session()->get('fakultas'))->get();
         $mahasiswa = collect([]); //AkunSimak::select(DB::raw("userid as id"), "nama")->where("level","MAHASISWA")->get()
         $unit = Pengangkatan::select('unit_kerja')->distinct()->whereNot("unit_kerja","")->get();
-        $list_target = array_values(array_unique([
+        $listTarget = array_values(array_unique([
             session()->get("fakultas"),
             session()->get("prodi"),
             session()->get("unit")
         ]));
 
-        return Inertia::render('BankSoal/BankSoal', ["list_target"=> $list_target, "level"=>session()->get('level'), "listUnit"=>$unit, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa,]);
+        return Inertia::render('BankSoal/BankSoal', ["listTarget"=> $listTarget, "level"=>session()->get('level'), "listUnit"=>$unit, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa,]);
     }
 
     public function bankSoalEdit($id_bank_soal)
