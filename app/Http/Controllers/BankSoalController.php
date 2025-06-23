@@ -10,6 +10,7 @@ use App\Models\Pengangkatan;
 use App\Models\Prodi;
 use App\Models\TemplatePertanyaan;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -20,7 +21,7 @@ class BankSoalController extends Controller
     //     parent::__construct();
     // }
 
-    public function bankSoal()
+    public function bankSoal(Request $request)
     {
         $prodi = Prodi::select(DB::raw("kode_prodi as id"),DB::raw("nama_prodi as nama"))->where('kode_fak',session()->get('fakultas'))->get();
         $mahasiswa = collect([]); //AkunSimak::select(DB::raw("userid as id"), "nama")->where("level","MAHASISWA")->get()
@@ -30,6 +31,13 @@ class BankSoalController extends Controller
             session()->get("prodi"),
             session()->get("unit")
         ]));
+        if($request->get("debug")){
+            dd([
+                session()->get("fakultas"),
+                session()->get("prodi"),
+                session()->get("unit")
+            ]);
+        }
 
         return Inertia::render('BankSoal/BankSoal', ["listTarget"=> $listTarget, "level"=>session()->get('level'), "listUnit"=>$unit, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa,]);
     }
