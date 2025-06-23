@@ -26,6 +26,7 @@ class BankSoalController extends Controller
         $prodi = Prodi::select(DB::raw("kode_prodi as id"),DB::raw("nama_prodi as nama"))->where('kode_fak',session()->get('fakultas'))->get();
         $mahasiswa = collect([]); //AkunSimak::select(DB::raw("userid as id"), "nama")->where("level","MAHASISWA")->get()
         $unit = Pengangkatan::select('unit_kerja')->distinct()->whereNot("unit_kerja","")->get();
+        
         $listTarget = array_values(array_unique([
             session()->get("fakultas"),
             session()->get("prodi"),
@@ -34,7 +35,7 @@ class BankSoalController extends Controller
         if($request->get("debug")){
             dd([
                 session()->get("fakultas"),
-                session()->get("prodi"),
+                $prodi->pluck("id")->toArray(),
                 session()->get("unit")
             ]);
         }
