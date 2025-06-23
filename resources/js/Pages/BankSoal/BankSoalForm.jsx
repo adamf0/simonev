@@ -289,7 +289,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                         </div>
 
                                         {
-                                            tipe=="spesific" &&
+                                            (tipe=="spesific" && (target == "prodi" || target == "unit")) &&
                                             <div className="form-floating">
                                                 <select className="form-select form-select-default" id="listSelect" value={list} onChange={(e)=>handleListSelectChange(e)} multiple>
                                                 <option value="" selected={list.includes("")}></option>
