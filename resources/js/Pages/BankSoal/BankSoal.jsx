@@ -462,6 +462,7 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
         
         return [...output];
     }
+    const target_list_all = item.rule?.target_list_all ?? [];
 
     console.log(
         item.id,
@@ -470,7 +471,7 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
         item.branch,
         item.rule?.target_type,
         item.rule?.type,
-        item.rule?.target_list,
+        target_list_all,
         listTarget.concat(["all"]),
         item.rule
     )
@@ -533,7 +534,7 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
                         <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                     {
-                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && item.rule?.type=="spesific" && ((item.rule?.target_list ?? []).includes(listTarget) || (["all"]).includes(listTarget.concat(["all"]))) && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
+                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && item.rule?.type=="spesific" && ((target_list_all ?? []).includes(listTarget) || (["all"]).includes(listTarget.concat(["all"]))) && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
                         <button className="btn" disabled={loading} onClick={() => createBranch(item.id)}>
                             <i className="bi bi-signpost-split text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
