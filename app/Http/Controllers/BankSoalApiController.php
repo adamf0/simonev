@@ -63,8 +63,8 @@ class BankSoalApiController extends Controller
                 ->toArray();
 
                 $number = 3;
-                $rule["target_list"] = count($target_list)>$number? array_merge(array_slice($target_list, 0, $number), ["+".(count($target_list)-$number)." prodi"]):$target_list;
                 $rule["target_list_all"] = count($target_list)>0? $target_list:$rule["target_list"];
+                $rule["target_list"] = count($target_list)>$number? array_merge(array_slice($target_list, 0, $number), ["+".(count($target_list)-$number)." prodi"]):$target_list;
             } 
 
             $item->rule = $rule;
