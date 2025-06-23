@@ -270,17 +270,23 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                                 peruntukan=="mahasiswa"? 
                                                 <>
                                                 <option value="npm" selected={target=="npm"}>NPM</option>
-                                                <option value="prodi" selected={target=="prodi"}>Prodi</option>
+                                                {
+                                                    tipe=="spesific"? <option value="prodi" selected={target=="prodi"}>Prodi</option>:<></> 
+                                                }
                                                 </> :
                                                 peruntukan=="dosen"? 
                                                 <>
                                                 <option value="nidn" selected={target=="nidn"}>NIDN</option>
-                                                <option value="prodi" selected={target=="prodi"}>Prodi</option>
+                                                {
+                                                    tipe=="spesific"? <option value="prodi" selected={target=="prodi"}>Prodi</option>:<></>
+                                                }
                                                 </> : 
                                                 peruntukan=="tendik"? 
                                                 <>
                                                 <option value="nip" selected={target=="nip"}>NIP</option>
-                                                <option value="unit" selected={target=="unit"}>Unit</option>
+                                                {
+                                                    tipe=="spesific"? <option value="unit" selected={target=="unit"}>Unit</option>:<></>
+                                                }
                                                 </> : <></>
                                             }
                                             </select>

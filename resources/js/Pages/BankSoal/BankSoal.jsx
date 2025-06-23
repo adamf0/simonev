@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 // import { Inertia } from '@inertiajs/inertia';
 
-function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listMahahsiswa=[]}) {
+function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listMahahsiswa=[], list_target=[]}) {
     const dispatch = useDispatch();
     const bankSoals = useSelector((state) => state.bankSoal.bankSoals);
     const action_type = useSelector((state) => state.bankSoal.action_type);
@@ -524,7 +524,7 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
                         <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                     {
-                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && item.rule?.type=="spesific" && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
+                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && item.rule?.type=="spesific" && ((item.rule?.target_list ?? []).includes(list_target) || (["all"]).includes(list_target)) && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
                         <button className="btn" disabled={loading} onClick={() => createBranch(item.id)}>
                             <i className="bi bi-signpost-split text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
