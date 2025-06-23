@@ -151,7 +151,7 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
         const newRule = {
             "type":tipe,
             "target_type":target,
-            "target_list":tipe=="spesific"? list:["all"],
+            "target_list":tipe=="spesific" && (target == "prodi" || target == "unit")? list:["all"],
             "generate":{
                 "type":tipeGenerate,
                 "start":start,
