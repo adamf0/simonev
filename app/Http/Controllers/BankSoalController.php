@@ -28,17 +28,9 @@ class BankSoalController extends Controller
         $unit = Pengangkatan::select('unit_kerja')->distinct()->whereNot("unit_kerja","")->get();
         
         $listTarget = array_values(array_unique([
-            session()->get("fakultas"),
-            session()->get("prodi"),
-            session()->get("unit")
+            $prodi->pluck("id")->toArray(),
+            session()->get("unit"),
         ]));
-        if($request->get("debug")){
-            dd([
-                session()->get("fakultas"),
-                $prodi->pluck("id")->toArray(),
-                session()->get("unit")
-            ]);
-        }
 
         return Inertia::render('BankSoal/BankSoal', ["listTarget"=> $listTarget, "level"=>session()->get('level'), "listUnit"=>$unit, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa,]);
     }
