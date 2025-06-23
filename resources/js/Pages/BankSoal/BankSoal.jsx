@@ -519,7 +519,7 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
                         <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                     {
-                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && item.rule?.target_type=="prodi") && 
+                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
                         <button className="btn" disabled={loading} onClick={() => createBranch(item.id)}>
                             <i className="bi bi-signpost-split text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
