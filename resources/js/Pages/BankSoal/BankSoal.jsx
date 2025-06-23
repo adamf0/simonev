@@ -464,8 +464,15 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
     }
 
     console.log(
-        level,item.createdBy,item.branch,item.rule?.target_type,item.rule?.type,item.rule?.target_list,listTarget.concat(["all"]),
-        level=="fakultas" && item.createdBy=="admin" && item.branch==0 && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")
+        item.id,
+        level,
+        item.createdBy,
+        item.branch,
+        item.rule?.target_type,
+        item.rule?.type,
+        item.rule?.target_list,
+        listTarget.concat(["all"]),
+        item.rule
     )
     return (
         <tr key={item.id}>
