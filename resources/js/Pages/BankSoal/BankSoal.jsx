@@ -433,13 +433,14 @@ BankSoal.BankSoalsBody = ({ level, action_type, bankSoals, loading, changeSelect
                         openCopy={openCopy}
                         previewPertanyaan={previewPertanyaan}
                         createBranch={createBranch}
+                        listTarget={listTarget}
                     />
                 ))}
             </tbody>
         );
     }
 };
-BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan, createBranch }) => { 
+BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan, createBranch,listTarget }) => { 
     function renderAturan(item){
         let output = [<span class="badge bg-secondary">{item.peruntukan}</span>];
         if(item.rule!=null || rule!="" || rule!="{}" || rule!=undefined){
