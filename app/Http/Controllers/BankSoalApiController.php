@@ -38,6 +38,7 @@ class BankSoalApiController extends Controller
             }
 
             if(isset($rule["target_type"]) && $rule["target_type"]=="prodi"){
+                $targetListInput = $rule["target_list"];
                 $target_list = Prodi::select(
                     DB::raw('
                     concat(
@@ -57,13 +58,13 @@ class BankSoalApiController extends Controller
                         ")"
                     ) as text')
                 )
-                ->whereIn('kode_prodi',$rule["target_list"])
+                ->whereIn('kode_prodi',$targetListInput)
                 ->get()
                 ->pluck('text')
                 ->toArray();
 
                 $number = 3;
-                $rule["target_list_all"] = count($target_list)>0? $target_list:$rule["target_list"];
+                $rule["target_list_all"] = count($target_list)>0? $target_list:$targetListInput;
                 $rule["target_list"] = count($target_list)>$number? array_merge(array_slice($target_list, 0, $number), ["+".(count($target_list)-$number)." prodi"]):$target_list;
             } 
 
