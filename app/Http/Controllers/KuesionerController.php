@@ -149,7 +149,7 @@ class KuesionerController extends Controller
             ", [])
             ->where(fn($q) => 
                 $q->where(function($query) use ($prodi, $target_type) {
-                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, prodi, ?)", [$target_type, 'all'])
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, 'prodi', ?)", [$target_type, 'all'])
                         ->where(function($sub) use ($prodi) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('id')])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('nidn')])
@@ -164,9 +164,7 @@ class KuesionerController extends Controller
 
         $bankSoal = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
                         ->orderByDesc('tanggal')
-                        ->toRawSql();
-        dd($bankSoal);
-
+                        ->get();
 
         $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$target){
             $kolom = match($peruntukan){
