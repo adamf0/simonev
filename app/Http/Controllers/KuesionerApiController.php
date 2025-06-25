@@ -101,7 +101,6 @@ class KuesionerApiController extends Controller
         }
 
         $results = $results
-                        ->orderByDesc('tanggal')
                         ->get();
 
         // $results = $results->transform(function ($item) use($request){
