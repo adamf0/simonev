@@ -249,7 +249,7 @@ TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, chan
     <tr key={item.id}>
         <td>
             {
-                item.createdBy!=(level=="fakultas"? "fakultas":null) && <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+                item.createdBy==(level=="fakultas"? "fakultas":null) && <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
             }
         </td>
         <td>{item.nama_kategori}</td>
@@ -263,7 +263,7 @@ TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, chan
         </td>
         <td>
             {
-                item.createdBy!=(level=="fakultas"? "fakultas":null) && 
+                item.createdBy==(level=="fakultas"? "fakultas":null) && 
                 <div className="d-flex justify-content-center gap-2">
                     <button className="btn" disabled={loading} onClick={() => openEdit(id_bank_soal, item.id)}>
                         <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
