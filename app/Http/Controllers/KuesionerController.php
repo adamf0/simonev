@@ -138,6 +138,9 @@ class KuesionerController extends Controller
                 default => 'nip'
             };
             $active = strtotime($now) >= strtotime($items->start_repair." 00:00:00") || strtotime($now) <= strtotime($items->end_repair." 23:59:59");
+            dump(
+                strtotime($now), strtotime($items->start_repair." 00:00:00"), strtotime($items->end_repair." 23:59:59")
+            );
             
             $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
             $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
