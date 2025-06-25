@@ -188,7 +188,7 @@ class KuesionerApiController extends Controller
                             $item->end_repair = $item->rule['type']['generate']['end'];
 
                             $now = date('Y-m-d');
-                            dd($item, $item->rule['generate']);
+                            dd($item);
                             $start = $item->rule['generate']['start'];
                             $end = $item->rule['generate']['end'];
                             $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") && strtotime($now) <= strtotime($end." 23:59:59");
