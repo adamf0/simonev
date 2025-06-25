@@ -137,7 +137,7 @@ class KuesionerController extends Controller
             default=>"all",
         };
 
-            $results = DB::table('v_bank_soal')->where("peruntukan",$target_type)->where(fn($q) => 
+            $results = DB::table('v_bank_soal')->where("peruntukan",$peruntukan)->where(fn($q) => 
                 $q->where(function($query) use ($target_type) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, 'prodi', ?)", [$target_type, 'all'])
                         ->where(function($sub) {
@@ -153,8 +153,7 @@ class KuesionerController extends Controller
             );
         
 
-        $bankSoal = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])->toRawSql();
-        dd($bankSoal);
+        $bankSoal = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])->get();
 
         $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$target){
             $kolom = match($peruntukan){
