@@ -130,7 +130,9 @@ class AuthController extends Controller
                         $request->session()->put("npm",$akunSimpeg?->npm);
                         $request->session()->put("nama",$akunSimpeg?->nama);
                         $request->session()->put("fakultas",$akunSimpeg?->fakultas);
+                        $request->session()->put("kode_fakultas",$akunSimpeg?->kode_fakultas);
                         $request->session()->put("prodi",$akunSimpeg?->prodi);
+                        $request->session()->put("kode_prodi",$akunSimpeg?->kode_prodi);
                         $request->session()->put("unit",$akunSimpeg?->unit);
                         $request->session()->put("level",$akunSimpeg?->level);
                     }
@@ -142,7 +144,9 @@ class AuthController extends Controller
                     $request->session()->put("npm",$akunSimak?->npm);
                     $request->session()->put("nama",$akunSimak?->nama);
                     $request->session()->put("fakultas",$akunSimak?->fakultas);
+                    $request->session()->put("kode_fakultas",$akunSimak?->kode_fakultas);
                     $request->session()->put("prodi",$akunSimak?->prodi);
+                    $request->session()->put("kode_prodi",$akunSimak?->kode_prodi);
                     $request->session()->put("unit",$akunSimak?->unit);
                     $request->session()->put("level",$akunSimak?->level);
                 }
@@ -157,7 +161,9 @@ class AuthController extends Controller
                 $request->session()->put("npm",null);
                 $request->session()->put("nama",$akun?->name);
                 $request->session()->put("fakultas",$akun->fakultas);
+                $request->session()->put("kode_fakultas",$akun->kode_fakultas);
                 $request->session()->put("prodi",null);
+                $request->session()->put("kode_prodi",null);
                 $request->session()->put("unit",null);
                 $request->session()->put("level",$akun?->level);
 
