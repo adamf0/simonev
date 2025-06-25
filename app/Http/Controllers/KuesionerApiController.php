@@ -251,11 +251,12 @@ class KuesionerApiController extends Controller
                             
                             return $item;
                     })
-                    ->filter(fn($item) =>
-                        strtotime(now()) >= strtotime($item->start_repair." 00:00:00") &&
-                        strtotime(now()) <= strtotime($item->end_repair." 23:59:59")
-                    )
+                    // ->filter(fn($item) =>
+                    //     strtotime(now()) >= strtotime($item->start_repair." 00:00:00") &&
+                    //     strtotime(now()) <= strtotime($item->end_repair." 23:59:59")
+                    // )
                     ->values();
+                    dd($results2);
 
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $results2After = $results2->filter(fn($row) => !in_array($row?->id_bank_soal, $resultsIds))->values();
