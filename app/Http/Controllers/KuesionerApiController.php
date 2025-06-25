@@ -184,8 +184,8 @@ class KuesionerApiController extends Controller
                             $yearEntry = date('Y');
                             $item->rule = json_decode($item->rule, true);
 
-                            $item->start_repair = $item->rule['type']['generate']['start'];
-                            $item->end_repair = $item->rule['type']['generate']['end'];
+                            // $item->start_repair = $item->rule['type']['generate']['start'];
+                            // $item->end_repair = $item->rule['type']['generate']['end'];
 
                             $now = date('Y-m-d');
                             dd($item);
