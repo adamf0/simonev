@@ -59,7 +59,7 @@ class KuesionerApiController extends Controller
         }
 
         if($request->filled("peruntukan") && $request->filled("data")){
-            $results = $results;
+            $results = $results->where("status","active")->whereNotNull("$kolom")->where("$kolom", $request->data);
             
             $bank_soal = $bank_soal->selectRaw("
                 id as id_bank_soal,
@@ -100,7 +100,8 @@ class KuesionerApiController extends Controller
             ],500);
         }
 
-        $results = $results
+        $results = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
+                        ->orderByDesc('tanggal')
                         ->get();
 
         // $results = $results->transform(function ($item) use($request){
