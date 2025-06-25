@@ -269,21 +269,21 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                             {
                                                 peruntukan=="mahasiswa"? 
                                                 <>
-                                                <option value="npm" selected={target=="npm"}>NPM</option>
+                                                {/* <option value="npm" selected={target=="npm"}>NPM</option> */}
                                                 {
                                                     tipe=="spesific"? <option value="prodi" selected={target=="prodi"}>Prodi</option>:<></> 
                                                 }
                                                 </> :
                                                 peruntukan=="dosen"? 
                                                 <>
-                                                <option value="nidn" selected={target=="nidn"}>NIDN</option>
+                                                {/* <option value="nidn" selected={target=="nidn"}>NIDN</option> */}
                                                 {
                                                     tipe=="spesific"? <option value="prodi" selected={target=="prodi"}>Prodi</option>:<></>
                                                 }
                                                 </> : 
                                                 peruntukan=="tendik"? 
                                                 <>
-                                                <option value="nip" selected={target=="nip"}>NIP</option>
+                                                {/* <option value="nip" selected={target=="nip"}>NIP</option> */}
                                                 {
                                                     tipe=="spesific"? <option value="unit" selected={target=="unit"}>Unit</option>:<></>
                                                 }
@@ -299,12 +299,12 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                             <div className="form-floating">
                                                 <select className="form-select form-select-default" id="listSelect" value={list} onChange={(e)=>handleListSelectChange(e)} multiple>
                                                 <option value="" selected={list.includes("")}></option>
-                                                {/* <option value="all" selected={list.includes("all")}>Semua Target</option> */}
+                                                <option value="all" selected={list.includes("all")}>Semua Target</option>
 
                                                 {renderOptionListTarget(target)}
                                                 </select>
-                                                {/* {list.includes("all")? <b className="text-danger">kuesioner ini diizinkan untuk di duplikat dan modifikasi oleh fakultas</b>:<></>} */}
-                                                <label htmlFor="listSelect">List Target <b className="text-danger">*</b></label>
+                                                {list.includes("all")? <b className="text-danger">kuesioner ini diizinkan untuk di duplikat dan modifikasi oleh fakultas</b>:<></>}
+                                                {/* <label htmlFor="listSelect">List Target <b className="text-danger">*</b></label> */}
                                                 <ErrorList errors={validation?.list} />
                                             </div>
                                         }
