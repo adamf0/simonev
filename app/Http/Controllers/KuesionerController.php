@@ -126,16 +126,16 @@ class KuesionerController extends Controller
             // dd($item->rule->type, $item->rule->generate->type, $item->rule->target_type, $item->rule->target_list, $item, $start);
         }
         dump($bankSoal);
-        $bankSoal = $filter->filter(function($items) use($now){
-            dump(
-                [
-                    strtotime($now),strtotime($items->start_repair." 00:00:00"),strtotime($items->end_repair." 23:59:59"),
-                    strtotime($now) >= strtotime($items->start_repair." 00:00:00"), strtotime($now) <= strtotime($items->end_repair." 23:59:59")
-                ]
-            );
-            return strtotime($now) >= strtotime($items->start_repair." 00:00:00") && strtotime($now) <= strtotime($items->end_repair." 23:59:59");
-        })->values();
-        dump($bankSoal);
+        // $bankSoal = $filter->filter(function($items) use($now){
+        //     dump(
+        //         [
+        //             strtotime($now),strtotime($items->start_repair." 00:00:00"),strtotime($items->end_repair." 23:59:59"),
+        //             strtotime($now) >= strtotime($items->start_repair." 00:00:00"), strtotime($now) <= strtotime($items->end_repair." 23:59:59")
+        //         ]
+        //     );
+        //     return strtotime($now) >= strtotime($items->start_repair." 00:00:00") && strtotime($now) <= strtotime($items->end_repair." 23:59:59");
+        // })->values();
+        // dump($bankSoal);
 
         $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$now,$target){
             $kolom = match($peruntukan){
