@@ -125,7 +125,7 @@ class KuesionerController extends Controller
 
             // dd($item->rule->type, $item->rule->generate->type, $item->rule->target_type, $item->rule->target_list, $item, $start);
         }
-        dump($bankSoal);
+        // dump($bankSoal);
         // $bankSoal = $filter->filter(function($items) use($now){
         //     dump(
         //         [
