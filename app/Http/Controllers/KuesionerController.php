@@ -153,8 +153,8 @@ class KuesionerController extends Controller
             );
         
 
-        $bankSoal = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
-                        ->get();
+        $bankSoal = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])->toRawSqldebug();
+        dd($bankSoal);
 
         $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$target){
             $kolom = match($peruntukan){
