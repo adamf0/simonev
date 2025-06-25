@@ -303,8 +303,8 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
 
                                                 {renderOptionListTarget(target)}
                                                 </select>
-                                                {list.includes("all")? <b className="text-danger">kuesioner ini diizinkan untuk di duplikat dan modifikasi oleh fakultas</b>:<></>}
-                                                {/* <label htmlFor="listSelect">List Target <b className="text-danger">*</b></label> */}
+                                                {/* {list.includes("all")? <b className="text-danger">kuesioner ini diizinkan untuk di duplikat dan modifikasi oleh fakultas</b>:<></>} */}
+                                                <label htmlFor="listSelect">List Target <b className="text-danger">*</b></label>
                                                 <ErrorList errors={validation?.list} />
                                             </div>
                                         }
