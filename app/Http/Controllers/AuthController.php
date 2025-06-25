@@ -57,7 +57,9 @@ class AuthController extends Controller
             "npm"=>$level=="mahasiswa"? $akunSimak->Mahasiswa?->NIM:null,
             "nama"=>$akunSimak->nama,
             "fakultas"=>$level=="mahasiswa"? strtolower($akunSimak->Mahasiswa?->Fakultas?->nama_fakultas):strtolower($akunSimak->Dosen?->Fakultas?->nama_fakultas),
+            "kode_fakultas"=>$level=="mahasiswa"? strtolower($akunSimak->Mahasiswa?->Fakultas?->kode_fakultas):strtolower($akunSimak->Dosen?->Fakultas?->kode_fakultas),
             "prodi"=>$level=="mahasiswa"? strtolower($akunSimak->Mahasiswa?->kode_prodi):strtolower($akunSimak->Dosen?->Prodi?->nama_prodi),
+            "kode_prodi"=>$level=="mahasiswa"? strtolower($akunSimak->Mahasiswa?->kode_prodi):strtolower($akunSimak->Dosen?->Prodi?->kode_prodi),
             "unit"=>null,
             "level"=>$level,
         ];
@@ -92,7 +94,9 @@ class AuthController extends Controller
             "npm"=>null,
             "nama"=>$akunSimpeg->NPribadi?->nama,
             "fakultas"=>null,
+            "kode_fakultas"=>null,
             "prodi"=>null,
+            "kode_prodi"=>null,
             "unit"=>rtrim(str_replace("f.", "fakultas", strtolower($akunSimpeg->Pengangkatan?->unit_kerja))),
             "level"=>'tendik',
         ];
