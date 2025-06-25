@@ -202,6 +202,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
                                             loading={loading}
                                             changeSelected={changeSelected}
                                             openEdit={openEdit}
+                                            level={level}
                                     />
                                 </table>
 
@@ -221,7 +222,7 @@ function TemplatePertanyaan({bankSoal, level=null}) {
     );
 }
 
-TemplatePertanyaan.TemplatePertanyaansBody = ({ id_bank_soal, action_type, templatePertanyaans, loading, changeSelected, openEdit }) => {
+TemplatePertanyaan.TemplatePertanyaansBody = ({ id_bank_soal, action_type, templatePertanyaans, loading, changeSelected, openEdit, level }) => {
     if (action_type === FETCH_TEMPLATE_PERTANYAANS_REQUEST) {
         return <TemplatePertanyaan.LoadingRow />;
     } else if (action_type === FETCH_TEMPLATE_PERTANYAANS_FAILURE) {
@@ -237,16 +238,19 @@ TemplatePertanyaan.TemplatePertanyaansBody = ({ id_bank_soal, action_type, templ
                         loading={loading}
                         changeSelected={changeSelected}
                         openEdit={openEdit}
+                        level={level}
                     />
                 ))}
             </tbody>
         );
     }
 };
-TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, changeSelected, openEdit }) => (
+TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, changeSelected, openEdit, level }) => (
     <tr key={item.id}>
         <td>
-            <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+            {
+                item.createdBy!=($level=="fakultas"? "fakultas":null) && <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+            }
         </td>
         <td>{item.nama_kategori}</td>
         <td>{item.nama_sub}</td>
@@ -258,11 +262,14 @@ TemplatePertanyaan.TemplatePertanyaansRow = ({ id_bank_soal, item, loading, chan
             <span className="badge bg-success">{item.jenis_pilihan=="rating5"? "5 rating":item.jenis_pilihan}</span>
         </td>
         <td>
-            <div className="d-flex justify-content-center gap-2">
-                <button className="btn" disabled={loading} onClick={() => openEdit(id_bank_soal, item.id)}>
-                    <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
-                </button>
-            </div>
+            {
+                item.createdBy!=($level=="fakultas"? "fakultas":null) && 
+                <div className="d-flex justify-content-center gap-2">
+                    <button className="btn" disabled={loading} onClick={() => openEdit(id_bank_soal, item.id)}>
+                        <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
+                    </button>
+                </div>
+            }
         </td>
     </tr>
 );

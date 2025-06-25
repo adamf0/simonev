@@ -101,6 +101,7 @@ class TemplatePertanyaanApiController extends Controller
             $TemplatePertanyaan->bobot = $request->bobot;
             $TemplatePertanyaan->id_kategori = $request->kategori;
             $TemplatePertanyaan->required = $request->required;
+            $TemplatePertanyaan->createdBy = $request->level=="fakultas"? "fakultas":null;
             if(!empty($request->subKategori)){
                 $TemplatePertanyaan->id_sub_kategori = $request->subKategori;   
             }

@@ -141,9 +141,9 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
 
     function saveHandler(){
         if(type=="Add"){
-            dispatch(addTemplatePertanyaan(bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori, required));
+            dispatch(addTemplatePertanyaan(bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori, required, level));
         } else{
-            dispatch(updateTemplatePertanyaan(templatePertanyaan?.id, bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori, required));
+            dispatch(updateTemplatePertanyaan(templatePertanyaan?.id, bankSoal?.id, pertanyaan, jenisPilihan, bobot, kategori, subKategori, required, level));
         }
     }
 
