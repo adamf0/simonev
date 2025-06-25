@@ -137,10 +137,10 @@ class KuesionerController extends Controller
             default=>"all",
         };
 
-            $results = DB::table('v_bank_soal')->where(fn($q) => 
-                $q->where(function($query) use ($prodi, $target_type) {
+            $results = DB::table('v_bank_soal')->where("peruntukan",$target_type)->where(fn($q) => 
+                $q->where(function($query) use ($target_type) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, 'prodi', ?)", [$target_type, 'all'])
-                        ->where(function($sub) use ($prodi) {
+                        ->where(function($sub) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('id')])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('nidn')])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('nip')])
