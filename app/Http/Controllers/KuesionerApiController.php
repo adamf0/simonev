@@ -59,7 +59,7 @@ class KuesionerApiController extends Controller
         }
 
         if($request->filled("peruntukan") && $request->filled("data")){
-            $results = $results->where("status","active")->whereNotNull("$kolom")->where("$kolom", $request->data);
+            $results = $results->whereNotNull("$kolom")->where("$kolom", $request->data);
             
             $bank_soal = $bank_soal->selectRaw("
                 id as id_bank_soal,
