@@ -204,7 +204,7 @@ class KuesionerApiController extends Controller
                     ->values();
 
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
-        $results2After = $results2->filter(fn($row) => !in_array($row?->id_bank_soal, $resultsIds))->values();
+        $results2After = $results2->filter(fn($row) => !in_array($row?->id, $resultsIds))->values();
 
         $resource = $results2After->merge($results)->values();
         $perPage = 5;
