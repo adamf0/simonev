@@ -59,7 +59,7 @@ class KuesionerApiController extends Controller
         }
 
         if($request->filled("peruntukan") && $request->filled("data")){
-            $results = $results->where("status","active")->whereNotNull("$kolom")->whereRaw("CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci = ?", [$kolom, $request->data]);
+            $results = $results->where("status","active")->whereNotNull("$kolom")->whereRaw("CONVERT($kolom USING utf8mb4) COLLATE utf8mb4_unicode_ci = ?", [$request->data]);
             
             $bank_soal = $bank_soal->selectRaw("
                 id as id_bank_soal,
@@ -414,7 +414,7 @@ class KuesionerApiController extends Controller
                 if(empty($bankSoal['start_repair']) || empty($bankSoal['end_repair'])){
                     throw new Exception("gagal medapatkan bank soal yg aktif rule");
                 }
-                $kuesioner = Kuesioner::whereRaw("CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci = ?", [$kolom, $request?->target])
+                $kuesioner = Kuesioner::where($kolom,$request?->target)
                                         ->where('id_bank_soal',$request?->id_bank_soal)
                                         // ->whereBetween('tanggal',[$bankSoal['start_repair'], $bankSoal['end_repair']])
                                         ->first();
