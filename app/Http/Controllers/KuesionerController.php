@@ -125,11 +125,9 @@ class KuesionerController extends Controller
 
             // dd($item->rule->type, $item->rule->generate->type, $item->rule->target_type, $item->rule->target_list, $item, $start);
         }
-        dump($bankSoal);
         $bankSoal = $filter->filter(function($items) use($now){
             return strtotime($now) >= strtotime($items->start_repair." 00:00:00") && strtotime($now) <= strtotime($items->end_repair." 23:59:59");
         })->values();
-        dump($bankSoal);
 
         $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$now,$target){
             $kolom = match($peruntukan){
@@ -138,19 +136,10 @@ class KuesionerController extends Controller
                 default => 'nip'
             };
             $active = strtotime($now) >= strtotime($items->start_repair." 00:00:00") || strtotime($now) <= strtotime($items->end_repair." 23:59:59");
-            dump(
-                [
-                    [
-                        strtotime($now), strtotime($items->start_repair." 00:00:00"), strtotime($items->end_repair." 23:59:59")
-                    ],
-                    strtotime($now) >= strtotime($items->start_repair." 00:00:00"), strtotime($now) <= strtotime($items->end_repair." 23:59:59")
-                ]
-            );
             
             $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
-            dump(Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->toRawSql());
             $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
-            
+
             if($kuesioner->count()>1){
                 $kuesioner = "E-K1";
             } else if($kuesioner->count()==0){
@@ -165,7 +154,6 @@ class KuesionerController extends Controller
 
             return $filtered;
         });
-        dd($bankSoal);
         
         // dd([
         //     'bankSoal'=>$bankSoal,
