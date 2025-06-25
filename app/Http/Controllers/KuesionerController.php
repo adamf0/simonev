@@ -130,8 +130,6 @@ class KuesionerController extends Controller
         //     return strtotime($now) >= strtotime($items->start_repair." 00:00:00") && strtotime($now) <= strtotime($items->end_repair." 23:59:59");
         // })->values();
 
-        $results = DB::table('v_bank_soal');
-
         $target_type = match($peruntukan){
             "dosen"=>"nidn",
             "tendik"=>"unit",
@@ -139,15 +137,7 @@ class KuesionerController extends Controller
             default=>"all",
         };
 
-            $results = $results->selectRaw("
-                id as id_bank_soal,
-                DATE_FORMAT(now(),'%d/%m/%Y') as tanggal,
-                judul,
-                deskripsi,
-                rule,
-                status
-            ", [])
-            ->where(fn($q) => 
+            $results = DB::table('v_bank_soal')->where(fn($q) => 
                 $q->where(function($query) use ($prodi, $target_type) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, 'prodi', ?)", [$target_type, 'all'])
                         ->where(function($sub) use ($prodi) {
