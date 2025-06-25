@@ -7,6 +7,7 @@ use App\Models\Kuesioner;
 use App\Models\KuesionerJawaban;
 use App\Models\TemplatePertanyaan;
 use Carbon\Exceptions\InvalidFormatException;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class KuesionerController extends Controller
@@ -51,112 +52,152 @@ class KuesionerController extends Controller
             default=>session()->get('nip'),
         };
 
-        $bankSoal = BankSoal::where('peruntukan',$peruntukan)->where('status','active')->get()->transform(function($item){
-            $item->rule = json_decode($item->rule);
-            return $item;
-        });
+        // $bankSoal = BankSoal::where('peruntukan',$peruntukan)->where('status','active')->get()->transform(function($item){
+        //     $item->rule = json_decode($item->rule);
+        //     return $item;
+        // });
         
-        $now = date('Y-m-d');
-        $filter = collect([]);
-        foreach($bankSoal as $item){
-            $start = date($this->replaceDateFormatIfEndDate($item->rule->generate->start,"slug"));
-            $end = date($this->replaceDateFormatIfEndDate($item->rule->generate->end,"slug"));
+        // $now = date('Y-m-d');
+        // $filter = collect([]);
+        // foreach($bankSoal as $item){
+        //     $start = date($this->replaceDateFormatIfEndDate($item->rule->generate->start,"slug"));
+        //     $end = date($this->replaceDateFormatIfEndDate($item->rule->generate->end,"slug"));
 
-            $item->start_repair = $item->rule->generate->start;
-            $item->end_repair = $item->rule->generate->end;
-            $item->rule->target_list = array_map('strtolower', $item->rule->target_list);
+        //     $item->start_repair = $item->rule->generate->start;
+        //     $item->end_repair = $item->rule->generate->end;
+        //     $item->rule->target_list = array_map('strtolower', $item->rule->target_list);
 
-            if($item->rule->type=="spesific" && $item->rule->target_type=="npm" && (in_array("all",$item->rule->target_list) || in_array($target,$item->rule->target_list)) ){
-                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
-                    $filter->add($item);
-                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
-                    $item->start_repair = $start;
-                    $item->end_repair = $end;
-                    $filter->add($item);
-                } 
-                else if($item->rule->generate->type=="nolimit"){
-                    $filter->add($item);
-                }
-            } else if($item->rule->type=="spesific" && $item->rule->target_type=="prodi" && (in_array("all",$item->rule->target_list) || in_array($prodi,$item->rule->target_list)) ){
-                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
-                    $filter->add($item);
-                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
-                    $item->start_repair = $start;
-                    $item->end_repair = $end;
-                    $filter->add($item);
-                } 
-                else if($item->rule->generate->type=="nolimit"){
-                    $filter->add($item);
-                }
-            } else if($item->rule->type=="spesific" && $item->rule->target_type=="fakultas" && (in_array("all",$item->rule->target_list) || in_array($fakultas,$item->rule->target_list)) ){
-                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
-                    $filter->add($item);
-                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
-                    $item->start_repair = $start;
-                    $item->end_repair = $end;
-                    $filter->add($item);
-                } 
-                else if($item->rule->generate->type=="nolimit"){
-                    $filter->add($item);
-                }
-            } else if($item->rule->type=="spesific" && $item->rule->target_type=="unit" && (in_array("all",$item->rule->target_list) || in_array($unit,$item->rule->target_list)) ){
-                if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
-                    $filter->add($item);
-                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
-                    $item->start_repair = $start;
-                    $item->end_repair = $end;
-                    $filter->add($item);
-                } 
-                else if($item->rule->generate->type=="nolimit"){
-                    $filter->add($item);
-                }
-            } else if($item->rule->type=="all"){
-                if($item->rule->generate->type=="once" && $this->isDateBetween(date('Y-m-d'), $item->rule->generate->start, $item->rule->generate->end)){
-                    $filter->add($item);
-                } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
-                    $item->start_repair = $start;
-                    $item->end_repair = $end;
-                    $filter->add($item);
-                } 
-                else if($item->rule->generate->type=="nolimit"){
-                    $filter->add($item);
-                }
-            }
+        //     if($item->rule->type=="spesific" && $item->rule->target_type=="npm" && (in_array("all",$item->rule->target_list) || in_array($target,$item->rule->target_list)) ){
+        //         if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
+        //             $filter->add($item);
+        //         } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+        //             $item->start_repair = $start;
+        //             $item->end_repair = $end;
+        //             $filter->add($item);
+        //         } 
+        //         else if($item->rule->generate->type=="nolimit"){
+        //             $filter->add($item);
+        //         }
+        //     } else if($item->rule->type=="spesific" && $item->rule->target_type=="prodi" && (in_array("all",$item->rule->target_list) || in_array($prodi,$item->rule->target_list)) ){
+        //         if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
+        //             $filter->add($item);
+        //         } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+        //             $item->start_repair = $start;
+        //             $item->end_repair = $end;
+        //             $filter->add($item);
+        //         } 
+        //         else if($item->rule->generate->type=="nolimit"){
+        //             $filter->add($item);
+        //         }
+        //     } else if($item->rule->type=="spesific" && $item->rule->target_type=="fakultas" && (in_array("all",$item->rule->target_list) || in_array($fakultas,$item->rule->target_list)) ){
+        //         if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
+        //             $filter->add($item);
+        //         } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+        //             $item->start_repair = $start;
+        //             $item->end_repair = $end;
+        //             $filter->add($item);
+        //         } 
+        //         else if($item->rule->generate->type=="nolimit"){
+        //             $filter->add($item);
+        //         }
+        //     } else if($item->rule->type=="spesific" && $item->rule->target_type=="unit" && (in_array("all",$item->rule->target_list) || in_array($unit,$item->rule->target_list)) ){
+        //         if($item->rule->generate->type=="once" && $this->isDateBetween($now, $item->rule->generate->start, $item->rule->generate->end)){
+        //             $filter->add($item);
+        //         } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+        //             $item->start_repair = $start;
+        //             $item->end_repair = $end;
+        //             $filter->add($item);
+        //         } 
+        //         else if($item->rule->generate->type=="nolimit"){
+        //             $filter->add($item);
+        //         }
+        //     } else if($item->rule->type=="all"){
+        //         if($item->rule->generate->type=="once" && $this->isDateBetween(date('Y-m-d'), $item->rule->generate->start, $item->rule->generate->end)){
+        //             $filter->add($item);
+        //         } else if($item->rule->generate->type=="recursive" && $this->isDateBetween($now,$start,$end)){
+        //             $item->start_repair = $start;
+        //             $item->end_repair = $end;
+        //             $filter->add($item);
+        //         } 
+        //         else if($item->rule->generate->type=="nolimit"){
+        //             $filter->add($item);
+        //         }
+        //     }
 
-            // dd($item->rule->type, $item->rule->generate->type, $item->rule->target_type, $item->rule->target_list, $item, $start);
-        }
-        // dump($bankSoal);
+        //     // dd($item->rule->type, $item->rule->generate->type, $item->rule->target_type, $item->rule->target_list, $item, $start);
+        // }
         // $bankSoal = $filter->filter(function($items) use($now){
-        //     dump(
-        //         [
-        //             strtotime($now),strtotime($items->start_repair." 00:00:00"),strtotime($items->end_repair." 23:59:59"),
-        //             strtotime($now) >= strtotime($items->start_repair." 00:00:00"), strtotime($now) <= strtotime($items->end_repair." 23:59:59")
-        //         ]
-        //     );
         //     return strtotime($now) >= strtotime($items->start_repair." 00:00:00") && strtotime($now) <= strtotime($items->end_repair." 23:59:59");
         // })->values();
-        // dump($bankSoal);
 
-        $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$now,$target){
+        $results = DB::table('v_bank_soal');
+
+        $kolom = match($peruntukan){
+            "dosen"=>"nidn",
+            "tendik"=>"nip",
+            "mahasiswa"=>"npm",
+            default=>"all",
+        };
+        $target_type = match($peruntukan){
+            "dosen"=>"nidn",
+            "tendik"=>"unit",
+            "mahasiswa"=>"npm",
+            default=>"all",
+        };
+
+            $results = $results->whereNotNull("$kolom")->where("$kolom", $target);
+            
+            $results = $results->selectRaw("
+                id as id_bank_soal,
+                CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
+                CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
+                CASE WHEN ? = 'nip' THEN ? ELSE NULL END AS nip,
+                DATE_FORMAT(now(),'%d/%m/%Y') as tanggal,
+                bank_soal.judul,
+                bank_soal.deskripsi,
+                bank_soal.rule,
+                bank_soal.status,
+                CASE 
+                    WHEN ? = 'npm' THEN 'mahasiswa'
+                    WHEN ? = 'nidn' THEN 'dosen'
+                    WHEN ? = 'nip' THEN 'tendik'
+                    ELSE NULL
+                END AS peruntukan
+            ", [
+                $kolom, session()->get('id'),
+                $kolom, session()->get('nidn'),
+                $kolom, session()->get('nip'),
+                $kolom, $kolom, $kolom
+            ])
+            ->where(fn($q) => 
+                $q->where("bank_soal.status","active")
+                    ->where(function($query) use ($target, $target_type) {
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, ?)", [$target_type, 'all'])
+                        ->where(function($sub) use ($target) {
+                            $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$target])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
+                        });
+                })
+                ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = 'all'")
+            );
+        
+
+        $bankSoal = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
+                        ->orderByDesc('tanggal')
+                        ->get();
+
+
+        $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$target){
             $kolom = match($peruntukan){
                 'mahasiswa'=>'npm',
                 'dosen'=>'nidn',
                 default => 'nip'
             };
-            $active = strtotime($now) >= strtotime($items->start_repair." 00:00:00") || strtotime($now) <= strtotime($items->end_repair." 23:59:59");
-            // dump(
-            //     [
-            //         [
-            //             strtotime($now), strtotime($items->start_repair." 00:00:00"), strtotime($items->end_repair." 23:59:59")
-            //         ],
-            //         strtotime($now) >= strtotime($items->start_repair." 00:00:00"), strtotime($now) <= strtotime($items->end_repair." 23:59:59")
-            //     ]
-            // );
+            $active = strtotime(now()) >= strtotime($items->start_repair." 00:00:00") || strtotime(now()) <= strtotime($items->end_repair." 23:59:59");
             
             $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
-            // dump(Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->toRawSql());
             $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
-            
+
             if($kuesioner->count()>1){
                 $kuesioner = "E-K1";
             } else if($kuesioner->count()==0){
@@ -171,7 +212,6 @@ class KuesionerController extends Controller
 
             return $filtered;
         });
-        // dd($bankSoal);
         
         // dd([
         //     'bankSoal'=>$bankSoal,
