@@ -62,14 +62,12 @@ class KuesionerApiController extends Controller
             $results = $results->where("status","active")->whereNotNull("$kolom")->where("$kolom", $request->data);
             
             $bank_soal = $bank_soal->where("peruntukan",$request->peruntukan)->where(fn($q) => 
-                $q->where(function($query) use ($target_type) {
+                $q->where(function($query) use ($target_type, $request) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, 'prodi', ?)", [$target_type, 'all'])
-                        ->where(function($sub) {
-                            $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('id')])
-                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('nidn')])
-                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('nip')])
-                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('kode_prodi')])
-                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [session()->get('unit')])
+                        ->where(function($sub) use($request){
+                            $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->prodi])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->unit])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
                         });
                 })
