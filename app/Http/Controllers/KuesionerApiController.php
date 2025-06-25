@@ -120,87 +120,86 @@ class KuesionerApiController extends Controller
                         ->get();
 
         $results2 = $bank_soal->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
-                    ->toRawSql();
-                    // ->transform(function ($item) use($request){
-                    //         $yearEntry = date('Y');
-                    //         // $item->rule = json_decode($item->rule, true);
+                    ->get()
+                    ->transform(function ($item) use($request){
+                            $yearEntry = date('Y');
+                            // $item->rule = json_decode($item->rule, true);
 
-                    //         // $item->start_repair = $item->rule['generate']['start'];
-                    //         // $item->end_repair = $item->rule['generate']['end'];
+                            // $item->start_repair = $item->rule['generate']['start'];
+                            // $item->end_repair = $item->rule['generate']['end'];
 
-                    //         $now = date('Y-m-d');
-                    //         $start = $item->rule['generate']['start'];
-                    //         $end = $item->rule['generate']['end'];
-                    //         $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") && strtotime($now) <= strtotime($end." 23:59:59");
-                    //         $item->rule['target_list'] = array_map('strtolower', $item->rule['target_list']);
+                            $now = date('Y-m-d');
+                            $start = $item->rule['generate']['start'];
+                            $end = $item->rule['generate']['end'];
+                            $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") && strtotime($now) <= strtotime($end." 23:59:59");
+                            $item->rule['target_list'] = array_map('strtolower', $item->rule['target_list']);
 
-                    //         // if($item->rule['type']=="spesific" && $item->rule['target_type']=="npm" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
-                    //         //     if($item->rule['generate']['type']=="recursive"){
-                    //         //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                    //         //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+                            // if($item->rule['type']=="spesific" && $item->rule['target_type']=="npm" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
+                            //     if($item->rule['generate']['type']=="recursive"){
+                            //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                            //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
                                     
-                    //         //         $item->start_repair = $start;
-                    //         //         $item->end_repair = $end;
-                    //         //     } else if($item->rule['generate']['type']=="once"){
-                    //         //         $item->start_repair = $item->rule['generate']['start'];
-                    //         //         $item->end_repair = $item->rule['generate']['end'];
-                    //         //     }
-                    //         // } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="prodi" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
-                    //         //     if($item->rule['generate']['type']=="recursive"){
-                    //         //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                    //         //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+                            //         $item->start_repair = $start;
+                            //         $item->end_repair = $end;
+                            //     } else if($item->rule['generate']['type']=="once"){
+                            //         $item->start_repair = $item->rule['generate']['start'];
+                            //         $item->end_repair = $item->rule['generate']['end'];
+                            //     }
+                            // } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="prodi" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
+                            //     if($item->rule['generate']['type']=="recursive"){
+                            //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                            //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
 
-                    //         //         $item->start_repair = $start;
-                    //         //         $item->end_repair = $end;
-                    //         //     } else if($item->rule['generate']['type']=="once"){
-                    //         //         $item->start_repair = $item->rule['generate']['start'];
-                    //         //         $item->end_repair = $item->rule['generate']['end'];
-                    //         //     }
-                    //         // } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="fakultas" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
-                    //         //     if($item->rule['generate']['type']=="recursive"){
-                    //         //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                    //         //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+                            //         $item->start_repair = $start;
+                            //         $item->end_repair = $end;
+                            //     } else if($item->rule['generate']['type']=="once"){
+                            //         $item->start_repair = $item->rule['generate']['start'];
+                            //         $item->end_repair = $item->rule['generate']['end'];
+                            //     }
+                            // } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="fakultas" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
+                            //     if($item->rule['generate']['type']=="recursive"){
+                            //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                            //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
 
-                    //         //         $item->start_repair = $start;
-                    //         //         $item->end_repair = $end;
-                    //         //     } else if($item->rule['generate']['type']=="once"){
-                    //         //         $item->start_repair = $item->rule['generate']['start'];
-                    //         //         $item->end_repair = $item->rule['generate']['end'];
-                    //         //     }
-                    //         // } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="unit" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
-                    //         //     if($item->rule['generate']['type']=="recursive"){
-                    //         //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                    //         //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+                            //         $item->start_repair = $start;
+                            //         $item->end_repair = $end;
+                            //     } else if($item->rule['generate']['type']=="once"){
+                            //         $item->start_repair = $item->rule['generate']['start'];
+                            //         $item->end_repair = $item->rule['generate']['end'];
+                            //     }
+                            // } else if($item->rule['type']=="spesific" && $item->rule['target_type']=="unit" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
+                            //     if($item->rule['generate']['type']=="recursive"){
+                            //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                            //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
 
-                    //         //         $item->start_repair = $start;
-                    //         //         $item->end_repair = $end;
-                    //         //     } else if($item->rule['generate']['type']=="once"){
-                    //         //         $item->start_repair = $item->rule['generate']['start'];
-                    //         //         $item->end_repair = $item->rule['generate']['end'];
-                    //         //     }
-                    //         // } else if($item->rule['type']=="all"){
-                    //         //     if($item->rule['generate']['type']=="recursive"){
-                    //         //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
-                    //         //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
+                            //         $item->start_repair = $start;
+                            //         $item->end_repair = $end;
+                            //     } else if($item->rule['generate']['type']=="once"){
+                            //         $item->start_repair = $item->rule['generate']['start'];
+                            //         $item->end_repair = $item->rule['generate']['end'];
+                            //     }
+                            // } else if($item->rule['type']=="all"){
+                            //     if($item->rule['generate']['type']=="recursive"){
+                            //         $start = date($this->replaceDateFormatIfEndDate($item->rule['generate']['start'],"slug", $yearEntry));
+                            //         $end = date($this->replaceDateFormatIfEndDate($item->rule['generate']['end'],"slug", $yearEntry));
 
-                    //         //         $item->start_repair = $start;
-                    //         //         $item->end_repair = $end;
-                    //         //     } else if($item->rule['generate']['type']=="once"){
-                    //         //         $item->start_repair = $item->rule['generate']['start'];
-                    //         //         $item->end_repair = $item->rule['generate']['end'];
-                    //         //     }
-                    //         // }
+                            //         $item->start_repair = $start;
+                            //         $item->end_repair = $end;
+                            //     } else if($item->rule['generate']['type']=="once"){
+                            //         $item->start_repair = $item->rule['generate']['start'];
+                            //         $item->end_repair = $item->rule['generate']['end'];
+                            //     }
+                            // }
 
-                    //         $item->hasCreated = 0;
+                            $item->hasCreated = 0;
                             
-                    //         return $item;
-                    // })
+                            return $item;
+                    })
                     // ->filter(fn($item) =>
                     //     strtotime(now()) >= strtotime($item->start_repair." 00:00:00") &&
                     //     strtotime(now()) <= strtotime($item->end_repair." 23:59:59")
                     // )
-                    // ->values();
-                    dd($results2);
+                    ->values();
 
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $results2After = $results2->filter(fn($row) => !in_array($row?->id_bank_soal, $resultsIds))->values();
