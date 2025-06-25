@@ -127,6 +127,12 @@ class KuesionerController extends Controller
         }
         dump($bankSoal);
         $bankSoal = $filter->filter(function($items) use($now){
+            dump(
+                [
+                    strtotime($now),strtotime($items->start_repair." 00:00:00"),strtotime($items->end_repair." 23:59:59"),
+                    strtotime($now) >= strtotime($items->start_repair." 00:00:00"), strtotime($now) <= strtotime($items->end_repair." 23:59:59")
+                ]
+            );
             return strtotime($now) >= strtotime($items->start_repair." 00:00:00") && strtotime($now) <= strtotime($items->end_repair." 23:59:59");
         })->values();
         dump($bankSoal);
