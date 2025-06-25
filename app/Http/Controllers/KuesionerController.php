@@ -149,29 +149,14 @@ class KuesionerController extends Controller
             
             $results = $results->selectRaw("
                 id as id_bank_soal,
-                CASE WHEN ? = 'npm' THEN ? ELSE NULL END AS npm,
-                CASE WHEN ? = 'nidn' THEN ? ELSE NULL END AS nidn,
-                CASE WHEN ? = 'nip' THEN ? ELSE NULL END AS nip,
                 DATE_FORMAT(now(),'%d/%m/%Y') as tanggal,
-                bank_soal.judul,
-                bank_soal.deskripsi,
-                bank_soal.rule,
-                bank_soal.status,
-                CASE 
-                    WHEN ? = 'npm' THEN 'mahasiswa'
-                    WHEN ? = 'nidn' THEN 'dosen'
-                    WHEN ? = 'nip' THEN 'tendik'
-                    ELSE NULL
-                END AS peruntukan
-            ", [
-                $kolom, session()->get('id'),
-                $kolom, session()->get('nidn'),
-                $kolom, session()->get('nip'),
-                $kolom, $kolom, $kolom
-            ])
+                judul,
+                deskripsi,
+                rule,
+                status
+            ", [])
             ->where(fn($q) => 
-                $q->where("bank_soal.status","active")
-                    ->where(function($query) use ($target, $target_type) {
+                $q->where(function($query) use ($target, $target_type) {
                     $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, ?)", [$target_type, 'all'])
                         ->where(function($sub) use ($target) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$target])
