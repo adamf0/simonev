@@ -414,7 +414,7 @@ class KuesionerApiController extends Controller
                 if(empty($bankSoal['start_repair']) || empty($bankSoal['end_repair'])){
                     throw new Exception("gagal medapatkan bank soal yg aktif rule");
                 }
-                $kuesioner = Kuesioner::whereRaw("CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci = ?", [$kolom, $request?->target])
+                $kuesioner = Kuesioner::where($kolom,$request?->target)
                                         ->where('id_bank_soal',$request?->id_bank_soal)
                                         // ->whereBetween('tanggal',[$bankSoal['start_repair'], $bankSoal['end_repair']])
                                         ->first();
