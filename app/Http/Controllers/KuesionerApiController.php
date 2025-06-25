@@ -86,9 +86,11 @@ class KuesionerApiController extends Controller
             ->where(fn($q) => 
                 $q->where("bank_soal.status","active")
                     ->where(function($query) use ($request, $target_type) {
-                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, ?)", [$target_type, 'all'])
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, 'prodi', ?)", [$target_type, 'all'])
                         ->where(function($sub) use ($request) {
                             $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->prodi])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->unit])
                                 ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
                         });
                 })
