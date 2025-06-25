@@ -132,12 +132,6 @@ class KuesionerController extends Controller
 
         $results = DB::table('v_bank_soal');
 
-        $kolom = match($peruntukan){
-            "dosen"=>"nidn",
-            "tendik"=>"nip",
-            "mahasiswa"=>"npm",
-            default=>"all",
-        };
         $target_type = match($peruntukan){
             "dosen"=>"nidn",
             "tendik"=>"unit",
@@ -145,8 +139,6 @@ class KuesionerController extends Controller
             default=>"all",
         };
 
-            $results = $results->whereNotNull("$kolom")->where("$kolom", $target);
-            
             $results = $results->selectRaw("
                 id as id_bank_soal,
                 DATE_FORMAT(now(),'%d/%m/%Y') as tanggal,
