@@ -269,21 +269,27 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                                             {
                                                 peruntukan=="mahasiswa"? 
                                                 <>
-                                                {/* <option value="npm" selected={target=="npm"}>NPM</option> */}
+                                                {
+                                                    tipe=="all"? <option value="npm" selected={target=="npm"}>NPM</option>:<></>
+                                                }
                                                 {
                                                     tipe=="spesific"? <option value="prodi" selected={target=="prodi"}>Prodi</option>:<></> 
                                                 }
                                                 </> :
                                                 peruntukan=="dosen"? 
                                                 <>
-                                                {/* <option value="nidn" selected={target=="nidn"}>NIDN</option> */}
+                                                {
+                                                    tipe=="all"? <option value="nidn" selected={target=="nidn"}>NIDN</option>:<></>
+                                                }
                                                 {
                                                     tipe=="spesific"? <option value="prodi" selected={target=="prodi"}>Prodi</option>:<></>
                                                 }
                                                 </> : 
                                                 peruntukan=="tendik"? 
                                                 <>
-                                                {/* <option value="nip" selected={target=="nip"}>NIP</option> */}
+                                                {
+                                                    tipe=="all"? <option value="nip" selected={target=="nip"}>NIP</option>:<></>
+                                                }
                                                 {
                                                     tipe=="spesific"? <option value="unit" selected={target=="unit"}>Unit</option>:<></>
                                                 }
