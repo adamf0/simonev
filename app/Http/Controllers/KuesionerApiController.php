@@ -59,7 +59,7 @@ class KuesionerApiController extends Controller
         }
 
         if($request->filled("peruntukan") && $request->filled("data")){
-            $results = $results->where("status","active")->whereNotNull("$kolom")->whereRaw("CONVERT($kolom USING utf8mb4) COLLATE utf8mb4_unicode_ci = ?", [$request->data]);
+            $results = $results->where("status","active")->whereNotNull("$kolom")->where("$kolom", $request->data);
             
             $bank_soal = $bank_soal->selectRaw("
                 id as id_bank_soal,
