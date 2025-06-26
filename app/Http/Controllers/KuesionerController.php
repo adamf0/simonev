@@ -168,9 +168,9 @@ class KuesionerController extends Controller
             
             $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
             $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
-            // dump(
-            //     [$active,$kuesioner->count()==1,$kuesioner->count()==0]
-            // );
+            dump(
+                [$active,$kuesioner->count()==1,$kuesioner->count()==0]
+            );
 
             if($kuesioner->count()>1){
                 $kuesioner = "E-K1";
@@ -186,6 +186,7 @@ class KuesionerController extends Controller
 
             return $filtered;
         });
+        dd($bankSoal);
         
         // dd([
         //     'bankSoal'=>$bankSoal,
