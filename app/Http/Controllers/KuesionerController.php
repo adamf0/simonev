@@ -157,7 +157,6 @@ class KuesionerController extends Controller
 
         $bankSoal = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])->get();
 
-        dump($bankSoal);
         $bankSoal = $bankSoal->filter(function($items) use($peruntukan,$target){
             $kolom = match($peruntukan){
                 'mahasiswa'=>'npm',
@@ -168,14 +167,6 @@ class KuesionerController extends Controller
             
             $kuesioner = Kuesioner::where($kolom, $target)->where("id_bank_soal",$items->id)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
             $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
-            dump(
-                [
-                    $active,
-                    $kuesioner->count()==1,
-                    $kuesioner->count()==0,
-                    $items,
-                    $kuesioner]
-            );
 
             if($kuesioner->count()>1){
                 $kuesioner = "E-K1";
@@ -191,7 +182,6 @@ class KuesionerController extends Controller
 
             return $filtered;
         });
-        dd($bankSoal);
         
         // dd([
         //     'bankSoal'=>$bankSoal,
