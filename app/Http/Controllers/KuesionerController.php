@@ -44,7 +44,9 @@ class KuesionerController extends Controller
     {
         $peruntukan = session()->get('level');
         $fakultas = session()->get('fakultas');
+        $kode_fakultas = session()->get('kode_fakultas');
         $prodi = session()->get('prodi');
+        $kode_prodi = session()->get('kode_prodi');
         $unit = session()->get('unit');
         $target = match($peruntukan){
             'mahasiswa'=>session()->get('id'),
@@ -194,7 +196,9 @@ class KuesionerController extends Controller
             'bankSoal'=>$bankSoal->values(),
             'peruntukan'=>$peruntukan,
             'prodi'=>$prodi,
+            'kode_prodi'=>$kode_prodi,
             'fakultas'=>$fakultas,
+            'kode_fakultas'=>$kode_fakultas,
             'unit'=>$unit,
             'target'=>$target,
             "level"=>session()->get('level')

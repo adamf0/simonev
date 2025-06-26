@@ -12,7 +12,7 @@ import { ADD_KUESIONER_SUCCESS } from "./redux/actions/kuesionerActions";
 
 // import { Inertia } from '@inertiajs/inertia';
 
-function Kuesioner({bankSoal=null, peruntukan, prodi=null, fakultas=null, unit=null, target, level=null}) {
+function Kuesioner({bankSoal=null, peruntukan, prodi=null, kode_prodi=null, fakultas=null, kode_fakultas=null, unit=null, target, level=null}) {
     const dispatch = useDispatch();
     const id_kuesioner = useSelector((state) => state.kuesioner.id_kuesioner);
     const kuesioners = useSelector((state) => state.kuesioner.kuesioners);
@@ -71,7 +71,7 @@ function Kuesioner({bankSoal=null, peruntukan, prodi=null, fakultas=null, unit=n
         if(id_kuesioner !== null){
             window.location.href = `/kuesioner/start/${id_kuesioner}`;
         } else{
-            dispatch(addKuesioner("add", peruntukan, target, id_bank_soal, fakultas, prodi, unit));
+            dispatch(addKuesioner("add", peruntukan, target, id_bank_soal, fakultas, kode_prodi, unit));
         }
     }
     
