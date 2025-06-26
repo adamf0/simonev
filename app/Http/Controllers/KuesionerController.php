@@ -166,7 +166,7 @@ class KuesionerController extends Controller
             };
             $active = strtotime(now()) >= strtotime($items->start_repair." 00:00:00") || strtotime(now()) <= strtotime($items->end_repair." 23:59:59");
             
-            $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
+            $kuesioner = Kuesioner::where($kolom, $target)->where("id_bank_soal",$items->id)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
             $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
             dump(
                 [
@@ -174,7 +174,7 @@ class KuesionerController extends Controller
                     $kuesioner->count()==1,
                     $kuesioner->count()==0,
                     $items,
-                    Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->toRawSql()]
+                    $kuesioner]
             );
 
             if($kuesioner->count()>1){
