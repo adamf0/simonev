@@ -163,7 +163,7 @@ class KuesionerController extends Controller
                 'dosen'=>'nidn',
                 default => 'nip'
             };
-            $active = strtotime(now()) >= strtotime($items->start_repair." 00:00:00") || strtotime(now()) <= strtotime($items->end_repair." 23:59:59");
+            $active = strtotime(now()) >= strtotime($items->start_repair) || strtotime(now()) <= strtotime($items->end_repair);
             
             $kuesioner = Kuesioner::where($kolom, $target)->where("id_bank_soal",$items->id)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
             $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
