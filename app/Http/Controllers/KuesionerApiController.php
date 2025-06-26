@@ -203,7 +203,6 @@ class KuesionerApiController extends Controller
                     // )
                     ->values();
 
-        dd($results, $results2);
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $results2After = $results2->filter(fn($row) => !in_array($row?->id, $resultsIds))->values();
 
