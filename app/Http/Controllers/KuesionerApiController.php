@@ -117,7 +117,8 @@ class KuesionerApiController extends Controller
 
         $results = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
                         ->orderByDesc('tanggal')
-                        ->get();
+                        ->toRawSql();
+        dd($results);
 
         $results2 = $bank_soal->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
                     ->get()
@@ -203,7 +204,6 @@ class KuesionerApiController extends Controller
                     // )
                     ->values();
 
-        dd($results, $results2);
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $results2After = $results2->filter(fn($row) => !in_array($row?->id, $resultsIds))->values();
 
