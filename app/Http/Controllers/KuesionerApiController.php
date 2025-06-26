@@ -117,7 +117,7 @@ class KuesionerApiController extends Controller
 
         $results = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
                         ->orderByDesc('tanggal')
-                        ->toRawSql();
+                        ->get();
 
         $results2 = $bank_soal->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
                     ->get()
@@ -133,7 +133,7 @@ class KuesionerApiController extends Controller
                             // $end = $item->rule['generate']['end'];
                             $start = $item->start_repair;
                             $end = $item->end_repair;
-                            $item->open_edit = strtotime($now) >= strtotime($start) && strtotime($now) <= strtotime($end);
+                            $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") && strtotime($now) <= strtotime($end." 23:59:59");
                             // $item->rule['target_list'] = array_map('strtolower', $item->rule['target_list']);
 
                             // if($item->rule['type']=="spesific" && $item->rule['target_type']=="npm" && (in_array("all",$item->rule['target_list']) || in_array($request->data,$item->rule['target_list'])) ){
@@ -203,6 +203,7 @@ class KuesionerApiController extends Controller
                     // )
                     ->values();
 
+        dd($results, $results2);
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $results2After = $results2->filter(fn($row) => !in_array($row?->id, $resultsIds))->values();
 
