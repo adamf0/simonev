@@ -258,10 +258,10 @@ Kuesioner.KuesionersRow = ({ item, loading, changeSelected, startKuesioner, view
             <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
         </td>
         <td>{item.judul}</td>
-        <td className="d-none d-xl-table-cell">
+        <td>
             {item.peruntukan}
         </td>
-        <td className="d-none d-xl-table-cell">
+        <td>
             {format(new Date(item.tanggal), "dd MMM yyyy")}
             {
                 item?.open_edit && 
