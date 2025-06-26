@@ -169,7 +169,11 @@ class KuesionerController extends Controller
             $kuesioner = Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->get();
             $filtered = $active && ($kuesioner->count()==1 || $kuesioner->count()==0);
             dump(
-                [$active,$kuesioner->count()==1,$kuesioner->count()==0]
+                [
+                    $active,
+                    $kuesioner->count()==1,
+                    $kuesioner->count()==0,
+                    Kuesioner::where($kolom, $target)->whereBetween("tanggal",[$items->start_repair,$items->end_repair])->toRawSql()]
             );
 
             if($kuesioner->count()>1){
