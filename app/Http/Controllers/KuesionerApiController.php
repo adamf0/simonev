@@ -115,10 +115,10 @@ class KuesionerApiController extends Controller
             ],500);
         }
 
-        dump(
-            $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])->toRawSql(),
-            $bank_soal->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])->toRawSql()
-        );
+        // dump(
+        //     $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])->toRawSql(),
+        //     $bank_soal->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])->toRawSql()
+        // );
         $results = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
                         ->orderByDesc('tanggal')
                         ->get();
