@@ -212,7 +212,7 @@ class KuesionerController extends Controller
     public function kuesionerEdit($type="start",$id)
     {
         $kuesioner = Kuesioner::with(['BankSoal'])->find($id);
-        if($kuesioner==null){
+        if($kuesioner==null || $kuesioner?->BankSoal?->rule == null){
             return Inertia::render('Kuesioner/KuesionerNotFound',[]);
         }
         $kuesioner->BankSoal->rule = json_decode($kuesioner->BankSoal->rule,true);
