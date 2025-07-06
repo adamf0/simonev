@@ -21,7 +21,7 @@ Route::post('/propagation', [AuthController::class, 'propagation'])->name('propa
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/kuesioner/done', [KuesionerController::class,"done"])->name('kuesioner.done');
+Route::get('/kuesioner/done', [KuesionerController::class,"done"])->name('kuesioner.done'); 
 
 Route::middleware([CheckSession::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
