@@ -47,6 +47,7 @@ function KuesionerForm({kuesioner, groupPertanyaan, pertanyaanRequired=[], level
                     theme: "light",
                     transition: Bounce,
                 });
+                window.location.href = `/kuesioner/done`;
             }
             if(action_type==UPDATE_KUESIONER_FAILURE){
                 toast.error(errorMessage?.response?.data?.message, {

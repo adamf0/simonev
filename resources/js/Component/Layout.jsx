@@ -13,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const MySwal = withReactContent(Swal)
 
-function Layout({ children, level=null }) {
+function Layout({ children, level=null, showNav=true }) {
     const mtahun = usePage().props.mtahun;
     const [show, setShow] = useState(false);
 
@@ -29,7 +29,7 @@ function Layout({ children, level=null }) {
 
     return (
         <>
-            <Nav isOpen={isOpen} setIsOpen={setIsOpen} onChangeTA={changeTa} level={level}/>
+            {showNav && <Nav isOpen={isOpen} setIsOpen={setIsOpen} onChangeTA={changeTa} level={level}/>}
             <div className="wrapper">
                 <Sidemenu isOpen={isOpen} level={level}/>
                 <div className="main">

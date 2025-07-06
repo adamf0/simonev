@@ -205,6 +205,10 @@ class KuesionerController extends Controller
         ]);
     }
 
+    public function done(){
+        return Inertia::render('Kuesioner/KuesionerDone', []);
+    }
+
     public function kuesionerEdit($type="start",$id)
     {
         $kuesioner = Kuesioner::with(['BankSoal'])->findOrFail($id);

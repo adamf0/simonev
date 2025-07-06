@@ -36,6 +36,7 @@ Route::middleware([CheckSession::class])->group(function () {
     Route::get('/bankSoal/{id_bank_soal}/pertanyaan/{id_pertanyaan}/edit', [TemplatePertanyaanController::class,"pertanyaanEdit"])->name('pertanyaan.edit');
     
     Route::get('/kuesioner', [KuesionerController::class,"kuesioner"])->name('kuesioner');
+    Route::get('/kuesioner/done', [KuesionerController::class,"done"])->name('kuesioner.done');
     Route::get('/kuesioner/{type}/{id}', [KuesionerController::class,"kuesionerEdit"])->name('kuesioner.edit');
     
     Route::get('/laporan/rekap', [LaporanController::class,"rekap"])->name('kuesioner.rekap');
