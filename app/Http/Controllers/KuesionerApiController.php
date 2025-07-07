@@ -6,6 +6,7 @@ use App\Models\BankSoal;
 use App\Models\Kuesioner;
 use App\Models\KuesionerJawaban;
 use Carbon\Exceptions\InvalidFormatException;
+use Error;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -266,7 +267,10 @@ class KuesionerApiController extends Controller
             // } 
     
             if($request->event=="add"){
-                $bankSoal = DB::table("v_bank_soal")::findOrFail($request->id_bank_soal);
+                $bankSoal = DB::table("v_bank_soal")->where("id",$request->id_bank_soal)->first();
+                if($bankSoal==null){
+                    throw new Exception("data tidak ditemukan");
+                }
                 
                 $kolom = match($request->peruntukan){
                     'mahasiswa'=>'npm',
