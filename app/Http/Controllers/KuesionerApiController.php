@@ -364,6 +364,7 @@ class KuesionerApiController extends Controller
                 } 
 
                 if(empty($bankSoal['start_repair']) || empty($bankSoal['end_repair'])){
+                    dd($bankSoal);
                     throw new Exception("gagal medapatkan bank soal yg aktif rule");
                 }
                 $kuesioner = Kuesioner::where($kolom,$request?->target)
