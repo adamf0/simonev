@@ -40,11 +40,11 @@ export const fetchKategoris = (filters, page = 1) => {
   };
 };
 
-export const addKategori = (nama_kategori) => {
+export const addKategori = (nama_kategori,fakultas) => {
   return async (dispatch) => {
     dispatch({ type: ADD_KATEGORI_REQUEST });
     try {
-      const response = await axios.post(api_kategori_add, { nama_kategori });
+      const response = await axios.post(api_kategori_add, { nama_kategori,fakultas });
       dispatch({ type: ADD_KATEGORI_SUCCESS, payload: response.data });
     } catch (error) {
       const validation = error?.response?.data?.validation;
@@ -53,11 +53,11 @@ export const addKategori = (nama_kategori) => {
   };
 };
 
-export const updateKategori = (id,nama_kategori) => {
+export const updateKategori = (id,nama_kategori,fakultas) => {
   return async (dispatch) => {
     dispatch({ type: UPDATE_KATEGORI_REQUEST });
     try {
-      const response = await axios.post(api_kategori_update, { id,nama_kategori });
+      const response = await axios.post(api_kategori_update, { id,nama_kategori,fakultas });
       dispatch({ type: UPDATE_KATEGORI_SUCCESS, payload: response.data });
     } catch (error) {
       const validation = error?.response?.data?.validation;

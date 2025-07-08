@@ -7,7 +7,7 @@ import { UPDATE_SUBKATEGORI_FAILURE, UPDATE_SUBKATEGORI_SUCCESS, updateSubKatego
 import { useDispatch, useSelector } from "react-redux";
 import 'react-calendar-datetime-picker/dist/style.css'
 
-function SubKategoriForm({typeEvent = "Add", kategori=null, subkategori=null, level=null}) {
+function SubKategoriForm({typeEvent = "Add", kategori=null, subkategori=null, level=null, fakultas=null}) {
     const dispatch = useDispatch();
     const action_type = useSelector((state) => state.subkategori.action_type);
     const loading = useSelector((state) => state.subkategori.loading); // Access loading state from Redux
@@ -55,7 +55,7 @@ function SubKategoriForm({typeEvent = "Add", kategori=null, subkategori=null, le
     },[action_type])
 
     function saveHandler(){
-        dispatch(updateSubKategori(subkategori.id, kategori.id, nama_subkategori));
+        dispatch(updateSubKategori(subkategori.id, kategori.id, nama_subkategori, fakultas));
     }
 
     return (

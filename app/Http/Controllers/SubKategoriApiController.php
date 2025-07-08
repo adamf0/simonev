@@ -67,6 +67,7 @@ class SubKategoriApiController extends Controller
             $Subkategori = new SubKategori();
             $Subkategori->id_kategori = $request->id_kategori;
             $Subkategori->nama_sub = $request->nama_sub;
+            $Subkategori->createdBy = $request->fakultas;
             $Subkategori->save();
     
             return response()->json([
@@ -105,6 +106,7 @@ class SubKategoriApiController extends Controller
             $Subkategori = SubKategori::findOrFail($request->id);
             $Subkategori->id_kategori = $request->id_kategori;
             $Subkategori->nama_sub = $request->nama_sub;
+            $Subkategori->createdBy = $request->fakultas;
             $Subkategori->save();
     
             return response()->json([

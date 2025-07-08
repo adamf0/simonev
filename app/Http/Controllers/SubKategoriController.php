@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fakultas;
 use App\Models\Kategori;
 use App\Models\SubKategori;
 use Illuminate\Support\Facades\DB;
@@ -17,14 +18,27 @@ class SubKategoriController extends Controller
     public function SubKategori($id_kategori)
     {
         $kategori = Kategori::findOrFail($id_kategori);
-        return Inertia::render('SubKategori/SubKategori', ["kategori"=> $kategori, "level"=>session()->get('level')]);
+        $fakultas = Fakultas::where("kode_fakultas",session()->get('fakultas'))->first();
+
+        return Inertia::render('SubKategori/SubKategori', [
+            "kategori"=> $kategori, 
+            "level"=>session()->get('level'),
+            "fakultas"=>$fakultas?->nama_fakultas
+        ]);
     }
 
     public function SubKategoriEdit($id_kategori, $id)
     {
         $kategori = Kategori::findOrFail($id_kategori);
         $data = SubKategori::find($id);
+        $fakultas = Fakultas::where("kode_fakultas",session()->get('fakultas'))->first();
         
-        return Inertia::render('SubKategori/SubKategoriForm', ['typeEvent' => "Edit", "kategori"=> $kategori, "subkategori"=>$data, "level"=>session()->get('level')]);
+        return Inertia::render('SubKategori/SubKategoriForm', [
+            'typeEvent' => "Edit", 
+            "kategori"=> $kategori, 
+            "subkategori"=>$data, 
+            "level"=>session()->get('level'),
+            "fakultas"=>$fakultas?->nama_fakultas
+        ]);
     }
 }

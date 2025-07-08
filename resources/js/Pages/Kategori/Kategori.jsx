@@ -7,7 +7,7 @@ import { fetchKategoris, addKategori, deleteKategori, setKategoris, DELETE_KATEG
 import { Bounce, toast, ToastContainer } from "react-toastify";
 // import { Inertia } from '@inertiajs/inertia';
 
-function Kategori({level=null}) {
+function Kategori({level=null,fakultas=null}) {
     const dispatch = useDispatch();
     
     const kategoris = useSelector((state) => state.kategori.kategoris);
@@ -86,7 +86,7 @@ function Kategori({level=null}) {
     }
 
     function saveDataHandler() {
-        dispatch(addKategori(nama_kategori)); // Dispatch add action
+        dispatch(addKategori(nama_kategori,fakultas)); // Dispatch add action
     }
 
     // Debounced filter change
@@ -210,6 +210,8 @@ function Kategori({level=null}) {
                                             changeSelected={changeSelected}
                                             openEdit={openEdit}
                                             openSub={openSub}
+                                            level={level}
+                                            fakultas={fakultas}
                                     />
                                 </table>
 
@@ -229,7 +231,7 @@ function Kategori({level=null}) {
     );
 }
 
-Kategori.KategorisBody = ({ action_type, kategoris, loading, changeSelected, openEdit, openSub }) => {
+Kategori.KategorisBody = ({ action_type, kategoris, loading, changeSelected, openEdit, openSub, level, fakultas }) => {
     if (action_type === FETCH_KATEGORIS_REQUEST) {
         return <Kategori.LoadingRow />;
     } else if (action_type === FETCH_KATEGORIS_FAILURE) {
@@ -245,28 +247,48 @@ Kategori.KategorisBody = ({ action_type, kategoris, loading, changeSelected, ope
                         changeSelected={changeSelected}
                         openEdit={openEdit}
                         openSub={openSub}
+                        level={level}
+                        createdBy={item.createdBy}
+                        fakultas={fakultas}
                     />
                 ))}
             </tbody>
         );
     }
 };
-Kategori.KategorisRow = ({ item, loading, changeSelected, openEdit, openSub }) => { 
+Kategori.KategorisRow = ({ item, loading, changeSelected, openEdit, openSub, level, createdBy, fakultas }) => { 
+    if(createdBy!=null && (level!="admin" && createdBy!==fakultas)){
+        return;
+    }
     return (
         <tr key={item.id}>
             <td>
-                <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+                {
+                    (createdBy===fakultas || level==="admin") && 
+                    <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+                }
             </td>
-            <td>{item.nama_kategori}</td>
             <td>
-                <div className="d-flex justify-content-center gap-2">
-                    <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
-                        <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
-                    </button>
-                    <button className="btn" disabled={loading} onClick={() => openSub(item.id)}>
-                        <i className="bi bi-arrow-right text-black" style={{ fontSize: "1.2rem" }}></i>
-                    </button>
-                </div>
+                {item.nama_kategori} &nbsp;
+                {
+                    createdBy!==fakultas &&
+                    <span className="badge bg-success">
+                        {createdBy}
+                    </span>
+                }
+            </td>
+            <td>
+                {
+                    (createdBy===fakultas || level==="admin") && 
+                    <div className="d-flex justify-content-center gap-2">
+                        <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
+                            <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
+                        </button>
+                        <button className="btn" disabled={loading} onClick={() => openSub(item.id)}>
+                            <i className="bi bi-arrow-right text-black" style={{ fontSize: "1.2rem" }}></i>
+                        </button>
+                    </div>
+                }
             </td>
         </tr>
     );

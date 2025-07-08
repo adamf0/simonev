@@ -7,7 +7,7 @@ import { fetchSubKategoris, addSubKategori, deleteSubKategori, setSubKategoris, 
 import { Bounce, toast, ToastContainer } from "react-toastify";
 // import { Inertia } from '@inertiajs/inertia';
 
-function SubKategori({kategori=null, level=null}) {
+function SubKategori({kategori=null, level=null, fakultas=null}) {
     const dispatch = useDispatch();
 
     const st = useSelector((state) => state.subkategori);
@@ -86,7 +86,7 @@ function SubKategori({kategori=null, level=null}) {
     }
 
     function saveDataHandler() {
-        dispatch(addSubKategori(kategori?.id, nama_kategori)); // Dispatch add action
+        dispatch(addSubKategori(kategori?.id, nama_kategori, fakultas)); // Dispatch add action
     }
 
     // Debounced filter change
@@ -211,6 +211,8 @@ function SubKategori({kategori=null, level=null}) {
                                             loading={loading}
                                             changeSelected={changeSelected}
                                             openEdit={openEdit}
+                                            fakultas={fakultas}
+                                            level={level}
                                     />
                                 </table>
 
@@ -230,7 +232,7 @@ function SubKategori({kategori=null, level=null}) {
     );
 }
 
-SubKategori.SubKategorisBody = ({ action_type, subkategoris, loading, changeSelected, openEdit }) => {
+SubKategori.SubKategorisBody = ({ action_type, subkategoris, loading, changeSelected, openEdit, level, fakultas }) => {
     if (action_type === FETCH_SUBKATEGORIS_REQUEST) {
         return <SubKategori.LoadingRow />;
     } else if (action_type === FETCH_SUBKATEGORIS_FAILURE) {
@@ -245,25 +247,45 @@ SubKategori.SubKategorisBody = ({ action_type, subkategoris, loading, changeSele
                         loading={loading}
                         changeSelected={changeSelected}
                         openEdit={openEdit}
+                        createdBy={item.createdBy}
+                        fakultas={fakultas}
+                        level={level}
                     />
                 ))}
             </tbody>
         );
     }
 };
-SubKategori.SubKategorisRow = ({ item, loading, changeSelected, openEdit }) => { 
+SubKategori.SubKategorisRow = ({ item, loading, changeSelected, openEdit, createdBy, level, fakultas }) => { 
+    if(createdBy!=null && (level!="admin" && createdBy!==fakultas)){
+        return;
+    }
     return (
         <tr key={item.id}>
             <td>
-                <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+                {
+                    (createdBy===fakultas || level==="admin") && 
+                    <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+                }
             </td>
-            <td>{item.nama_sub}</td>
             <td>
-                <div className="d-flex justify-content-center gap-2">
-                    <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
-                        <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
-                    </button>
-                </div>
+                {item.nama_sub} &nbsp;
+                {
+                    createdBy!==fakultas &&
+                    <span className="badge bg-success">
+                        {createdBy}
+                    </span>
+                }
+            </td>
+            <td>
+                {
+                    (createdBy===fakultas || level==="admin") && 
+                    <div className="d-flex justify-content-center gap-2">
+                        <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
+                            <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
+                        </button>
+                    </div>
+                }
             </td>
         </tr>
     );

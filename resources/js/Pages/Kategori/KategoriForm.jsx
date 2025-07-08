@@ -7,7 +7,7 @@ import { UPDATE_KATEGORI_FAILURE, UPDATE_KATEGORI_SUCCESS, updateKategori } from
 import { useDispatch, useSelector } from "react-redux";
 import 'react-calendar-datetime-picker/dist/style.css'
 
-function KategoriForm({typeEvent = "Add", kategori=null, level=null}) {
+function KategoriForm({typeEvent = "Add", kategori=null, level=null, fakultas=null}) {
     const dispatch = useDispatch();
     const action_type = useSelector((state) => state.kategori.action_type);
     const loading = useSelector((state) => state.kategori.loading); // Access loading state from Redux
@@ -55,7 +55,7 @@ function KategoriForm({typeEvent = "Add", kategori=null, level=null}) {
     },[action_type])
 
     function saveHandler(){
-        dispatch(updateKategori(kategori.id, nama_kategori));
+        dispatch(updateKategori(kategori.id, nama_kategori, fakultas));
     }
 
     return (

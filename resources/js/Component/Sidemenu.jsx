@@ -31,22 +31,25 @@ function Sidemenu({ isOpen, level }) {
                         </li>
                         {
                             level=="admin"?
-                            <>
                             <li className={`sidebar-item ${activeItem === '/pengguna' ? 'active' : ''}`}>
                                 <a className="sidebar-link" href="/pengguna" onClick={() => handleItemClick('/pengguna')}>
                                     <i className="align-middle ti ti-user me-2"></i>
                                     <span className="align-middle">Pengguna</span>
                                 </a>
                             </li>
+                            : 
+                            <></>
+                        }
+                        {
+                            (level=="admin" || level=="fakultas") && 
                             <li className={`sidebar-item ${activeItem === '/kategori' || activeItem === '/subKategori' ? 'active' : ''}`}>
                                 <a className="sidebar-link" href="/kategori" onClick={() => handleItemClick('/kategori')}>
                                     <i className="align-middle ti ti-abc me-2"></i>
                                     <span className="align-middle">Kategori Kuesioner</span>
                                 </a>
                             </li>
-                            </> : 
-                            <></>
                         }
+
                         {
                             (level=="admin" || level=="fakultas") && <li className={`sidebar-item ${activeItem === '/bankSoal' ? 'active' : ''}`}>
                             <a className="sidebar-link" href="/bankSoal" onClick={() => handleItemClick('/bankSoal')}>

@@ -65,6 +65,7 @@ class KategoriApiController extends Controller
     
             $kategori = new Kategori();
             $kategori->nama_kategori = $request->nama_kategori;
+            $kategori->createdBy = $request->fakultas;
             $kategori->save();
     
             return response()->json([
@@ -101,6 +102,7 @@ class KategoriApiController extends Controller
     
             $kategori = Kategori::findOrFail($request->id);
             $kategori->nama_kategori = $request->nama_kategori;
+            $kategori->createdBy = $request->fakultas;
             $kategori->save();
     
             return response()->json([

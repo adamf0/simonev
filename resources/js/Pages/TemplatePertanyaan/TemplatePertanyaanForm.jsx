@@ -8,7 +8,7 @@ import { fetchTemplateJawabans, addTemplateJawaban, deleteTemplateJawaban, ADD_T
 import { useDispatch, useSelector } from "react-redux";
 import TemplateJawaban from "../TemplateJawaban/TemplateJawaban";
 
-function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKategori = [], level=null}) {
+function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKategori = [], level=null, fakultas=null}) {
     const dispatch = useDispatch();
     const action_type_pertanyaan = useSelector((state) => state.templatePertanyaan.action_type);
     const loading_pertanyaan = useSelector((state) => state.templatePertanyaan.loading); 
@@ -250,7 +250,11 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                     <select className="form-select" id="jenisKategoriSelect" value={kategori} onChange={(e)=>changeKategori(e.target.value)}>
                                     <option selected=""></option>
                                     {
-                                        listKategori.map(lk => <option value={lk.id} selected={lk.id==kategori}>{lk.nama_kategori}</option>)
+                                        listKategori.map(lk => {
+                                            if(lk.createdBy==fakultas || lk.createdBy==null){
+                                                return <option value={lk.id} selected={lk.id==kategori}>{lk.nama_kategori} {lk.createdBy!=null && ` (${lk.createdBy})`}</option>;
+                                            }
+                                        })
                                     }
                                     </select>
                                     <label htmlFor="jenisKategoriSelect">Kategori <b className="text-danger">*</b></label>
@@ -261,7 +265,11 @@ function TemplatePertanyaanForm({type="Add",bankSoal,templatePertanyaan, listKat
                                     <select className="form-select" id="jenisSubKategoriSelect" value={subKategori} onChange={(e)=>changeSubKategori(e.target.value)}>
                                     <option selected=""></option>
                                     {
-                                        listSubKategori.map(lsk => <option value={lsk.id} selected={lsk.id==subKategori}>{lsk.nama_sub}</option>)
+                                        listSubKategori.map(lsk => {
+                                            if(lsk.createdBy==fakultas || lsk.createdBy==null){
+                                                return <option value={lsk.id} selected={lsk.id==subKategori}>{lsk.nama_sub} {lsk.createdBy!=null && `(${lsk.createdBy})`}</option>;
+                                            }
+                                        })
                                     }
                                     </select>
                                     <label htmlFor="jenisSubKategoriSelect">Sub Kategori</label>
