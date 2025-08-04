@@ -88,6 +88,7 @@ function Laporan({level, listBankSoal=[]}) {
     function buildOptionsChart(source){
         return {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 tooltip: {
                     callbacks: {
