@@ -126,7 +126,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cfFakultas || !cfFakultas.datasets || !cfFakultas.labels) {
                 return <p>No data available</p>;
         } else{
-            return <Pie data={cfFakultas} options={buildOptionsChart(cfFakultas)} />
+            return <Pie data={cfFakultas} options={buildOptionsChart(cfFakultas)} height={400}/>
         }
     }
     function renderChartProdi(){
@@ -137,7 +137,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cpProdi || !cpProdi.datasets || !cpProdi.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cpProdi} options={buildOptionsChart(cpProdi)} />
+            return <Pie data={cpProdi} options={buildOptionsChart(cpProdi)} height={400}/>
         }
     }
     function renderChartUnit(){
@@ -148,7 +148,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cuUnit || !cuUnit.datasets || !cuUnit.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)}/>
+            return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)} height={400}/>
         }
     }
     function renderChart() {
@@ -264,7 +264,7 @@ function Laporan({level, listBankSoal=[]}) {
 
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                             <div class="card px-4 py-3">
-                                <div className="grid-top">
+                                <div className="">
                                 {
                                         colChart==0 && 
                                         <div class="col-12">
