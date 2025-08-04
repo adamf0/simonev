@@ -88,7 +88,6 @@ function Laporan({level, listBankSoal=[]}) {
     function buildOptionsChart(source){
         return {
             responsive: true,
-            maintainAspectRatio: false,
             plugins: {
                 tooltip: {
                     callbacks: {
@@ -127,7 +126,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cfFakultas || !cfFakultas.datasets || !cfFakultas.labels) {
                 return <p>No data available</p>;
         } else{
-            return <Pie data={cfFakultas} options={buildOptionsChart(cfFakultas)} height={300}/>
+            return <Pie data={cfFakultas} options={buildOptionsChart(cfFakultas)} />
         }
     }
     function renderChartProdi(){
@@ -138,7 +137,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cpProdi || !cpProdi.datasets || !cpProdi.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cpProdi} options={buildOptionsChart(cpProdi)} height={300}/>
+            return <Pie data={cpProdi} options={buildOptionsChart(cpProdi)} />
         }
     }
     function renderChartUnit(){
@@ -149,7 +148,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cuUnit || !cuUnit.datasets || !cuUnit.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)} height={300}/>
+            return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)}/>
         }
     }
     function renderChart() {
@@ -278,16 +277,16 @@ function Laporan({level, listBankSoal=[]}) {
                                             {
                                                 chartFakultas && 
                                                 <div className="row">
-                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12">
                                                         <h4>Fakultas</h4>
                                                         {renderChartFakultas()}
-                                                    </div>
+                                       3             </div>
                                                 </div>
                                             }
                                             {
                                                 chartProdi && 
                                                 <div className="row">
-                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12">
                                                         <h4>Prodi</h4>
                                                         {renderChartProdi()}
                                                     </div>
@@ -296,7 +295,7 @@ function Laporan({level, listBankSoal=[]}) {
                                             {
                                                 chartUnit && 
                                                 <div className="row">
-                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12">
                                                         <h4>Unit</h4>
                                                         {renderChartUnit()}
                                                     </div>
