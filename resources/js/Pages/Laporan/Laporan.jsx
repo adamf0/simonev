@@ -215,7 +215,7 @@ function Laporan({level, listBankSoal=[]}) {
                     </div>
 
                     <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xl-3 col-lg-3 col-md-4 col-sm-12">
                             <div class="card d-flex gap-2 px-4 py-3">
                                 <div class="col-12">
                                     <h3>Filter</h3>
@@ -262,9 +262,9 @@ function Laporan({level, listBankSoal=[]}) {
                             </div>
                         </div>
 
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xl-9 col-lg-9 col-md-8 col-sm-12">
                             <div class="card px-4 py-3">
-                                <div className="">
+                                <div className="grid-top">
                                 {
                                         colChart==0 && 
                                         <div class="col-12">
@@ -277,16 +277,16 @@ function Laporan({level, listBankSoal=[]}) {
                                             {
                                                 chartFakultas && 
                                                 <div className="row">
-                                                    <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12">
+                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                                         <h4>Fakultas</h4>
                                                         {renderChartFakultas()}
-                                       3             </div>
+                                                    </div>
                                                 </div>
                                             }
                                             {
                                                 chartProdi && 
                                                 <div className="row">
-                                                    <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12">
+                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                                         <h4>Prodi</h4>
                                                         {renderChartProdi()}
                                                     </div>
@@ -295,7 +295,7 @@ function Laporan({level, listBankSoal=[]}) {
                                             {
                                                 chartUnit && 
                                                 <div className="row">
-                                                    <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12">
+                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                                         <h4>Unit</h4>
                                                         {renderChartUnit()}
                                                     </div>
