@@ -127,7 +127,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cfFakultas || !cfFakultas.datasets || !cfFakultas.labels) {
                 return <p>No data available</p>;
         } else{
-            return <Pie data={cfFakultas} options={buildOptionsChart(cfFakultas)} height={400}/>
+            return <Pie data={cfFakultas} options={buildOptionsChart(cfFakultas)} height={300}/>
         }
     }
     function renderChartProdi(){
@@ -138,7 +138,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cpProdi || !cpProdi.datasets || !cpProdi.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cpProdi} options={buildOptionsChart(cpProdi)} height={400}/>
+            return <Pie data={cpProdi} options={buildOptionsChart(cpProdi)} height={300}/>
         }
     }
     function renderChartUnit(){
@@ -149,7 +149,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cuUnit || !cuUnit.datasets || !cuUnit.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)} height={400}/>
+            return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)} height={300}/>
         }
     }
     function renderChart() {
