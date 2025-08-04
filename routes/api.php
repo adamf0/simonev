@@ -39,6 +39,7 @@ Route::get('/kuesioner', [KuesionerApiController::class, 'listKuesioner'])->name
 Route::post('/kuesioner/save', [KuesionerApiController::class, 'save'])->name('api.kuesioner.add');
 Route::post('/kuesioner/delete', [KuesionerApiController::class, 'delete'])->name('api.kuesioner.delete');
 Route::get('/kuesioner/active', [KuesionerApiController::class, 'listKuesionerActive'])->name('api.kuesioner.listActive');
+Route::get('/kuesioner/check', [KuesionerApiController::class, 'checkKuesioner'])->name('api.kuesioner.check');
 
 Route::get('/kuesioner/rekap', [LaporanApiController::class, 'rekap'])->name('api.kuesioner.rekap');
 Route::get('/kuesioner/laporan', [LaporanApiController::class, 'laporan'])->name('api.kuesioner.laporan');

@@ -225,6 +225,71 @@ class KuesionerApiController extends Controller
             'lastPage' => ceil($resource->count() / $perPage),
         ]);
     }
+    public function checkKuesioner(Request $request)
+    {
+        $kolom = match($request->peruntukan){
+            "dosen"=>"nidn",
+            "tendik"=>"nip",
+            "mahasiswa"=>"npm",
+            default=>"all",
+        };
+        $target_type = match($request->peruntukan){
+            "dosen"=>"nidn",
+            "tendik"=>"unit",
+            "mahasiswa"=>"npm",
+            default=>"all",
+        };
+
+        $results = DB::table('v_kuesioner');
+        $bank_soal = DB::table("v_bank_soal");
+
+        if ($request->filled("bank_soal")) {
+            $results = $results->where('judul', $request->bank_soal);
+        }
+
+        if($request->filled("peruntukan") && $request->filled("data")){
+            $results = $results->where("status","active")->whereNotNull("$kolom")->where("$kolom", $request->data);
+            
+            $bank_soal = $bank_soal->where("peruntukan",$request->peruntukan)->where(fn($q) => 
+                $q->where(function($query) use ($target_type, $request) {
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) IN (?, 'prodi', ?)", [$target_type, 'all'])
+                        ->where(function($sub) use($request){
+                            $sub->whereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->data])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->prodi])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), JSON_QUOTE(?))", [$request->unit])
+                                ->orWhereRaw("JSON_CONTAINS(JSON_EXTRACT(rule, '$.target_list'), '\"all\"')");
+                        });
+                })
+                ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(rule, '$.target_type')) = 'all'")
+            );
+        } else{
+            return response()->json([
+                "message"=>"parameter peruntukan dan data wajib digunakan",
+            ],500);
+        }
+
+        $results = $results->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
+                        ->orderByDesc('tanggal')
+                        ->get();
+
+        $results2 = $bank_soal->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
+                    ->get()
+                    ->transform(function ($item){
+                            $now = date('Y-m-d');
+                            $start = $item->start_repair;
+                            $end = $item->end_repair;
+                            $item->open_edit = strtotime($now) >= strtotime($start." 00:00:00") && strtotime($now) <= strtotime($end." 23:59:59");
+                            $item->hasCreated = 0;                            
+                            return $item;
+                    })
+                    ->values();
+
+        $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
+        $results2After = $results2->filter(fn($row) => !in_array($row?->id, $resultsIds))->values();
+
+        $resource = $results2After->merge($results)->values(); //statusPengisian
+        return response()->json($resource);
+    }
     public function delete(Request $request){
         
         
