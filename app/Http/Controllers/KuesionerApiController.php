@@ -287,8 +287,9 @@ class KuesionerApiController extends Controller
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $results2After = $results2->filter(fn($row) => !in_array($row?->id, $resultsIds))->values();
 
-        $resource = $results2After->merge($results)->values(); //statusPengisian
-        return response()->json($resource);
+        $resource = $results2After->merge($results)->values();
+        $resource = $resource->where("statusPengisian","!=","isi lengkap")->values();
+        return response()->json(["totalIsiKuesioner"=>$resource->count()]);
     }
     public function delete(Request $request){
         
