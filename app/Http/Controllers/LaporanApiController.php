@@ -105,6 +105,7 @@ class LaporanApiController extends Controller
         }
         
         $totalRecords = $query->count();
+        dd($totalRecords, $query->get());
         $kuesioner = $query->paginate(5);
 
         $kuesioner->getCollection()->transform(function($item) {
