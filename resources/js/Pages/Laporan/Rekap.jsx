@@ -252,6 +252,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                                     />
                                 </table>
 
+                                {console.log(rekaps)}
                                 <PaginationTable
                                     total={action_type==FETCH_REKAPS_REQUEST?  "":(rekaps.total || 1)}
                                     currentPage={rekaps.currentPage}
