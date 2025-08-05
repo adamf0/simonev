@@ -40,48 +40,48 @@ class LaporanApiController extends Controller
 
     public function rekap(Request $request)
     {
+        // Menyiapkan query dasar
         $query = Kuesioner::select(
-                                DB::raw('MAX(kuesioner.id) as id'),
-                                DB::raw('MAX(kuesioner.nidn) as nidn'),
-                                DB::raw('MAX(kuesioner.nip) as nip'),
-                                DB::raw('MAX(kuesioner.npm) as npm'),
-                                DB::raw('MAX(kuesioner.id_bank_soal) as id_bank_soal'),
-                                DB::raw('MAX(kuesioner.tanggal) as tanggal'),
-                                DB::raw('MAX(bank_soal.peruntukan) as peruntukan'),
-                                DB::raw('MAX(bank_soal.judul) as bankSoal'),
-                                DB::raw('MAX(m_mahasiswa.nama_mahasiswa) as nama_mahasiswa'),
-                                DB::raw('MAX(m_mahasiswa.kode_fak) as mahasiswa_kode_fakultas'),
-                                DB::raw('MAX(m_mahasiswa.kode_prodi) as mahasiswa_kode_prodi'),
-                                DB::raw('MAX(tDosen.nama) as nama_dosen'),
-                                DB::raw('MAX(m_dosen.kode_prodi) as dosen_kode_prodi'),
-                                DB::raw('MAX(m_dosen.kode_fak) as dosen_kode_fakultas'),
-                                DB::raw('MAX(tTendik.nama) as nama_tendik'),
-                                DB::raw('MAX(n_pengangkatan.unit_kerja) as unit_kerja')
-                            )
-                            ->join('bank_soal','kuesioner.id_bank_soal','=','bank_soal.id')
-                            ->leftJoin(DB::raw('v_tendik as tDosen'),'kuesioner.nidn','=','tDosen.nidn')
-                            ->leftJoin('m_dosen','m_dosen.nidn','=','tDosen.nidn')
-                            
-                            ->leftJoin(DB::raw('v_tendik as tTendik'),'kuesioner.nip','=','tTendik.nip')
-                            ->leftJoin('n_pengangkatan','tTendik.nip','=','n_pengangkatan.nip')
-                            ->leftJoin('m_mahasiswa','kuesioner.npm','=','m_mahasiswa.nim')
-                            ->groupBy("kuesioner.nidn", "kuesioner.nip", "kuesioner.npm", "kuesioner.id_bank_soal", "kuesioner.tanggal");
+            DB::raw('MAX(kuesioner.id) as id'),
+            DB::raw('MAX(kuesioner.nidn) as nidn'),
+            DB::raw('MAX(kuesioner.nip) as nip'),
+            DB::raw('MAX(kuesioner.npm) as npm'),
+            DB::raw('MAX(kuesioner.id_bank_soal) as id_bank_soal'),
+            DB::raw('MAX(kuesioner.tanggal) as tanggal'),
+            DB::raw('MAX(bank_soal.peruntukan) as peruntukan'),
+            DB::raw('MAX(bank_soal.judul) as bankSoal'),
+            DB::raw('MAX(m_mahasiswa.nama_mahasiswa) as nama_mahasiswa'),
+            DB::raw('MAX(m_mahasiswa.kode_fak) as mahasiswa_kode_fakultas'),
+            DB::raw('MAX(m_mahasiswa.kode_prodi) as mahasiswa_kode_prodi'),
+            DB::raw('MAX(tDosen.nama) as nama_dosen'),
+            DB::raw('MAX(m_dosen.kode_prodi) as dosen_kode_prodi'),
+            DB::raw('MAX(m_dosen.kode_fak) as dosen_kode_fakultas'),
+            DB::raw('MAX(tTendik.nama) as nama_tendik'),
+            DB::raw('MAX(n_pengangkatan.unit_kerja) as unit_kerja')
+        )
+        ->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
+        ->leftJoin(DB::raw('v_tendik as tDosen'), 'kuesioner.nidn', '=', 'tDosen.nidn')
+        ->leftJoin('m_dosen', 'm_dosen.nidn', '=', 'tDosen.nidn')
+        ->leftJoin(DB::raw('v_tendik as tTendik'), 'kuesioner.nip', '=', 'tTendik.nip')
+        ->leftJoin('n_pengangkatan', 'tTendik.nip', '=', 'n_pengangkatan.nip')
+        ->leftJoin('m_mahasiswa', 'kuesioner.npm', '=', 'm_mahasiswa.nim');
 
-        if($request->start_date && $request->end_date){
-            $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
+        // Menambahkan filter berdasarkan request
+        if ($request->start_date && $request->end_date) {
+            $query = $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
         }
-        if($request->level=="fakultas" || !empty($request->fakultas)){
+        if ($request->level == "fakultas" || !empty($request->fakultas)) {
             $query = $query->where('m_mahasiswa.kode_fak', $request->fakultas);
         }
-        if($request->level=="prodi" || !empty($request->prodi)){
+        if ($request->level == "prodi" || !empty($request->prodi)) {
             $query = $query->where('m_mahasiswa.kode_prodi', $request->prodi);
         }
-        if(!empty($request->npm)){
-            $query = $query->where('npm',$request->npm);
+        if (!empty($request->npm)) {
+            $query = $query->where('npm', $request->npm);
         }
-        if(!empty($request->bankSoal)){
-            $query = $query->where('kuesioner.id_bank_soal',$request->bankSoal);
-        } else{
+        if (!empty($request->bankSoal)) {
+            $query = $query->where('kuesioner.id_bank_soal', $request->bankSoal);
+        } else {
             return response()->json([
                 'data' => [],
                 'currentPage' => 0,
@@ -90,37 +90,84 @@ class LaporanApiController extends Controller
             ]);
         }
 
-        if($request->level=="admin"){
-            if(!empty($request->nidn)){
-                $query = $query->where('nidn',$request->nidn);
+        // Filter untuk level admin
+        if ($request->level == "admin") {
+            if (!empty($request->nidn)) {
+                $query = $query->where('nidn', $request->nidn);
             }
-            if(!empty($request->nip)){
-                $query = $query->where('nip',$request->nip);
+            if (!empty($request->nip)) {
+                $query = $query->where('nip', $request->nip);
             }
-            if(!empty($request->unit)){
-                $query = $query->where('n_pengangkatan.unit_kerja',$request->unit);
+            if (!empty($request->unit)) {
+                $query = $query->where('n_pengangkatan.unit_kerja', $request->unit);
             }
-        } else if($request->level=="prodi" || $request->level=="fakultas"){
+        } else if ($request->level == "prodi" || $request->level == "fakultas") {
             $query = $query->whereNotNull('kuesioner.npm');
         }
-        
-        $totalRecords = $query->count();
-        dd($totalRecords, $query->get()->count());
-        $kuesioner = $query->paginate(5);
 
-        $kuesioner->getCollection()->transform(function($item) {
-            if($item->Dosen!=null){
-                $dosen = Dosen::select('kode_fak','kode_prodi')->where('nidn',$item->nidn)->first();
+        // *** PERBAIKAN ***
+        // Total count berdasarkan query sebelum groupBy
+        $totalRecords = Kuesioner::select(DB::raw('COUNT(*) as total'))
+            ->join('bank_soal', 'kuesioner.id_bank_soal', '=', 'bank_soal.id')
+            ->leftJoin(DB::raw('v_tendik as tDosen'), 'kuesioner.nidn', '=', 'tDosen.nidn')
+            ->leftJoin('m_dosen', 'm_dosen.nidn', '=', 'tDosen.nidn')
+            ->leftJoin(DB::raw('v_tendik as tTendik'), 'kuesioner.nip', '=', 'tTendik.nip')
+            ->leftJoin('n_pengangkatan', 'tTendik.nip', '=', 'n_pengangkatan.nip')
+            ->leftJoin('m_mahasiswa', 'kuesioner.npm', '=', 'm_mahasiswa.nim');
+
+        // Menambahkan filter yang sama seperti query utama
+        if ($request->start_date && $request->end_date) {
+            $totalRecords = $totalRecords->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+        }
+        if ($request->level == "fakultas" || !empty($request->fakultas)) {
+            $totalRecords = $totalRecords->where('m_mahasiswa.kode_fak', $request->fakultas);
+        }
+        if ($request->level == "prodi" || !empty($request->prodi)) {
+            $totalRecords = $totalRecords->where('m_mahasiswa.kode_prodi', $request->prodi);
+        }
+        if (!empty($request->npm)) {
+            $totalRecords = $totalRecords->where('npm', $request->npm);
+        }
+        if (!empty($request->bankSoal)) {
+            $totalRecords = $totalRecords->where('kuesioner.id_bank_soal', $request->bankSoal);
+        }
+
+        if ($request->level == "admin") {
+            if (!empty($request->nidn)) {
+                $totalRecords = $totalRecords->where('nidn', $request->nidn);
+            }
+            if (!empty($request->nip)) {
+                $totalRecords = $totalRecords->where('nip', $request->nip);
+            }
+            if (!empty($request->unit)) {
+                $totalRecords = $totalRecords->where('n_pengangkatan.unit_kerja', $request->unit);
+            }
+        } else if ($request->level == "prodi" || $request->level == "fakultas") {
+            $totalRecords = $totalRecords->whereNotNull('kuesioner.npm');
+        }
+
+        // Mendapatkan total record sebelum groupBy
+        $totalRecords = $totalRecords->count();
+
+        // Paginate hasil query
+        $kuesioner = $query->groupBy("kuesioner.nidn", "kuesioner.nip", "kuesioner.npm", "kuesioner.id_bank_soal", "kuesioner.tanggal")
+            ->paginate(5);
+
+        // Transformasi data untuk setiap item
+        $kuesioner->getCollection()->transform(function ($item) {
+            if ($item->Dosen != null) {
+                $dosen = Dosen::select('kode_fak', 'kode_prodi')->where('nidn', $item->nidn)->first();
                 $item->Dosen->kode_fakultas = $dosen->kode_fak;
                 $item->Dosen->kode_prodi = $dosen->kode_prodi;
             }
             return $item;
         });
 
+        // Mengembalikan response
         return response()->json([
             'data' => $kuesioner->getCollection(),
             'currentPage' => $kuesioner->currentPage(),
-            'total' => $totalRecords,
+            'total' => $totalRecords,  // Total record yang benar
             'lastPage' => $kuesioner->lastPage(),
         ]);
     }
