@@ -11,7 +11,7 @@ export const fetchRekapKuesioners = (filters, page = 1) => {
     dispatch({ type: FETCH_REKAPS_REQUEST });
     try {
       const response = await axios.get(api_rekapkuesioner_list, { params: { ...filters, page } });
-      dispatch({ type: FETCH_REKAPS_SUCCESS, payload: response.data.data });
+      dispatch({ type: FETCH_REKAPS_SUCCESS, payload: response.data });
     } catch (error) {
       dispatch({ type: FETCH_REKAPS_FAILURE, error });
     }

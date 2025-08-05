@@ -26,7 +26,7 @@
         return {
           ...state,
           rekaps: {
-            record: action.payload,
+            record: action.payload.data,
             currentPage: action.payload.currentPage,
             total: action.payload.total,
           },

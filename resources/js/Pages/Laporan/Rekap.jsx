@@ -283,6 +283,7 @@ function renderNama(item){
 }
 
 RekapKuesioner.RekapKuesionersBody = ({ action_type, rekaps, loading, viewRekapKuesioner}) => {
+    console.log(rekaps);
     if (action_type === FETCH_REKAPS_REQUEST) {
         return <RekapKuesioner.LoadingRow />;
     } else if (action_type === FETCH_REKAPS_FAILURE) {
