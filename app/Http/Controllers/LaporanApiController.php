@@ -41,22 +41,22 @@ class LaporanApiController extends Controller
     public function rekap(Request $request)
     {
         $query = Kuesioner::select(
-                                DB::raw('MAX(kuesioner.id) as id'),
-                                DB::raw('MAX(kuesioner.nidn) as nidn'),
-                                DB::raw('MAX(kuesioner.nip) as nip'),
-                                DB::raw('MAX(kuesioner.npm) as npm'),
-                                DB::raw('MAX(kuesioner.id_bank_soal) as id_bank_soal'),
-                                DB::raw('MAX(kuesioner.tanggal) as tanggal'),
-                                DB::raw('MAX(bank_soal.peruntukan) as peruntukan'),
-                                DB::raw('MAX(bank_soal.judul) as bankSoal'),
-                                DB::raw('MAX(m_mahasiswa.nama_mahasiswa) as nama_mahasiswa'),
-                                DB::raw('MAX(m_mahasiswa.kode_fak) as mahasiswa_kode_fakultas'),
-                                DB::raw('MAX(m_mahasiswa.kode_prodi) as mahasiswa_kode_prodi'),
-                                DB::raw('MAX(tDosen.nama) as nama_dosen'),
-                                DB::raw('MAX(m_dosen.kode_prodi) as dosen_kode_prodi'),
-                                DB::raw('MAX(m_dosen.kode_fak) as dosen_kode_fakultas'),
-                                DB::raw('MAX(tTendik.nama) as nama_tendik'),
-                                DB::raw('MAX(n_pengangkatan.unit_kerja) as unit_kerja')
+                                'kuesioner.id',
+                                'kuesioner.nidn',
+                                'kuesioner.nip',
+                                'kuesioner.npm',
+                                'kuesioner.id_bank_soal',
+                                'kuesioner.tanggal',
+                                'bank_soal.peruntukan',
+                                DB::raw('bank_soal.judul as bankSoal'),
+                                DB::raw('m_mahasiswa.nama_mahasiswa'),
+                                DB::raw('m_mahasiswa.kode_fak as mahasiswa_kode_fakultas'),
+                                DB::raw('m_mahasiswa.kode_prodi as mahasiswa_kode_prodi'),
+                                DB::raw('tDosen.nama as nama_dosen'),
+                                DB::raw('m_dosen.kode_prodi as dosen_kode_prodi'),
+                                DB::raw('m_dosen.kode_fak as dosen_kode_fakultas'),
+                                DB::raw('tTendik.nama as nama_tendik'),
+                                'n_pengangkatan.unit_kerja'
                             )
                             ->join('bank_soal','kuesioner.id_bank_soal','=','bank_soal.id')
                             ->leftJoin(DB::raw('v_tendik as tDosen'),'kuesioner.nidn','=','tDosen.nidn')
@@ -64,8 +64,7 @@ class LaporanApiController extends Controller
                             
                             ->leftJoin(DB::raw('v_tendik as tTendik'),'kuesioner.nip','=','tTendik.nip')
                             ->leftJoin('n_pengangkatan','tTendik.nip','=','n_pengangkatan.nip')
-                            ->leftJoin('m_mahasiswa','kuesioner.npm','=','m_mahasiswa.nim')
-                            ->groupBy("kuesioner.nidn", "kuesioner.nip", "kuesioner.npm", "kuesioner.id_bank_soal", "kuesioner.tanggal");
+                            ->leftJoin('m_mahasiswa','kuesioner.npm','=','m_mahasiswa.nim');
 
         if($request->start_date && $request->end_date){
             $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
