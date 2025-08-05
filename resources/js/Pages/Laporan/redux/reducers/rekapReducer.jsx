@@ -23,7 +23,6 @@
         return { ...state, loading: true, action_type:action.type };
   
       case FETCH_REKAPS_SUCCESS:
-        console.log(action);
         return {
           ...state,
           rekaps: {
