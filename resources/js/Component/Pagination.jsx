@@ -32,7 +32,7 @@ const PaginationTable = ({ total, itemsPerPage, currentPage, onPageChange }) => 
 
     const pageNumbers = getPageNumbers();
 
-    console.log({total, itemsPerPage, totalPages, pageNumbers})
+    console.log(total, itemsPerPage, totalPages, pageNumbers)
     return (
         <nav className="d-flex justify-content-start mt-3">
             <ul className="pagination justify-content-center gap-1">
