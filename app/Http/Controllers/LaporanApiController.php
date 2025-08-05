@@ -65,7 +65,7 @@ class LaporanApiController extends Controller
                             ->leftJoin(DB::raw('v_tendik as tTendik'),'kuesioner.nip','=','tTendik.nip')
                             ->leftJoin('n_pengangkatan','tTendik.nip','=','n_pengangkatan.nip')
                             ->leftJoin('m_mahasiswa','kuesioner.npm','=','m_mahasiswa.nim')
-                            ->groupBy("kuesioner.nidn", "kuesioner.nip", "kuesioner.npm","kuesioner.id_bank_soal", "kuesioner.tanggal");
+                            ->groupBy("kuesioner.nidn", "kuesioner.nip", "kuesioner.npm", "kuesioner.id_bank_soal", "kuesioner.tanggal");
 
         if($request->start_date && $request->end_date){
             $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
