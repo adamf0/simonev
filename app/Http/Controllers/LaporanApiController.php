@@ -100,7 +100,11 @@ class LaporanApiController extends Controller
                     })
                     ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan) as n_pengangkatan"), 'tTendik.nip', '=', 'n_pengangkatan.nip')
                     ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa) as m_mahasiswa"), 'k.npm', '=', 'm_mahasiswa.nim')
-                    ->where('v_entry.total_required','<=',DB::raw('v_entry.total_required_filled'));
+                    ->where(
+                        DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1)"),
+                        '<=',
+                        DB::raw('(SELECT COUNT(0) FROM kuesioner_jawaban kj JOIN template_pertanyaan tp2 ON kj.id_template_pertanyaan = tp2.id WHERE kj.id_kuesioner = k.id AND tp2.required = 1)')
+                    );
 
         if($request->start_date && $request->end_date){
             $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
