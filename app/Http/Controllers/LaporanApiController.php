@@ -40,7 +40,7 @@ class LaporanApiController extends Controller
 
     public function rekap(Request $request)
     {
-        $subVtendik = DB::raw("(
+        $subVtendik = "(
                         SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
                         FROM (
                             SELECT 
@@ -64,7 +64,7 @@ class LaporanApiController extends Controller
                             LEFT JOIN n_pengangkatan ON n_pengangkatan.nip = n_pribadi.nip
                         ) a
                         GROUP BY a.nidn, a.nip
-                    ) as vtendik");
+                    )";
 
         $query = DB::table("kuesioner as k")
                     ->select(
