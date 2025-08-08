@@ -65,7 +65,9 @@ class LaporanApiController extends Controller
                             ->leftJoin(DB::raw('v_tendik as tTendik'),'kuesioner.nip','=','tTendik.nip')
                             ->leftJoin('n_pengangkatan','tTendik.nip','=','n_pengangkatan.nip')
                             ->leftJoin('m_mahasiswa','kuesioner.npm','=','m_mahasiswa.nim')
-                            ->groupBy("kuesioner.nidn", "kuesioner.nip", "kuesioner.npm", "kuesioner.id_bank_soal", "kuesioner.tanggal");
+                            ->leftJoin('v_entry','kuesioner.id','=','v_entry.id')
+                            ->groupBy("kuesioner.nidn", "kuesioner.nip", "kuesioner.npm", "kuesioner.id_bank_soal", "kuesioner.tanggal")
+                            ->where('v_entry.total_required','<=',DB::raw('v_entry.total_required_filled'));
 
         if($request->start_date && $request->end_date){
             $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
@@ -170,8 +172,8 @@ class LaporanApiController extends Controller
             $entry = DB::table('v_entry')
                 ->where($type=="prodi"? "prodi_jenjang":$type, $l)
                 ->where('id_bank_soal',$id_bank_soal)
-                ->where('total_required_filled',">",0);
-                // ->where('total_required','<',DB::raw('total_required_filled'));
+                ->where('total_required_filled',">",0)
+                ->where('total_required','<=',DB::raw('total_required_filled'));
 
             $count = $entry->count();
             $dataset[] = $count;
