@@ -187,16 +187,17 @@ class LaporanApiController extends Controller
         }, []);
 
         $dataset = [];
-        // $totalCount = 0;
-        foreach($labels as $l){
-            $entry = DB::table('v_entry')
-                ->where($type=="prodi"? "prodi_jenjang":"Fakultas", $l)
-                ->where('id_bank_soal',$id_bank_soal)
-                ->where('total_required_filled',">",0)
-                ->where('total_required','<=',DB::raw('total_required_filled'));
+        $allData = DB::table('v_entry')
+                    ->where('id_bank_soal', $id_bank_soal)
+                    ->where('total_required_filled', '>', 0)
+                    ->whereColumn('total_required', '<=', 'total_required_filled')
+                    ->get();
 
-            $count = $entry->count();
-            dd($entry->toRawSql());
+        foreach($labels as $l){
+            $count = $allData->where(
+                $type == "prodi" ? "prodi_jenjang" : "Fakultas",
+                $l
+            )->count();
             $dataset[] = $count;
             // $totalCount += $count;
         }
