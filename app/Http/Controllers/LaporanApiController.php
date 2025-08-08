@@ -195,7 +195,7 @@ class LaporanApiController extends Controller
 
         foreach($labels as $l){
             $count = $allData->where(
-                $type == "prodi" ? "prodi_jenjang" : "Fakultas",
+                $type == "prodi" ? "prodi_jenjang" : "fakultas",
                 $l
             )->count();
             $dataset[] = $count;
