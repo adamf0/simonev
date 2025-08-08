@@ -40,34 +40,57 @@ class LaporanApiController extends Controller
 
     public function rekap(Request $request)
     {
-        $query = Kuesioner::select(
-                                DB::raw('MAX(kuesioner.id) as id'),
-                                DB::raw('MAX(kuesioner.nidn) as nidn'),
-                                DB::raw('MAX(kuesioner.nip) as nip'),
-                                DB::raw('MAX(kuesioner.npm) as npm'),
-                                DB::raw('MAX(kuesioner.id_bank_soal) as id_bank_soal'),
-                                DB::raw('MAX(kuesioner.tanggal) as tanggal'),
-                                DB::raw('MAX(bank_soal.peruntukan) as peruntukan'),
-                                DB::raw('MAX(bank_soal.judul) as bankSoal'),
-                                DB::raw('MAX(m_mahasiswa.nama_mahasiswa) as nama_mahasiswa'),
-                                DB::raw('MAX(m_mahasiswa.kode_fak) as mahasiswa_kode_fakultas'),
-                                DB::raw('MAX(m_mahasiswa.kode_prodi) as mahasiswa_kode_prodi'),
-                                DB::raw('MAX(tDosen.nama) as nama_dosen'),
-                                DB::raw('MAX(m_dosen.kode_prodi) as dosen_kode_prodi'),
-                                DB::raw('MAX(m_dosen.kode_fak) as dosen_kode_fakultas'),
-                                DB::raw('MAX(tTendik.nama) as nama_tendik'),
-                                DB::raw('MAX(n_pengangkatan.unit_kerja) as unit_kerja')
-                            )
-                            ->join('bank_soal','kuesioner.id_bank_soal','=','bank_soal.id')
-                            ->leftJoin(DB::raw('v_tendik as tDosen'),'kuesioner.nidn','=','tDosen.nidn')
-                            ->leftJoin('m_dosen','m_dosen.nidn','=','tDosen.nidn')
-                            
-                            ->leftJoin(DB::raw('v_tendik as tTendik'),'kuesioner.nip','=','tTendik.nip')
-                            ->leftJoin('n_pengangkatan','tTendik.nip','=','n_pengangkatan.nip')
-                            ->leftJoin('m_mahasiswa','kuesioner.npm','=','m_mahasiswa.nim')
-                            ->leftJoin('v_entry','kuesioner.id','=','v_entry.id')
-                            ->groupBy("kuesioner.nidn", "kuesioner.nip", "kuesioner.npm", "kuesioner.id_bank_soal", "kuesioner.tanggal")
-                            ->where('v_entry.total_required','<=',DB::raw('v_entry.total_required_filled'));
+        $query = DB::table("v_entry")
+                    ->select(
+                        'v_entry.id',
+                        'v_entry.nidn',
+                        'v_entry.nip',
+                        'v_entry.npm',
+                        'v_entry.id_bank_soal',
+                        'v_entry.tanggal',
+                        'bank_soal.peruntukan',
+                        'bank_soal.judul as bankSoal',
+                        'm_mahasiswa.nama_mahasiswa',
+                        'm_mahasiswa.kode_fak as mahasiswa_kode_fakultas',
+                        'm_mahasiswa.kode_prodi as mahasiswa_kode_prodi',
+                        'tDosen.nama as nama_dosen',
+                        'm_dosen.kode_prodi as dosen_kode_prodi',
+                        'm_dosen.kode_fak as dosen_kode_fakultas',
+                        'tTendik.nama as nama_tendik',
+                        'n_pengangkatan.unit_kerja',
+                        'v_entry.total_required_filled'
+                    )
+                    ->join('bank_soal', 'v_entry.id_bank_soal', '=', 'bank_soal.id')
+                    ->leftJoin(
+                        DB::raw('(SELECT nidn, nama FROM v_tendik) as tDosen'),
+                        'v_entry.nidn',
+                        '=',
+                        'tDosen.nidn'
+                    )
+                    ->leftJoin(
+                        DB::raw('(SELECT nidn, kode_fak, kode_prodi FROM m_dosen) as m_dosen'),
+                        'm_dosen.nidn',
+                        '=',
+                        'tDosen.nidn'
+                    )
+                    ->leftJoin(
+                        DB::raw('(SELECT nip, nama FROM v_tendik) as tTendik'),
+                        'v_entry.nip',
+                        '=',
+                        'tTendik.nip'
+                    )
+                    ->leftJoin(
+                        DB::raw('(SELECT nip, unit_kerja FROM n_pengangkatan) as n_pengangkatan'),
+                        'tTendik.nip',
+                        '=',
+                        'n_pengangkatan.nip'
+                    )
+                    ->leftJoin(
+                        DB::raw('(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa) as m_mahasiswa'),
+                        'v_entry.npm',
+                        '=',
+                        'm_mahasiswa.nim'
+                    );
 
         if($request->start_date && $request->end_date){
             $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
@@ -82,7 +105,7 @@ class LaporanApiController extends Controller
             $query = $query->where('npm',$request->npm);
         }
         if(!empty($request->bankSoal)){
-            $query = $query->where('kuesioner.id_bank_soal',$request->bankSoal);
+            $query = $query->where('v_entry.id_bank_soal',$request->bankSoal);
         } else{
             return response()->json([
                 'data' => [],
@@ -103,20 +126,20 @@ class LaporanApiController extends Controller
                 $query = $query->where('n_pengangkatan.unit_kerja',$request->unit);
             }
         } else if($request->level=="prodi" || $request->level=="fakultas"){
-            $query = $query->whereNotNull('kuesioner.npm');
+            $query = $query->whereNotNull('v_entry.npm');
         }
         
         $totalRecords = $query->get()->count();
         $kuesioner = $query->paginate(5);
 
-        $kuesioner->getCollection()->transform(function($item) {
-            if($item->Dosen!=null){
-                $dosen = Dosen::select('kode_fak','kode_prodi')->where('nidn',$item->nidn)->first();
-                $item->Dosen->kode_fakultas = $dosen->kode_fak;
-                $item->Dosen->kode_prodi = $dosen->kode_prodi;
-            }
-            return $item;
-        });
+        // $kuesioner->getCollection()->transform(function($item) {
+        //     if (!empty($item->nidn)) {
+        //         $dosen = Dosen::select('kode_fak','kode_prodi')->where('nidn',$item->nidn)->first();
+        //         $item->Dosen->kode_fakultas = $dosen->kode_fak;
+        //         $item->Dosen->kode_prodi = $dosen->kode_prodi;
+        //     }
+        //     return $item;
+        // });
 
         return response()->json([
             'data' => $kuesioner->getCollection(),
