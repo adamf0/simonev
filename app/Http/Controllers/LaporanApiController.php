@@ -58,6 +58,7 @@ class LaporanApiController extends Controller
                         'm_dosen.kode_fak as dosen_kode_fakultas',
                         'tTendik.nama as nama_tendik',
                         'n_pengangkatan.unit_kerja',
+                        'v_entry.total_required',
                         'v_entry.total_required_filled'
                     )
                     ->join('bank_soal', 'v_entry.id_bank_soal', '=', 'bank_soal.id')
@@ -90,7 +91,8 @@ class LaporanApiController extends Controller
                         'v_entry.npm',
                         '=',
                         'm_mahasiswa.nim'
-                    );
+                    )
+                    ->where('v_entry.total_required','<=',DB::raw('v_entry.total_required_filled'));
 
         if($request->start_date && $request->end_date){
             $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
