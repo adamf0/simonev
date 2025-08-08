@@ -21,7 +21,7 @@ class LaporanController extends Controller
     {
         $listUnit = Pengangkatan::select('unit_kerja', DB::raw('rtrim(REPLACE(unit_kerja, "F.", "Fakultas")) as text'))->distinct()->get()->filter(fn($item)=>!empty($item->text))->values();
         $listMahasiswa = Mahasiswa::select('nim','nama_mahasiswa','kode_fak','kode_prodi')->get();
-        $listDosen = DosenTendik::whereNotNull('nidn')->get();
+        $listDosen = DosenTendik::whereNotNull('a.nidn')->get();
         $listTendik = DosenTendik::select('v_tendik.*','n_pengangkatan.unit_kerja')
                         ->join('n_pengangkatan','v_tendik.nip','=','n_pengangkatan.nip')
                         ->whereNotNull('v_tendik.nip')
