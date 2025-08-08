@@ -40,14 +40,40 @@ class LaporanApiController extends Controller
 
     public function rekap(Request $request)
     {
-        $query = DB::table("v_entry")
+        $subVtendik = DB::raw("(
+                        SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
+                        FROM (
+                            SELECT 
+                                CASE WHEN e_pribadi.nip = 0 THEN '' ELSE e_pribadi.nip END AS nip,
+                                e_pribadi.nidn,
+                                e_pribadi.nama,
+                                payroll_m_pegawai.fakultas,
+                                NULL AS unit
+                            FROM e_pribadi
+                            LEFT JOIN payroll_m_pegawai ON payroll_m_pegawai.nip = e_pribadi.nip
+
+                            UNION ALL
+
+                            SELECT 
+                                CASE WHEN n_pribadi.nip = 0 THEN '' ELSE n_pribadi.nip END AS nip,
+                                NULL AS nidn,
+                                n_pribadi.nama,
+                                NULL AS fakultas,
+                                n_pengangkatan.unit_kerja AS unit
+                            FROM n_pribadi
+                            LEFT JOIN n_pengangkatan ON n_pengangkatan.nip = n_pribadi.nip
+                        ) a
+                        GROUP BY a.nidn, a.nip
+                    ) as vtendik");
+
+        $query = DB::table("kuesioner as k")
                     ->select(
-                        'v_entry.id',
-                        'v_entry.nidn',
-                        'v_entry.nip',
-                        'v_entry.npm',
-                        'v_entry.id_bank_soal',
-                        'v_entry.tanggal',
+                        'k.id',
+                        'k.nidn',
+                        'k.nip',
+                        'k.npm',
+                        'k.id_bank_soal',
+                        'k.tanggal',
                         'bank_soal.peruntukan',
                         'bank_soal.judul as bankSoal',
                         'm_mahasiswa.nama_mahasiswa',
@@ -58,40 +84,18 @@ class LaporanApiController extends Controller
                         'm_dosen.kode_fak as dosen_kode_fakultas',
                         'tTendik.nama as nama_tendik',
                         'n_pengangkatan.unit_kerja',
-                        'v_entry.total_required',
-                        'v_entry.total_required_filled'
+                        DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp 
+                                WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1) AS total_required"),
+                        DB::raw("(SELECT COUNT(0) FROM kuesioner_jawaban kj
+                                JOIN template_pertanyaan tp2 ON kj.id_template_pertanyaan = tp2.id
+                                WHERE kj.id_kuesioner = k.id AND tp2.required = 1) AS total_required_filled")
                     )
-                    ->join('bank_soal', 'v_entry.id_bank_soal', '=', 'bank_soal.id')
-                    ->leftJoin(
-                        DB::raw('(SELECT nidn, nama FROM v_tendik) as tDosen'),
-                        'v_entry.nidn',
-                        '=',
-                        'tDosen.nidn'
-                    )
-                    ->leftJoin(
-                        DB::raw('(SELECT nidn, kode_fak, kode_prodi FROM m_dosen) as m_dosen'),
-                        'm_dosen.nidn',
-                        '=',
-                        'tDosen.nidn'
-                    )
-                    ->leftJoin(
-                        DB::raw('(SELECT nip, nama FROM v_tendik) as tTendik'),
-                        'v_entry.nip',
-                        '=',
-                        'tTendik.nip'
-                    )
-                    ->leftJoin(
-                        DB::raw('(SELECT nip, unit_kerja FROM n_pengangkatan) as n_pengangkatan'),
-                        'tTendik.nip',
-                        '=',
-                        'n_pengangkatan.nip'
-                    )
-                    ->leftJoin(
-                        DB::raw('(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa) as m_mahasiswa'),
-                        'v_entry.npm',
-                        '=',
-                        'm_mahasiswa.nim'
-                    )
+                    ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
+                     ->leftJoin($subVtendik . " as tDosen", 'k.nidn', '=', 'tDosen.nidn')
+                    ->leftJoin(DB::raw("(SELECT nidn, kode_fak, kode_prodi FROM m_dosen) as m_dosen"), 'm_dosen.nidn', '=', 'tDosen.nidn')
+                    ->leftJoin($subVtendik . " as tTendik", 'k.nip', '=', 'tTendik.nip')
+                    ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan) as n_pengangkatan"), 'tTendik.nip', '=', 'n_pengangkatan.nip')
+                    ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa) as m_mahasiswa"), 'k.npm', '=', 'm_mahasiswa.nim')
                     ->where('v_entry.total_required','<=',DB::raw('v_entry.total_required_filled'));
 
         if($request->start_date && $request->end_date){
