@@ -187,23 +187,20 @@ class LaporanApiController extends Controller
         }, []);
 
         $dataset = [];
-        $totalCount = 0;
+        // $totalCount = 0;
         foreach($labels as $l){
             $entry = DB::table('v_entry')
-                ->where($type=="prodi"? "prodi_jenjang":$type, $l)
+                ->where($type=="prodi"? "prodi_jenjang":"Fakultas", $l)
                 ->where('id_bank_soal',$id_bank_soal)
                 ->where('total_required_filled',">",0)
                 ->where('total_required','<=',DB::raw('total_required_filled'));
 
             $count = $entry->count();
             $dataset[] = $count;
-            $totalCount += $count;
+            // $totalCount += $count;
         }
+        return json_encode($dataset);
 
-        $percentages = array_map(function($count) use ($totalCount) {
-            return $totalCount > 0 ? round(($count / $totalCount) * 100, 2) : 0;
-        }, $dataset);
-        
         $colors = $this->generateRandomColors(count($labels));
         return json_encode([
             "labels"=> $labels,
@@ -367,13 +364,40 @@ class LaporanApiController extends Controller
             ]);
         }
 
+        DB::statement("
+            CREATE TEMPORARY TABLE temp_vtendik AS
+            SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
+            FROM (
+                SELECT 
+                    CASE WHEN e_pribadi.nip = 0 THEN '' ELSE e_pribadi.nip END AS nip,
+                    e_pribadi.nidn,
+                    e_pribadi.nama,
+                    payroll_m_pegawai.fakultas,
+                    NULL AS unit
+                FROM e_pribadi
+                LEFT JOIN payroll_m_pegawai ON payroll_m_pegawai.nip = e_pribadi.nip
+
+                UNION ALL
+
+                SELECT 
+                    CASE WHEN n_pribadi.nip = 0 THEN '' ELSE n_pribadi.nip END AS nip,
+                    NULL AS nidn,
+                    n_pribadi.nama,
+                    NULL AS fakultas,
+                    n_pengangkatan.unit_kerja AS unit
+                FROM n_pribadi
+                LEFT JOIN n_pengangkatan ON n_pengangkatan.nip = n_pribadi.nip
+            ) a
+            GROUP BY a.nidn, a.nip
+        ");
+
         $query= $query
                 ->leftJoin('kuesioner', 'kuesioner_jawaban.id_kuesioner', '=', 'kuesioner.id')
                 ->leftJoin('template_pertanyaan', 'kuesioner_jawaban.id_template_pertanyaan', '=', 'template_pertanyaan.id')
                 ->leftJoin('template_pilihan', 'kuesioner_jawaban.id_template_jawaban', '=', 'template_pilihan.id')
-                ->leftJoin(DB::raw('v_tendik as tDosen'), 'kuesioner.nidn', '=', 'tDosen.nidn')
+                ->leftJoin(DB::raw('temp_vtendik as tDosen'), 'kuesioner.nidn', '=', 'tDosen.nidn')
                 ->leftJoin('m_dosen', 'm_dosen.nidn', '=', 'tDosen.nidn')
-                ->leftJoin(DB::raw('v_tendik as tTendik'), 'kuesioner.nip', '=', 'tTendik.nip')
+                ->leftJoin(DB::raw('temp_vtendik as tTendik'), 'kuesioner.nip', '=', 'tTendik.nip')
                 ->leftJoin('n_pengangkatan', 'tTendik.nip', '=', 'n_pengangkatan.nip')
                 ->leftJoin('m_mahasiswa', 'kuesioner.npm', '=', 'm_mahasiswa.nim')
                 ->groupBy(
