@@ -91,9 +91,13 @@ class LaporanApiController extends Controller
                                 WHERE kj.id_kuesioner = k.id AND tp2.required = 1) AS total_required_filled")
                     )
                     ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
-                     ->leftJoin($subVtendik . " as tDosen", 'k.nidn', '=', 'tDosen.nidn')
+                    ->leftJoin(DB::raw("({$subVtendik}) as tDosen"), function($join) {
+                        $join->on('k.nidn', '=', 'tDosen.nidn');
+                    })
                     ->leftJoin(DB::raw("(SELECT nidn, kode_fak, kode_prodi FROM m_dosen) as m_dosen"), 'm_dosen.nidn', '=', 'tDosen.nidn')
-                    ->leftJoin($subVtendik . " as tTendik", 'k.nip', '=', 'tTendik.nip')
+                    ->leftJoin(DB::raw("({$subVtendik}) as tTendik"), function($join) {
+                        $join->on('k.nip', '=', 'tTendik.nip');
+                    })
                     ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan) as n_pengangkatan"), 'tTendik.nip', '=', 'n_pengangkatan.nip')
                     ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa) as m_mahasiswa"), 'k.npm', '=', 'm_mahasiswa.nim')
                     ->where('v_entry.total_required','<=',DB::raw('v_entry.total_required_filled'));
