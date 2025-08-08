@@ -119,7 +119,7 @@ class LaporanApiController extends Controller
             $query = $query->where('npm',$request->npm);
         }
         if(!empty($request->bankSoal)){
-            $query = $query->where('v_entry.id_bank_soal',$request->bankSoal);
+            $query = $query->where('k.id_bank_soal',$request->bankSoal);
         } else{
             return response()->json([
                 'data' => [],
@@ -140,7 +140,7 @@ class LaporanApiController extends Controller
                 $query = $query->where('n_pengangkatan.unit_kerja',$request->unit);
             }
         } else if($request->level=="prodi" || $request->level=="fakultas"){
-            $query = $query->whereNotNull('v_entry.npm');
+            $query = $query->whereNotNull('k.npm');
         }
         
         $totalRecords = $query->get()->count();
