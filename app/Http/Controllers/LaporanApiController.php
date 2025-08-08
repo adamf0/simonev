@@ -170,8 +170,8 @@ class LaporanApiController extends Controller
             $entry = DB::table('v_entry')
                 ->where($type=="prodi"? "prodi_jenjang":$type, $l)
                 ->where('id_bank_soal',$id_bank_soal)
-                ->where('total_required_filled',">",0)
-                ->where('total_required','<',DB::raw('total_required_filled'));
+                ->where('total_required_filled',">",0);
+                // ->where('total_required','<',DB::raw('total_required_filled'));
 
             $count = $entry->count();
             $dataset[] = $count;
