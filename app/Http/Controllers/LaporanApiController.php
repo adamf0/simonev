@@ -196,6 +196,7 @@ class LaporanApiController extends Controller
                 ->where('total_required','<=',DB::raw('total_required_filled'));
 
             $count = $entry->count();
+            dd($entry->toRawSql());
             $dataset[] = $count;
             // $totalCount += $count;
         }
