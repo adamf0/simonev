@@ -84,11 +84,11 @@ class LaporanApiController extends Controller
                         'm_dosen.kode_fak as dosen_kode_fakultas',
                         'tTendik.nama as nama_tendik',
                         'n_pengangkatan.unit_kerja',
-                        DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp 
-                                WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1) AS total_required"),
-                        DB::raw("(SELECT COUNT(0) FROM kuesioner_jawaban kj
-                                JOIN template_pertanyaan tp2 ON kj.id_template_pertanyaan = tp2.id
-                                WHERE kj.id_kuesioner = k.id AND tp2.required = 1) AS total_required_filled")
+                        // DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp 
+                        //         WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1) AS total_required"),
+                        // DB::raw("(SELECT COUNT(0) FROM kuesioner_jawaban kj
+                        //         JOIN template_pertanyaan tp2 ON kj.id_template_pertanyaan = tp2.id
+                        //         WHERE kj.id_kuesioner = k.id AND tp2.required = 1) AS total_required_filled")
                     )
                     ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
                     ->leftJoin(DB::raw("({$subVtendik}) as tDosen"), function($join) {
