@@ -199,7 +199,9 @@ class LaporanApiController extends Controller
                 $l
             )->count();
             $dataset[] = $count;
-            // $totalCount += $count;
+            if($type != "prodi"){
+                dump($l, $count);
+            }
         }
         return json_encode($dataset);
 
