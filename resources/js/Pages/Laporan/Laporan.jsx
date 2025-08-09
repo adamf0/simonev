@@ -140,7 +140,26 @@ function Laporan({level, listBankSoal=[]}) {
         } else if (!cpProdi || !cpProdi.datasets || !cpProdi.labels) {
             return <p>No data available</p>;
         } else{
-            return <Pie data={cpProdi} options={buildOptionsChart(cpProdi)} />
+            return <Bar
+                data={cpProdi}
+                options={{
+                    ...buildOptionsChart(cpProdi), // tetap pakai buildOptionsChart yang lama
+                    indexAxis: 'y', // biar bentuknya horizontal bar
+                    plugins: {
+                        ...buildOptionsChart(cpProdi).plugins,
+                        legend: { display: false } // legend biasanya nggak perlu kalau bar chart kategori banyak
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        },
+                        y: {
+                            ticks: { autoSkip: false } // supaya semua label prodi tampil
+                        }
+                    }
+                }}
+            />
         }
     }
     function renderChartUnit(){
@@ -321,7 +340,7 @@ function Laporan({level, listBankSoal=[]}) {
 
                         <div class="col-xl-9 col-lg-9 col-md-8 col-sm-12">
                             <div class="card px-4 py-3">
-                                <div className="grid-top">
+                                <div className="">
                                 {
                                         colChart==0 && 
                                         <div class="col-12">
