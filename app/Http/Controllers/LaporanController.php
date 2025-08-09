@@ -109,7 +109,7 @@ class LaporanController extends Controller
                     ->get()
                     ->pluck("text");
 
-            $row->text = "[".count($targetList)? implode(",",$listFakultas)."] ".$row->text:$row->text;
+            $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
 
             return $row;
         });
