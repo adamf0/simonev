@@ -181,7 +181,14 @@ function Laporan({level, listBankSoal=[]}) {
 
         const options = {
             responsive: true,
-            plugins: { title: { display: false } },
+            plugins: { 
+                title: { 
+                    display: false 
+                }, 
+                legend: {
+                    display: false
+                }
+            },
             scales: { y: { beginAtZero: true } },
         };
 
