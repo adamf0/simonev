@@ -153,6 +153,7 @@ function Laporan({level, listBankSoal=[]}) {
     }
     function RataRataRatingChart({ children }) {
         // Filter hanya yang rating5
+        console.log("children",children);
         const ratingCharts = children.filter(item => item.jenis_pilihan === "rating5");
 
         // Gabungkan data rating
