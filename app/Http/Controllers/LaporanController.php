@@ -101,7 +101,7 @@ class LaporanController extends Controller
         }
         $listBankSoal = $listBankSoal->get()->map(function($row) use($level){
             $targetList = json_decode($row?->target_list ?? '[]', true);
-            $targetList = in_array("all",$targetList) && $level=="fakultas" ? []:$targetList;
+            $targetList = in_array("all",$targetList)? []:$targetList;
             $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
                     ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
                     ->whereIn("m_program_studi.kode_prodi",$targetList)
@@ -110,7 +110,7 @@ class LaporanController extends Controller
                     ->pluck("text")
                     ->toArray();
 
-            $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
+            $row->text = count($targetList) && $level=="fakultas"? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
 
             return $row;
         });
