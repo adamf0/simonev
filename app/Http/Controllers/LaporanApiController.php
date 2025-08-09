@@ -220,17 +220,27 @@ class LaporanApiController extends Controller
         }, []);
 
         $dataset = [];
-        $allData = DB::table('v_entry')
+        if($type == "prodi"){
+            $allData = DB::table('v_entry')
+                    ->where('id_bank_soal', $id_bank_soal)
+                    ->whereColumn('total_required', '<=', 'total_required_filled');
+                    
+            foreach($labels as $l){
+                $count = $allData->where("prodi_jenjang",$l)->count();
+                $dataset[] = $count;
+            }
+        } else{
+            $allData = DB::table('v_entry')
                     ->where('id_bank_soal', $id_bank_soal)
                     ->whereColumn('total_required', '<=', 'total_required_filled')
                     ->get();
 
-        foreach($labels as $l){
-            $count = $allData->where('id_bank_soal', $id_bank_soal)->where(
-                $type == "prodi" ? "prodi_jenjang" : "fakultas",
-                $l
-            )->count();
-            $dataset[] = $count;
+            foreach($labels as $l){
+                $count = $allData->where('id_bank_soal', $id_bank_soal)
+                                ->where("fakultas",$l)
+                                ->count();
+                $dataset[] = $count;
+            }
         }
 
         $colors = $this->generateRandomColors(count($labels),$type != "prodi");
