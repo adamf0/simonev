@@ -171,7 +171,6 @@ class LaporanApiController extends Controller
                 $bankSoal->createdBy=="fakultas" && count($targetList)>0?  
                 Prodi::select(
                     DB::raw('
-                    kode_prodi,
                     concat(
                         `nama_prodi`, 
                         " (",
@@ -191,7 +190,6 @@ class LaporanApiController extends Controller
                 )->whereIn("kode_prodi", $targetList)->distinct()->get() : 
                 Prodi::select(
                 DB::raw('
-                kode_prodi,
                 concat(
                     `nama_prodi`, 
                     " (",
@@ -214,39 +212,42 @@ class LaporanApiController extends Controller
             default=>collect([])
         };
 
-        $mapping = [];
-        foreach($list as $l){
-            $mapping[$l->kode_prodi] = $l->text;
-        }
+        $labels = $list->pluck('text')->reduce(function($carry, $item) {
+            if(!empty($item)){
+                $carry[] = $item;
+            }
+            return $carry;
+        }, []);
 
         $dataset = [];
         if($type == "prodi"){
             $allData = DB::table('v_entry')
                     ->where('id_bank_soal', $id_bank_soal)
                     ->whereColumn('total_required', '<=', 'total_required_filled');
-                    
-            foreach($mapping as $kode_prodi => $_){
-                $count = $allData->where("idx_prodi_jenjang",$kode_prodi)->count();
-                $dataset[] = $count;
-            }
+               
+            $count = $allData->where("prodi_jenjang","ILMU HUKUM (S1)")->count();
+            $dataset[] = $count;
+            // foreach($labels as $l){
+            //     $count = $allData->where("prodi_jenjang",$l)->count();
+            //     $dataset[] = $count;
+            // }
         } else{
             $allData = DB::table('v_entry')
                     ->where('id_bank_soal', $id_bank_soal)
                     ->whereColumn('total_required', '<=', 'total_required_filled')
                     ->get();
 
-            foreach($mapping as $_ => $item){
+            foreach($labels as $l){
                 $count = $allData->where('id_bank_soal', $id_bank_soal)
-                                ->where("fakultas",$item)
+                                ->where("fakultas",$l)
                                 ->count();
                 $dataset[] = $count;
             }
         }
-        return json_encode($dataset);
 
-        $colors = $this->generateRandomColors(count(array_keys($mapping)),$type != "prodi");
+        $colors = $this->generateRandomColors(count($labels),$type != "prodi");
         return json_encode([
-            "labels"=> array_values($mapping),
+            "labels"=> $labels,
             "datasets"=> [
               [
                 "label"=> '# Total',
