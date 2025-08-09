@@ -226,7 +226,6 @@ class LaporanApiController extends Controller
                     ->whereColumn('total_required', '<=', 'total_required_filled');
                     
             foreach($mapping as $kode_prodi => $_){
-                dd($allData->where("idx_prodi_jenjang",$kode_prodi)->toRawSql(), $mapping);
                 $count = $allData->where("idx_prodi_jenjang",$kode_prodi)->count();
                 $dataset[] = $count;
             }
@@ -243,10 +242,11 @@ class LaporanApiController extends Controller
                 $dataset[] = $count;
             }
         }
+        return json_encode($dataset);
 
         $colors = $this->generateRandomColors(count(array_keys($mapping)),$type != "prodi");
         return json_encode([
-            "labels"=> array_keys($mapping),
+            "labels"=> array_values($mapping),
             "datasets"=> [
               [
                 "label"=> '# Total',
