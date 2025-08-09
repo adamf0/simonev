@@ -110,7 +110,6 @@ class LaporanController extends Controller
                     ->pluck("text")
                     ->toArray();
 
-            dump($listFakultas, $row?->target_list);
             $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
 
             return $row;
