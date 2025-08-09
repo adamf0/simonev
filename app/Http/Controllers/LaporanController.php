@@ -99,7 +99,7 @@ class LaporanController extends Controller
                                     }
                                 });
         }
-        $listBankSoal = $listBankSoal->get()->map(function($row) use($level){
+        $listBankSoal = $listBankSoal->get()->map(function($row){
             $targetList = json_decode($row?->target_list ?? '[]', true);
             $targetList = in_array("all",$targetList)? []:$targetList;
             $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
@@ -110,7 +110,7 @@ class LaporanController extends Controller
                     ->pluck("text")
                     ->toArray();
 
-            $row->text = count($targetList) && $level=="fakultas"? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
+            $row->text = count($targetList) && $row->createdBy=="fakultas"? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
 
             return $row;
         });
