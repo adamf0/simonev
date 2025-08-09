@@ -17,14 +17,14 @@ use InvalidArgumentException;
 
 class LaporanApiController extends Controller
 {
-    private function generateRandomColors($count){
+    private function generateRandomColors($count, $random=true){
         $colors = [];
         
         while (count($colors) < $count) {
             // Generate random RGB values
-            $r = rand(50, 255);  // Avoid 0 (black) and ensure enough color range
-            $g = rand(50, 255);  // Avoid 0 (black) and ensure enough color range
-            $b = rand(50, 255);  // Avoid 0 (black) and ensure enough color range
+            $r = $random? rand(50, 255):0;  // Avoid 0 (black) and ensure enough color range
+            $g = $random? rand(50, 255):0;  // Avoid 0 (black) and ensure enough color range
+            $b = $random? rand(50, 255):255;  // Avoid 0 (black) and ensure enough color range
             
             // Generate RGBA color with random transparency
             $rgba = "rgba($r, $g, $b, 1)"; // 0.5 is the transparency value
@@ -232,21 +232,16 @@ class LaporanApiController extends Controller
             $dataset[] = $count;
         }
 
-        $colors = $this->generateRandomColors(count($labels));
+        $colors = $this->generateRandomColors(count($labels),$type != "prodi");
         return json_encode([
             "labels"=> $labels,
             "datasets"=> [
-              $type != "prodi"? 
               [
                 "label"=> '# Total',
                 "data"=> $dataset,
                 "backgroundColor"=> $colors,
                 "borderColor"=> $colors,
                 "borderWidth"=> 1,
-              ] : 
-              [
-                "label"=> '# Total',
-                "data"=> $dataset,
               ],
             ],
         ]);
