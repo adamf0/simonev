@@ -225,12 +225,6 @@ class LaporanApiController extends Controller
                     ->get();
 
         foreach($labels as $l){
-            if($type != "prodi" && $l=="ISIB"){
-                return response()->json($allData->where('id_bank_soal', $id_bank_soal)->where(
-                    $type == "prodi" ? "prodi_jenjang" : "fakultas",
-                    $l
-                )); 
-            }
             $count = $allData->where('id_bank_soal', $id_bank_soal)->where(
                 $type == "prodi" ? "prodi_jenjang" : "fakultas",
                 $l
