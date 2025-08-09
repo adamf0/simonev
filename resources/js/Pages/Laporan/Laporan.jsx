@@ -85,7 +85,7 @@ function Laporan({level, listBankSoal=[]}) {
         setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
     };
 
-    function buildOptionsChart(source){
+    function buildOptionsChart(source, hiddenLegend = false){
         return {
             responsive: true,
             plugins: {
@@ -101,6 +101,9 @@ function Laporan({level, listBankSoal=[]}) {
                             return `Total: ${value} | Persentase: ${percentage}%`;
                         }
                     }
+                },
+                legend: {
+                    display: !hiddenLegend
                 },
                 datalabels: {
                     formatter: function(value, context) {
@@ -247,7 +250,7 @@ function Laporan({level, listBankSoal=[]}) {
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">{c.pertanyaan}</div>
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                         {c.jenis_pilihan === "rating5" 
-                                            ? <Bar data={c.chart} options={buildOptionsChart(c.chart)} />
+                                            ? <Bar data={c.chart} options={buildOptionsChart(c.chart, true)} />
                                             : <Pie data={c.chart} options={buildOptionsChart(c.chart)} />}
                                     </div>
                                 </div>
