@@ -151,16 +151,15 @@ function Laporan({level, listBankSoal=[]}) {
             return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)}/>
         }
     }
-    function RataRataRatingChart({ children }) {
+    function RataRataRatingChart({ data }) {
         // Filter hanya yang rating5
-        console.log("children",children);
-        const ratingCharts = children.filter(item => item.jenis_pilihan === "rating5");
+        const ratingCharts = data.filter(item => item.jenis_pilihan === "rating5");
 
         // Gabungkan data rating
         const totalRatings = ratingCharts.reduce((acc, curr) => {
             const values = curr.chart.datasets[0].data;
             values.forEach((val, idx) => {
-            acc[idx] = (acc[idx] || 0) + val;
+                acc[idx] = (acc[idx] || 0) + val;
             });
             return acc;
         }, []);
@@ -171,22 +170,22 @@ function Laporan({level, listBankSoal=[]}) {
         const chartData = {
             labels: ["1", "2", "3", "4", "5"],
             datasets: [
-            {
-                label: "Rata-rata Rating",
-                data: avgRatings,
-                backgroundColor: "rgba(54, 162, 235, 0.7)",
-                borderColor: "rgba(54, 162, 235, 1)",
-                borderWidth: 1,
-            },
+                {
+                    label: "Rata-rata Rating",
+                    data: avgRatings,
+                    backgroundColor: "rgba(54, 162, 235, 0.7)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 1,
+                },
             ],
         };
 
         const options = {
             responsive: true,
             plugins: {
-            title: {
-                display: false,
-            },
+                title: {
+                    display: false,
+                },
             },
             scales: {
                 y: {
@@ -195,13 +194,18 @@ function Laporan({level, listBankSoal=[]}) {
             },
         };
 
-        return <div className="row">
-                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">Rata-rata Rating</div>
-                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-                        <Bar data={chartData} options={options} />               
-                    </div>
-                </div>;
+        return (
+            <div className="row">
+                <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">
+                    Rata-rata Rating
+                </div>
+                <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                    <Bar data={chartData} options={options} />
+                </div>
+            </div>
+        );
     }
+
     function renderChart() {
         console.log(chart); 
     
@@ -251,7 +255,7 @@ function Laporan({level, listBankSoal=[]}) {
                                 </div>
                             ))
                         }
-                        {RataRataRatingChart(chart[key])}
+                        <RataRataRatingChart data={chart[key]} />
                     </div>
                 </div>
             </div>
