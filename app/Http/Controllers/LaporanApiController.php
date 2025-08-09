@@ -221,6 +221,18 @@ class LaporanApiController extends Controller
 
         $dataset = [];
         if($type == "prodi"){
+            return json_encode([
+                "labels"=> $labels,
+                "datasets"=> [
+                [
+                    "label"=> '# Total',
+                    "data"=> $dataset,
+                    // "backgroundColor"=> $colors,
+                    // "borderColor"=> $colors,
+                    "borderWidth"=> 1,
+                ],
+                ],
+            ]);
             // $allData = DB::table('v_entry')
             //         ->where('id_bank_soal', $id_bank_soal)
             //         ->whereColumn('total_required', '<=', 'total_required_filled');
