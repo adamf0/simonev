@@ -107,7 +107,8 @@ class LaporanController extends Controller
                     ->whereIn("m_program_studi.kode_prodi",$targetList)
                     ->distinct()
                     ->get()
-                    ->pluck("text");
+                    ->pluck("text")
+                    ->toArray();
 
             dump($listFakultas, $row?->target_list);
             $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
