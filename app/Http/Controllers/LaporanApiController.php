@@ -198,9 +198,6 @@ class LaporanApiController extends Controller
                 $l
             )->count();
             $dataset[] = $count;
-            if($type != "prodi"){
-                dump($l, $count);
-            }
         }
 
         $colors = $this->generateRandomColors(count($labels));
