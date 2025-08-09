@@ -89,12 +89,15 @@ class LaporanController extends Controller
         };
         $listBankSoal = BankSoal::select('id',DB::raw('judul as text'),'peruntukan');
         if($level=="fakultas"){
-            $listTarget = Prodi::select('kode_prodi')->where('kode_fak',$fakultas)->get();
-            $jsonTarget = json_encode($listTarget->toArray());
+            $listTarget = Prodi::where('kode_fak', $fakultas)->pluck('kode_prodi');
 
             $listBankSoal = $listBankSoal
                                 ->where("createdBy", "fakultas")
-                                ->whereRaw("JSON_OVERLAPS(target_list, ?)", [$jsonTarget]);
+                                ->where(function($q) use ($listTarget) {
+                                    foreach ($listTarget as $kode) {
+                                        $q->orWhereRaw('JSON_CONTAINS(target_list, ?)', [json_encode($kode)]);
+                                    }
+                                });
         }
         $listBankSoal = $listBankSoal->get();
 
