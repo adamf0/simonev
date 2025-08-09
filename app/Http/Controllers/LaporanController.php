@@ -100,7 +100,7 @@ class LaporanController extends Controller
                                 });
         }
         $listBankSoal = $listBankSoal->get()->map(function($row){
-            $targetList = json_decode($bankSoal?->target_list ?? '[]', true);
+            $targetList = json_decode($row?->target_list ?? '[]', true);
             $targetList = in_array("all",$targetList)? []:$targetList;
             $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
                     ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
@@ -109,6 +109,7 @@ class LaporanController extends Controller
                     ->get()
                     ->pluck("text");
 
+            dump($listFakultas, $row?->target_list);
             $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
 
             return $row;
