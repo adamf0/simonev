@@ -500,7 +500,7 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
             <td>
                 <div className="d-flex justify-content-center gap-2">
                     {
-                        (level=="admin") && 
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) && 
                         <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
                             <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
