@@ -250,7 +250,7 @@ function Laporan({level, listBankSoal=[]}) {
                                             : <Pie data={c.chart} options={buildOptionsChart(c.chart)} />}
                                     </div>
                                 </div>
-                                {i === (chart[key].length - 1) && <RataRataRatingChart dataJson={c} />}
+                                {i === (chart[key].length - 1) && RataRataRatingChart(c)}
                                 </>
                             ))
                         }
