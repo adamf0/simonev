@@ -151,6 +151,56 @@ function Laporan({level, listBankSoal=[]}) {
             return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)}/>
         }
     }
+    function RataRataRatingChart({ children }) {
+        // Filter hanya yang rating5
+        const ratingCharts = children.filter(item => item.jenis_pilihan === "rating5");
+
+        // Gabungkan data rating
+        const totalRatings = ratingCharts.reduce((acc, curr) => {
+            const values = curr.chart.datasets[0].data;
+            values.forEach((val, idx) => {
+            acc[idx] = (acc[idx] || 0) + val;
+            });
+            return acc;
+        }, []);
+
+        // Hitung rata-rata
+        const avgRatings = totalRatings.map(val => val / ratingCharts.length);
+
+        const chartData = {
+            labels: ["1", "2", "3", "4", "5"],
+            datasets: [
+            {
+                label: "Rata-rata Rating",
+                data: avgRatings,
+                backgroundColor: "rgba(54, 162, 235, 0.7)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
+            },
+            ],
+        };
+
+        const options = {
+            responsive: true,
+            plugins: {
+            title: {
+                display: false,
+            },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                },
+            },
+        };
+
+        return <div className="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">Rata-rata Rating</div>
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <Bar data={chartData} options={options} />               
+                    </div>
+                </div>;
+    }
     function renderChart() {
         console.log(chart); 
     
@@ -190,6 +240,7 @@ function Laporan({level, listBankSoal=[]}) {
                     <div class="grid px-4 py-3">
                         {
                             chart[key].map((c, i) => (
+                                <>
                                 <div key={i} className="row">
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">{c.pertanyaan}</div>
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
@@ -198,6 +249,8 @@ function Laporan({level, listBankSoal=[]}) {
                                             : <Pie data={c.chart} options={buildOptionsChart(c.chart)} />}
                                     </div>
                                 </div>
+                                {i === (chart[key].length - 1) && <RataRataRatingChart dataJson={c} />}
+                                </>
                             ))
                         }
                     </div>
