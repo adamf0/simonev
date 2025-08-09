@@ -241,7 +241,6 @@ function Laporan({level, listBankSoal=[]}) {
                     <div class="grid px-4 py-3">
                         {
                             chart[key].map((c, i) => (
-                                <>
                                 <div key={i} className="row">
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">{c.pertanyaan}</div>
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
@@ -250,10 +249,9 @@ function Laporan({level, listBankSoal=[]}) {
                                             : <Pie data={c.chart} options={buildOptionsChart(c.chart)} />}
                                     </div>
                                 </div>
-                                {i === (chart[key].length - 1) && RataRataRatingChart(c)}
-                                </>
                             ))
                         }
+                        {RataRataRatingChart(chart[key])}
                     </div>
                 </div>
             </div>
