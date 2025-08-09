@@ -155,7 +155,7 @@ class LaporanApiController extends Controller
         }
 
         $list = match($type){
-            "fakultas"=>Fakultas::select(DB::raw('nama_fakultas as text'))->distinct()->get(),
+            "fakultas"=>Fakultas::select(DB::raw('nama_fakultas as text'))->get(),
             "prodi"=>Prodi::select(
                 DB::raw('
                 concat(
@@ -189,8 +189,7 @@ class LaporanApiController extends Controller
         $dataset = [];
         $allData = DB::table('v_entry')
                     ->where('id_bank_soal', $id_bank_soal)
-                    ->where('total_required_filled', '>', 0)
-                    ->whereColumn('total_required', '<=', 'total_required_filled')
+                    // ->whereColumn('total_required', '<=', 'total_required_filled')
                     ->get();
 
         foreach($labels as $l){
