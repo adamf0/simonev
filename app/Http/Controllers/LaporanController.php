@@ -10,6 +10,7 @@ use App\Models\Mahasiswa;
 use App\Models\Pengangkatan;
 use App\Models\Prodi;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
 class LaporanController extends Controller
@@ -86,7 +87,16 @@ class LaporanController extends Controller
                             ->pluck('tahun_masuk'),
             default=>collect([]),
         };
-        $listBankSoal = BankSoal::select('id',DB::raw('judul as text'),'peruntukan')->get();
+        $listBankSoal = BankSoal::select('id',DB::raw('judul as text'),'peruntukan');
+        if($level=="fakultas"){
+            $listTarget = Prodi::select('kode_prodi')->where('kode_fak',$fakultas)->get();
+            $jsonTarget = json_encode($listTarget->toArray());
+
+            $listBankSoal = $listBankSoal
+                                ->where("createdBy", "fakultas")
+                                ->whereRaw("JSON_OVERLAPS(target_list, ?)", [$jsonTarget]);
+        }
+        $listBankSoal = $listBankSoal->get();
 
         return Inertia::render('Laporan/Laporan',[
             "level"=>$level,
