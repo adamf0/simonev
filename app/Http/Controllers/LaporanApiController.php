@@ -155,7 +155,7 @@ class LaporanApiController extends Controller
         }
 
         $bankSoal = DB::table('v_bank_soal')->where('id', $id_bank_soal)->first();
-        $targetList = $bankSoal?->target_list ?? [];
+        $targetList = json_decode($bankSoal?->target_list ?? '[]', true);
         $targetList = in_array("all",$targetList)? []:$targetList;
 
         $list = match($type){
