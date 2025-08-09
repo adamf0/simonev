@@ -31,7 +31,7 @@ function splitDate(dateString) {
     return [year, month, day ];
 }
 
-function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listProdi=[], listMahahsiswa=[], level=null}) {
+function BankSoalForm({typeEvent = "Add", enableEdit=true, dataBankSoal=null, listUnit=[], listProdi=[], listMahahsiswa=[], level=null}) {
     const json = JSON.parse(dataBankSoal?.rule ?? "{}");
     const [yearStart, monthStart, dayStart] = splitDate(json.generate?.start);
     const [yearEnd, monthEnd, dayEnd] = splitDate(json.generate?.end);
@@ -212,13 +212,13 @@ function BankSoalForm({typeEvent = "Add", dataBankSoal=null, listUnit=[], listPr
                         <div className="card flex-fill table-responsive gap-2 px-4 py-3">
                             <div className="row gap-2">
                                 <div className="form-floating">
-                                    <input type="text" className="form-control" value={judul} onChange={(e)=>setJudul(e.target.value)}/>
+                                    <input type="text" className="form-control" value={judul} disabled={!enableEdit} onChange={(e)=>setJudul(e.target.value)}/>
                                     <label htmlFor="floatingInput">Judul <b className="text-danger">*</b></label>
                                     <ErrorList errors={validation?.judul} />
                                 </div>
                                 
                                 <div className="form-floating">
-                                    <textarea className="form-control" value={deskripsi} onChange={(e)=>setDeskripsi(e.target.value)} style={{"height": "100px"}}></textarea>
+                                    <textarea className="form-control" value={deskripsi} disabled={!enableEdit} onChange={(e)=>setDeskripsi(e.target.value)} style={{"height": "100px"}}></textarea>
                                     <label htmlFor="floatingTextarea2">Deskripsi</label>
                                     <ErrorList errors={validation?.deskripsi} />
                                 </div>

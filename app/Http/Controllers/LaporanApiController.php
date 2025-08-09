@@ -154,9 +154,40 @@ class LaporanApiController extends Controller
             throw new InvalidArgumentException("bank soal '$id_bank_soal' tidak terdaftar di sistem");
         }
 
+        $bankSoal = DB::table('v_ban_soal')->where('id_bank_soal', $id_bank_soal)->first();
+        $targetList = $bankSoal?->target_list ?? [];
+        $targetList = in_array("all",$targetList)? []:$targetList;
+
         $list = match($type){
-            "fakultas"=>Fakultas::select(DB::raw('nama_fakultas as text'))->get(),
-            "prodi"=>Prodi::select(
+            "fakultas"=>$bankSoal->createdBy=="fakultas" && count($targetList)>0?
+                Fakultas::select(DB::raw('nama_fakultas as text'))
+                    ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
+                    ->whereIn("m_program_studi.kode_prodi",$targetList)
+                    ->distinct()
+                    ->get() : 
+                Fakultas::select(DB::raw('nama_fakultas as text'))->distinct()->get(),
+            "prodi"=>(
+                $bankSoal->createdBy=="fakultas" && count($targetList)>0?  
+                Prodi::select(
+                    DB::raw('
+                    concat(
+                        `nama_prodi`, 
+                        " (",
+                        (
+                        case 
+                            when kode_jenjang = "C" then "S1"
+                            when kode_jenjang = "B" then "S2"
+                            when kode_jenjang = "A" then "S3"
+                            when kode_jenjang = "E" then "D3"
+                            when kode_jenjang = "D" then "D4"
+                            when kode_jenjang = "J" then "Profesi"
+                            else "?"
+                        end
+                        ),
+                        ")"
+                    ) as text')
+                )->whereIn("kode_prodi", $targetList)->distinct()->get() : 
+                Prodi::select(
                 DB::raw('
                 concat(
                     `nama_prodi`, 
@@ -174,7 +205,8 @@ class LaporanApiController extends Controller
                     ),
                     ")"
                 ) as text')
-            )->distinct()->get(),
+            )->distinct()->get()
+            ) ,
             "unit"=>Pengangkatan::select(DB::raw('unit_kerja as text'))->distinct()->get(),
             default=>collect([])
         };

@@ -12,6 +12,7 @@ use App\Models\TemplatePertanyaan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
 class BankSoalController extends Controller
@@ -39,8 +40,9 @@ class BankSoalController extends Controller
         $prodi = Prodi::select(DB::raw("kode_prodi as id"),DB::raw("nama_prodi as nama"))->get();
         $mahasiswa = collect([]); //AkunSimak::select(DB::raw("userid as id"), "nama")->where("level","MAHASISWA")->get()
         $unit = Pengangkatan::select('unit_kerja')->distinct()->get();
+        $enableEdit = Session::get("level")!="fakultas";
 
-        return Inertia::render('BankSoal/BankSoalForm', ['typeEvent' => "Edit", "dataBankSoal"=>$data, "listUnit"=>$unit, "listFakultas"=>$fakultas, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa, "level"=>session()->get('level')]);
+        return Inertia::render('BankSoal/BankSoalForm', ['typeEvent' => "Edit", "enableEdit"=>$enableEdit, "dataBankSoal"=>$data, "listUnit"=>$unit, "listFakultas"=>$fakultas, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa, "level"=>session()->get('level')]);
     }
 
     public function bankSoalPreview($id_bank_soal)
