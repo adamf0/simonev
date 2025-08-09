@@ -228,7 +228,7 @@ class LaporanApiController extends Controller
             $count = $allData->where(
                 $type == "prodi" ? "prodi_jenjang" : "fakultas",
                 $l
-            )->count();
+            )->where('id_bank_soal', $id_bank_soal)->count();
             if($type != "prodi" && $l=="ISIB"){
                 return response()->json($allData->where(
                     $type == "prodi" ? "prodi_jenjang" : "fakultas",
