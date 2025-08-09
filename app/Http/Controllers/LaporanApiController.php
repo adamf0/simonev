@@ -236,12 +236,17 @@ class LaporanApiController extends Controller
         return json_encode([
             "labels"=> $labels,
             "datasets"=> [
+              $type != "prodi"? 
               [
                 "label"=> '# Total',
                 "data"=> $dataset,
                 "backgroundColor"=> $colors,
                 "borderColor"=> $colors,
                 "borderWidth"=> 1,
+              ] : 
+              [
+                "label"=> '# Total',
+                "data"=> $dataset,
               ],
             ],
         ]);
