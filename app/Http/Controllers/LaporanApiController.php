@@ -225,7 +225,7 @@ class LaporanApiController extends Controller
                     ->where('id_bank_soal', $id_bank_soal)
                     ->whereColumn('total_required', '<=', 'total_required_filled');
                     
-            foreach($mapping as $_ => $kode_prodi){
+            foreach($mapping as $kode_prodi => $_){
                 dd($allData->where("idx_prodi_jenjang",$kode_prodi)->toRawSql(), $mapping);
                 $count = $allData->where("idx_prodi_jenjang",$kode_prodi)->count();
                 $dataset[] = $count;
@@ -236,9 +236,9 @@ class LaporanApiController extends Controller
                     ->whereColumn('total_required', '<=', 'total_required_filled')
                     ->get();
 
-            foreach($mapping as $key => $_){
+            foreach($mapping as $_ => $item){
                 $count = $allData->where('id_bank_soal', $id_bank_soal)
-                                ->where("fakultas",$key)
+                                ->where("fakultas",$item)
                                 ->count();
                 $dataset[] = $count;
             }
