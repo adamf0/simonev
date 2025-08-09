@@ -152,10 +152,8 @@ function Laporan({level, listBankSoal=[]}) {
         }
     }
     function RataRataRatingChart({ data }) {
-        // Filter hanya yang rating5
         const ratingCharts = data.filter(item => item.jenis_pilihan === "rating5");
 
-        // Gabungkan data rating
         const totalRatings = ratingCharts.reduce((acc, curr) => {
             const values = curr.chart.datasets[0].data;
             values.forEach((val, idx) => {
@@ -164,8 +162,9 @@ function Laporan({level, listBankSoal=[]}) {
             return acc;
         }, []);
 
-        // Hitung rata-rata
-        const avgRatings = totalRatings.map(val => val / ratingCharts.length);
+        const avgRatings = (totalRatings.length > 0 ? totalRatings : [0, 0, 0, 0, 0])
+                                .map(val => Number((val / (ratingCharts.length || 1)).toFixed(3)));
+
 
         const chartData = {
             labels: ["1", "2", "3", "4", "5"],
@@ -182,16 +181,8 @@ function Laporan({level, listBankSoal=[]}) {
 
         const options = {
             responsive: true,
-            plugins: {
-                title: {
-                    display: false,
-                },
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                },
-            },
+            plugins: { title: { display: false } },
+            scales: { y: { beginAtZero: true } },
         };
 
         return (
