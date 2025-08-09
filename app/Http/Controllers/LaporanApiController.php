@@ -147,7 +147,7 @@ class LaporanApiController extends Controller
     }
 
     public function chart($id_bank_soal, $type){
-        set_time_limit(3600);
+        set_time_limit(0);
         if(!in_array($type, ["fakultas","prodi","unit"])){
             throw new InvalidArgumentException("type '$type' tidak terdaftar di sistem");
         }
