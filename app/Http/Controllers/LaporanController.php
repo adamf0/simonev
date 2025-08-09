@@ -87,7 +87,7 @@ class LaporanController extends Controller
                             ->pluck('tahun_masuk'),
             default=>collect([]),
         };
-        $listBankSoal = DB::table('v_bank_soal')->select('id',DB::raw('judul as text'), 'target_list', 'peruntukan');
+        $listBankSoal = DB::table('v_bank_soal')->select('id',DB::raw('judul as text'), 'createdBy', 'target_list', 'peruntukan');
         if($level=="fakultas"){
             $listTarget = Prodi::where('kode_fak', $fakultas)->pluck('kode_prodi');
 
