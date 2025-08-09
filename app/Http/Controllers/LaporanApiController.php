@@ -221,12 +221,10 @@ class LaporanApiController extends Controller
 
         $dataset = [];
         if($type == "prodi"){
-            $allData = DB::table('v_entry')
-                    ->where('id_bank_soal', $id_bank_soal)
-                    ->whereColumn('total_required', '<=', 'total_required_filled');
-               
-            $count = $allData->where("prodi_jenjang","ILMU HUKUM (S1)")->count();
-            $dataset[] = $count;
+            // $allData = DB::table('v_entry')
+            //         ->where('id_bank_soal', $id_bank_soal)
+            //         ->whereColumn('total_required', '<=', 'total_required_filled');
+                    
             // foreach($labels as $l){
             //     $count = $allData->where("prodi_jenjang",$l)->count();
             //     $dataset[] = $count;
