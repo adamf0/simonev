@@ -87,7 +87,7 @@ class LaporanController extends Controller
                             ->pluck('tahun_masuk'),
             default=>collect([]),
         };
-        $listBankSoal = DB::table('v_bank_soal')->select('id',DB::raw('judul as text'),'peruntukan');
+        $listBankSoal = DB::table('v_bank_soal')->select('id',DB::raw('judul as text'), 'targetList', 'peruntukan');
         if($level=="fakultas"){
             $listTarget = Prodi::where('kode_fak', $fakultas)->pluck('kode_prodi');
 
@@ -99,7 +99,20 @@ class LaporanController extends Controller
                                     }
                                 });
         }
-        $listBankSoal = $listBankSoal->get();
+        $listBankSoal = $listBankSoal->get()->map(function($row){
+            $targetList = json_decode($bankSoal?->target_list ?? '[]', true);
+            $targetList = in_array("all",$targetList)? []:$targetList;
+            $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
+                    ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
+                    ->whereIn("m_program_studi.kode_prodi",$targetList)
+                    ->distinct()
+                    ->get()
+                    ->pluck("text");
+
+            $row->text = "[".count($targetList)? implode(",",$listFakultas)."] ".$row->text:$row->text;
+
+            return $row;
+        });
 
         return Inertia::render('Laporan/Laporan',[
             "level"=>$level,
