@@ -283,29 +283,9 @@ class LaporanApiController extends Controller
                 ],
                 ],
             ]);
-            // $allData = DB::table('v_entry')
-            //         ->where('id_bank_soal', $id_bank_soal)
-            //         ->whereColumn('total_required', '<=', 'total_required_filled');
-                    
-            // foreach($labels as $l){
-            //     $count = $allData->where("prodi_jenjang",$l)->count();
-            //     $dataset[] = $count;
-            // }
             DB::disconnect();
-        } else{
-            return json_encode([
-                "labels"=> $labels,
-                "datasets"=> [
-                [
-                    "label"=> '# Total',
-                    "data"=> $dataset,
-                    // "backgroundColor"=> $colors,
-                    // "borderColor"=> $colors,
-                    "borderWidth"=> 1,
-                ],
-                ],
-            ]);
 
+        } else{
             $allData = DB::table('v_entry')
                     ->where('id_bank_soal', $id_bank_soal)
                     ->whereColumn('total_required', '<=', 'total_required_filled')
@@ -318,21 +298,21 @@ class LaporanApiController extends Controller
                 $dataset[] = $count;
             }
             DB::disconnect();
-        }
+            $colors = $this->generateRandomColors(count($labels),$type != "prodi");
 
-        $colors = $this->generateRandomColors(count($labels),$type != "prodi");
-        return json_encode([
-            "labels"=> $labels,
-            "datasets"=> [
-              [
-                "label"=> '# Total',
-                "data"=> $dataset,
-                "backgroundColor"=> $colors,
-                "borderColor"=> $colors,
-                "borderWidth"=> 1,
-              ],
-            ],
-        ]);
+            return json_encode([
+                "labels"=> $labels,
+                "datasets"=> [
+                [
+                    "label"=> '# Total',
+                    "data"=> $dataset,
+                    // "backgroundColor"=> $colors,
+                    // "borderColor"=> $colors,
+                    "borderWidth"=> 1,
+                ],
+                ],
+            ]);
+        }
     }
 
     public function laporanV2($id_bank_soal){
