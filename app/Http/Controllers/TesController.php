@@ -111,6 +111,6 @@ class TesController extends Controller
             $dataset[] = $count;
         }
         
-        return response()->json($allData);
+        return response()->json($dataset);
     }
 }
