@@ -264,8 +264,8 @@ class LaporanApiController extends Controller
             
             foreach($labels as $l){
                 $count = $allData->filter(function ($item) use ($l) {
-                    $dosenFakultas = optional(optional($item->Dosen)->Fakultas)->nama_fakultas;
-                    $mhsFakultas   = optional(optional($item->Mahasiswa)->Fakultas)->nama_fakultas;
+                    $dosenFakultas = optional(optional($item->Dosen)->Fakultas)->nama_prodi_jenjang;
+                    $mhsFakultas   = optional(optional($item->Mahasiswa)->Fakultas)->nama_prodi_jenjang;
                     // $tdkFakultas   = optional($item->Tendik)->nama_fakultas;
                     dump([$l, $dosenFakultas, $dosenFakultas === $l, $mhsFakultas, $mhsFakultas === $l]);
                     return $dosenFakultas === $l || $mhsFakultas === $l;
