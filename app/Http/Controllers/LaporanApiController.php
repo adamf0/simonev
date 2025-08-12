@@ -220,6 +220,7 @@ class LaporanApiController extends Controller
             }
             return $carry;
         }, []);
+        dump($labels);
 
         $dataset = [];
         if($type == "prodi"){
