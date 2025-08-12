@@ -343,8 +343,8 @@ class LaporanApiController extends Controller
                 [
                     "label"=> '# Total',
                     "data"=> $dataset,
-                    // "backgroundColor"=> $colors,
-                    // "borderColor"=> $colors,
+                    "backgroundColor"=> $colors,
+                    "borderColor"=> $colors,
                     "borderWidth"=> 1,
                 ],
                 ],
