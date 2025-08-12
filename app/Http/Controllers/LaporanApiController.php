@@ -272,7 +272,7 @@ class LaporanApiController extends Controller
                 })->count();
                 $dataset[] = $count;
             }
-            $colors = $this->generateRandomColors(count($labels));
+            $colors = $this->generateRandomColors(count($labels), false);
 
             return json_encode([
                 "labels"=> $labels,
@@ -298,7 +298,7 @@ class LaporanApiController extends Controller
                 })->count();
                 $dataset[] = $count;
             }
-            $colors = $this->generateRandomColors(count($labels), false);
+            $colors = $this->generateRandomColors(count($labels));
 
             return json_encode([
                 "labels"=> $labels,
