@@ -223,7 +223,6 @@ class LaporanApiController extends Controller
 
         $dataset = [];
         if($type == "prodi"){
-            dd("stop");
             $allData = VKuesioner::with([
                     'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
                     'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
@@ -272,6 +271,18 @@ class LaporanApiController extends Controller
             }
             $colors = $this->generateRandomColors(count($labels));
 
+            return json_encode([
+                "labels"=> $labels,
+                "datasets"=> [
+                [
+                    "label"=> '# Total',
+                    "data"=> $dataset,
+                    "backgroundColor"=> $colors,
+                    "borderColor"=> $colors,
+                    "borderWidth"=> 1,
+                ],
+                ],
+            ]);
             // $allData = DB::table('v_entry')
             //         ->where('id_bank_soal', $id_bank_soal)
             //         ->whereColumn('total_required', '<=', 'total_required_filled');
