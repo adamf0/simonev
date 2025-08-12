@@ -278,6 +278,7 @@ class LaporanApiController extends Controller
             //     $count = $allData->where("prodi_jenjang",$l)->count();
             //     $dataset[] = $count;
             // }
+            DB::disconnect();
         } else{
             $allData = DB::table('v_entry')
                     ->where('id_bank_soal', $id_bank_soal)
@@ -290,6 +291,7 @@ class LaporanApiController extends Controller
                                 ->count();
                 $dataset[] = $count;
             }
+            DB::disconnect();
         }
 
         $colors = $this->generateRandomColors(count($labels),$type != "prodi");
