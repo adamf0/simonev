@@ -9,6 +9,7 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PenggunaController;
 use App\Http\Controllers\SubKategoriController;
 use App\Http\Controllers\TemplatePertanyaanController;
+use App\Http\Controllers\TesController;
 use App\Http\Middleware\CheckSession;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/kuesioner/done', [KuesionerController::class,"done"])->name('kuesioner.done'); 
+Route::get('/tes', [TesController::class,"index"])->name('tes');
 
 Route::middleware([CheckSession::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
