@@ -222,7 +222,9 @@ class LaporanApiController extends Controller
         }, []);
 
         $dataset = [];
-        $allData = VKuesioner::with([
+
+        if($type == "prodi"){
+            $allData = VKuesioner::with([
                     'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
                     'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
                     'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
@@ -260,9 +262,7 @@ class LaporanApiController extends Controller
                 ->where("id_bank_soal",$id_bank_soal)
                 ->get();
 
-        DB::disconnect();
-
-        if($type == "prodi"){
+            DB::disconnect();
             foreach($labels as $l){
                 $count = $allData->filter(function ($item) use ($l) {
                     $dosenFakultas = optional(optional($item->Dosen)->Prodi)->nama_prodi_jenjang;
@@ -288,6 +288,45 @@ class LaporanApiController extends Controller
             ]);
 
         } else if($type == "fakultas"){
+            $allData = VKuesioner::with([
+                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
+                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                        concat(
+                            nama_prodi,
+                            case 
+                                when kode_jenjang = "C" then " (S1)"
+                                when kode_jenjang = "B" then " (S2)"
+                                when kode_jenjang = "A" then " (S3)"
+                                when kode_jenjang = "E" then " (D3)"
+                                when kode_jenjang = "D" then " (D4)"
+                                when kode_jenjang = "J" then " (Profesi)"
+                                else "?"
+                            end
+                        )    
+                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
+                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                        concat(
+                            nama_prodi,
+                            case 
+                                when kode_jenjang = "C" then " (S1)"
+                                when kode_jenjang = "B" then " (S2)"
+                                when kode_jenjang = "A" then " (S3)"
+                                when kode_jenjang = "E" then " (D3)"
+                                when kode_jenjang = "D" then " (D4)"
+                                when kode_jenjang = "J" then " (Profesi)"
+                                else "?"
+                            end
+                        )    
+                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                    'Tendik',
+                ])
+                ->where("id_bank_soal",$id_bank_soal)
+                ->get();
+
+            DB::disconnect();
             foreach($labels as $l){
                 $count = $allData->filter(function ($item) use ($l) {
                     $dosenFakultas = optional(optional($item->Dosen)->Fakultas)->nama_fakultas;
@@ -313,6 +352,45 @@ class LaporanApiController extends Controller
                 ],
             ]);
         } else {
+            $allData = VKuesioner::with([
+                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
+                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                        concat(
+                            nama_prodi,
+                            case 
+                                when kode_jenjang = "C" then " (S1)"
+                                when kode_jenjang = "B" then " (S2)"
+                                when kode_jenjang = "A" then " (S3)"
+                                when kode_jenjang = "E" then " (D3)"
+                                when kode_jenjang = "D" then " (D4)"
+                                when kode_jenjang = "J" then " (Profesi)"
+                                else "?"
+                            end
+                        )    
+                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
+                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                        concat(
+                            nama_prodi,
+                            case 
+                                when kode_jenjang = "C" then " (S1)"
+                                when kode_jenjang = "B" then " (S2)"
+                                when kode_jenjang = "A" then " (S3)"
+                                when kode_jenjang = "E" then " (D3)"
+                                when kode_jenjang = "D" then " (D4)"
+                                when kode_jenjang = "J" then " (Profesi)"
+                                else "?"
+                            end
+                        )    
+                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                    'Tendik',
+                ])
+                ->where("id_bank_soal",$id_bank_soal)
+                ->get();
+
+            DB::disconnect();
             foreach($labels as $l){
                 $count = $allData->filter(function ($item) use ($l) {
                     $tdkFakultas   = optional($item->Tendik)->unit;
