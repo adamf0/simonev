@@ -263,9 +263,10 @@ class LaporanApiController extends Controller
             
             foreach($labels as $l){
                 $count = $allData->filter(function ($item) use ($l) {
-                    $dosenProdi = optional(optional($item->Dosen)->Prodi)->nama_prodi_jenjang;
-                    $mhsProdi   = optional(optional($item->Mahasiswa)->Prodi)->nama_prodi_jenjang;
-                    return $dosenProdi === $l || $mhsProdi === $l;
+                    $dosenFakultas = optional(optional($item->Dosen)->Fakultas)->nama_fakultas;
+                    $mhsFakultas   = optional(optional($item->Mahasiswa)->Fakultas)->nama_fakultas;
+                    $tdkFakultas   = optional($item->Tendik)->nama_fakultas;
+                    return $dosenFakultas === $l || $tdkFakultas === $l || $mhsFakultas === $l;
                 })->count();
                 $dataset[] = $count;
             }
@@ -286,19 +287,55 @@ class LaporanApiController extends Controller
             DB::disconnect();
 
         } else{
-            $allData = DB::table('v_entry')
-                    ->where('id_bank_soal', $id_bank_soal)
-                    ->whereColumn('total_required', '<=', 'total_required_filled')
-                    ->get();
-
+           $allData = VKuesioner::with([
+                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
+                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                        concat(
+                            nama_prodi,
+                            case 
+                                when kode_jenjang = "C" then " (S1)"
+                                when kode_jenjang = "B" then " (S2)"
+                                when kode_jenjang = "A" then " (S3)"
+                                when kode_jenjang = "E" then " (D3)"
+                                when kode_jenjang = "D" then " (D4)"
+                                when kode_jenjang = "J" then " (Profesi)"
+                                else "?"
+                            end
+                        )    
+                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
+                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                        concat(
+                            nama_prodi,
+                            case 
+                                when kode_jenjang = "C" then " (S1)"
+                                when kode_jenjang = "B" then " (S2)"
+                                when kode_jenjang = "A" then " (S3)"
+                                when kode_jenjang = "E" then " (D3)"
+                                when kode_jenjang = "D" then " (D4)"
+                                when kode_jenjang = "J" then " (Profesi)"
+                                else "?"
+                            end
+                        )    
+                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                    'Tendik',
+                ])
+                ->where("id_bank_soal",$id_bank_soal)
+                ->get();
+            
             foreach($labels as $l){
-                $count = $allData->where('id_bank_soal', $id_bank_soal)
-                                ->where("fakultas",$l)
-                                ->count();
+                $count = $allData->filter(function ($item) use ($l) {
+                    $dosenFakultas = optional(optional($item->Dosen)->Fakultas)->nama_fakultas;
+                    $mhsFakultas   = optional(optional($item->Mahasiswa)->Fakultas)->nama_fakultas;
+                    $tdkFakultas   = optional($item->Tendik)->nama_fakultas;
+                    return $dosenFakultas === $l || $tdkFakultas === $l || $mhsFakultas === $l;
+                })->count();
                 $dataset[] = $count;
             }
+            $colors = $this->generateRandomColors(count($labels));
             DB::disconnect();
-            $colors = $this->generateRandomColors(count($labels),$type != "prodi");
 
             return json_encode([
                 "labels"=> $labels,
