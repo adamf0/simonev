@@ -266,7 +266,7 @@ class LaporanApiController extends Controller
                     $dosenFakultas = optional(optional($item->Dosen)->Fakultas)->nama_fakultas;
                     $mhsFakultas   = optional(optional($item->Mahasiswa)->Fakultas)->nama_fakultas;
                     // $tdkFakultas   = optional($item->Tendik)->nama_fakultas;
-                    dump($l, $dosenFakultas, $dosenFakultas === $l, $mhsFakultas, $mhsFakultas === $l);
+                    dump([$l, $dosenFakultas, $dosenFakultas === $l, $mhsFakultas, $mhsFakultas === $l]);
                     return $dosenFakultas === $l || $mhsFakultas === $l;
                 })->count();
                 $dataset[] = $count;
