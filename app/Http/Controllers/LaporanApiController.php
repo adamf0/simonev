@@ -212,6 +212,7 @@ class LaporanApiController extends Controller
             "unit"=>Pengangkatan::select(DB::raw('unit_kerja as text'))->distinct()->get(),
             default=>collect([])
         };
+        DB::disconnect();
 
         $labels = $list->pluck('text')->reduce(function($carry, $item) {
             if(!empty($item)){
@@ -280,6 +281,19 @@ class LaporanApiController extends Controller
             // }
             DB::disconnect();
         } else{
+            return json_encode([
+                "labels"=> $labels,
+                "datasets"=> [
+                [
+                    "label"=> '# Total',
+                    "data"=> $dataset,
+                    // "backgroundColor"=> $colors,
+                    // "borderColor"=> $colors,
+                    "borderWidth"=> 1,
+                ],
+                ],
+            ]);
+            
             $allData = DB::table('v_entry')
                     ->where('id_bank_soal', $id_bank_soal)
                     ->whereColumn('total_required', '<=', 'total_required_filled')
