@@ -110,7 +110,7 @@ class TesController extends Controller
             })->count();
             $dataset[] = $count;
         }
-        
+         
         return response()->json($dataset);
     }
 }
