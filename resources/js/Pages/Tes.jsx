@@ -60,7 +60,7 @@ export default function Tes() {
                 item => item.status_pengisian === "isi lengkap"
             );
             const filteredIncomplete = allData.filter(
-                item => item.status_pengisian === "isi lengkap"
+                item => item.status_pengisian !== "isi lengkap"
             );
 
             // Hitung total per fakultas
@@ -154,7 +154,7 @@ export default function Tes() {
             <p>Loaded chunks: {loadedChunks}</p>
             <p>Total users: {allData.length}</p>
 
-            <h2>📊 Total Per Fakultas (1)</h2>
+            {/* <h2>📊 Total Per Fakultas (1)</h2>
             <ul>
                 {Object.entries(fakultasCompleteCount).map(([nama, jumlah]) => (
                     <li key={nama}>{nama}: {jumlah}</li>
@@ -165,7 +165,7 @@ export default function Tes() {
                 {Object.entries(prodiCompleteCount).map(([nama, jumlah]) => (
                     <li key={nama}>{nama}: {jumlah}</li>
                 ))}
-            </ul>
+            </ul> */}
 
             <h2>📊 Total Per Prodi (0)</h2>
             <ul>
