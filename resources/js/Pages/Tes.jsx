@@ -99,36 +99,42 @@ export default function Tes() {
     }
   }, [loading, allData]);
 
-  const makePieConfig = (labels, data) => ({
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Selesai',
-          data,
-          backgroundColor: labels.map((_, i) =>
-            `hsl(${(i * 40) % 360}, 70%, 60%)`
-          ),
-          borderWidth: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: function (context) {
-              const value = context.parsed;
-              const total = context.chart._metasets[0].total;
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${context.label}: ${value} (${percentage}%)`;
+  const makePieConfig = (labels, rawData) => {
+    const total = rawData.reduce((sum, val) => sum + val, 0);
+    const percentageData = rawData.map(val => (val / total * 100).toFixed(1));
+  
+    return {
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Persentase',
+            data: percentageData, // tampilkan persentase di chart
+            customData: rawData,  // simpan data asli untuk tooltip
+            backgroundColor: labels.map((_, i) =>
+              `hsl(${(i * 40) % 360}, 70%, 60%)`
+            ),
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const rawValue = context.dataset.customData[context.dataIndex];
+                const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
+                const percentage = ((rawValue / total) * 100).toFixed(1);
+                return `${context.label}: ${rawValue} (${percentage}%)`;
+              }
             }
           }
         }
       }
-    }
-  });
+    };
+  };
 
   const fakultasLabels = Object.keys(fakultasCompleteCount);
   const fakultasValues = Object.values(fakultasCompleteCount);
