@@ -54,15 +54,37 @@ export default function Tes() {
 
             // Hitung total per fakultas
             const fakultasResult = allUsers.reduce((acc, item) => {
-                const namaFak = item?.mhs?.fakultas?.nama_fakultas || "Tidak diketahui";
+                let namaFak;
+
+                if (item?.mhs && item?.dosen) {
+                    namaFak = "Invalid Data";
+                } else if (item?.mhs) {
+                    namaFak = item?.mhs?.fakultas?.nama_fakultas || "Tidak diketahui";
+                } else if (item?.dosen) {
+                    namaFak = item?.dosen?.prodi?.fakultas?.nama_fakultas || "Tidak diketahui";
+                } else {
+                    namaFak = "Tidak diketahui";
+                }
+
                 acc[namaFak] = (acc[namaFak] || 0) + 1;
                 return acc;
             }, {});
 
-            // Hitung total per prodi (nama_prodi_jenjang)
+            // Hitung total per prodi
             const prodiResult = allUsers.reduce((acc, item) => {
-                const namaProdiJenjang = item?.mhs?.prodi?.nama_prodi_jenjang || "Tidak diketahui";
-                acc[namaProdiJenjang] = (acc[namaProdiJenjang] || 0) + 1;
+                let namaProdi;
+
+                if (item?.mhs && item?.dosen) {
+                    namaProdi = "Invalid Data";
+                } else if (item?.mhs) {
+                    namaProdi = item?.mhs?.prodi?.nama_prodi_jenjang || "Tidak diketahui";
+                } else if (item?.dosen) {
+                    namaProdi = item?.dosen?.prodi?.nama_prodi_jenjang || "Tidak diketahui";
+                } else {
+                    namaProdi = "Tidak diketahui";
+                }
+
+                acc[namaProdi] = (acc[namaProdi] || 0) + 1;
                 return acc;
             }, {});
 
