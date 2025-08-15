@@ -24,6 +24,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/kuesioner/done', [KuesionerController::class,"done"])->name('kuesioner.done'); 
 Route::get('/tes', [TesController::class,"index"])->name('tes');
+Route::get('/tes/all', [TesController::class,"all"])->name('tes.all');
 
 Route::middleware([CheckSession::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
