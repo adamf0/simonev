@@ -121,13 +121,9 @@ export default function Tes() {
       options: {
         responsive: true,
         plugins: {
-                legend: {
-                    position: 'right', // atau 'bottom'
-                    labels: {
-                    boxWidth: 20,
-                    padding: 10
-                    }
-                },
+            legend: {
+                display: false // kita matikan legend default
+              },
                 tooltip: {
                     callbacks: {
                     label: function (context) {
@@ -137,12 +133,7 @@ export default function Tes() {
                         return `${context.label}: ${rawValue} (${percentage}%)`;
                     }
                     }
-                },
-                layout: {
-                    padding: {
-                      right: 50
-                    }
-                  }
+                }
         }
       }
     };
@@ -150,10 +141,13 @@ export default function Tes() {
 
   const fakultasLabels = Object.keys(fakultasCompleteCount);
   const fakultasValues = Object.values(fakultasCompleteCount);
+  const fakultasColors = prodiLabels.map((_, i) =>
+    `hsl(${(i * 40) % 360}, 70%, 60%)`
+  );
 
   const prodiLabels = Object.keys(prodiCompleteCount);
   const prodiValues = Object.values(prodiCompleteCount);
-  const colors = prodiLabels.map((_, i) =>
+  const prodiColors = prodiLabels.map((_, i) =>
     `hsl(${(i * 40) % 360}, 70%, 60%)`
     );
 
@@ -162,30 +156,41 @@ export default function Tes() {
       <p>Total users: {allData.length}</p>
 
       <h2>Fakultas (Selesai)</h2>
-      <div style={{ width: '500px', margin: 'auto' }}>
-        {loading ? <p>Loading...</p> :
-          <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />}
-      </div>
+      <div style={{ width: '500px' }}>
+                <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />
+            </div>
+            <div className="chart-legend">
+                {fakultasLabels.map((label, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{
+                    width: '12px',
+                    height: '12px',
+                    backgroundColor: fakultasColors[i],
+                    marginRight: '6px'
+                    }}></div>
+                    <span>{label}</span>
+                </div>
+                ))}
+            </div>
 
       <h2>Prodi (Selesai)</h2>
       <div className="chart-container">
-        <div style={{ width: '500px' }}>
-            <Chart type="pie" {...makePieConfig(prodiLabels, prodiValues)} />
-        </div>
-        <div className="chart-legend">
-            {/* Legend manual */}
-            {prodiLabels.map((label, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
-                <div style={{
-                width: '12px',
-                height: '12px',
-                backgroundColor: colors[i],
-                marginRight: '6px'
-                }}></div>
-                <span>{label}</span>
+            <div style={{ width: '500px' }}>
+                <Chart type="pie" {...makePieConfig(prodiLabels, prodiValues)} />
             </div>
-            ))}
-        </div>
+            <div className="chart-legend">
+                {prodiLabels.map((label, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{
+                    width: '12px',
+                    height: '12px',
+                    backgroundColor: prodiColors[i],
+                    marginRight: '6px'
+                    }}></div>
+                    <span>{label}</span>
+                </div>
+                ))}
+            </div>
         </div>
     </div>
   );
