@@ -12,9 +12,10 @@ import {
     Legend,
     BarController,
     LineController
-  } from 'chart.js';
-  
-  ChartJS.register(
+} from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
@@ -24,8 +25,9 @@ import {
     Tooltip,
     Legend,
     BarController,
-    LineController
-  );
+    LineController,
+    ChartDataLabels
+);
 
 export default function Tes() {
     const [allData, setAllData] = useState([]);
@@ -152,15 +154,45 @@ export default function Tes() {
         ]
     };
 
+    const chartOptions = {
+        responsive: true,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const datasetIndex = context.datasetIndex;
+                        const value = context.parsed.y;
+                        const totalForLabel = total[context.dataIndex];
+                        const percentage = totalForLabel > 0 ? ((value / totalForLabel) * 100).toFixed(1) : 0;
+                        return `${context.dataset.label}: ${value} (${percentage}%)`;
+                    }
+                }
+            },
+            datalabels: {
+                color: '#000',
+                font: {
+                    weight: 'bold'
+                },
+                formatter: (value, context) => {
+                    const totalForLabel = total[context.dataIndex];
+                    const percentage = totalForLabel > 0 ? ((value / totalForLabel) * 100).toFixed(1) : 0;
+                    return `${percentage}%`;
+                }
+            }
+        }
+    };
+
     return (
         <div>
-            <h1>Users</h1>
-            {loading && <p>Loading data...</p>}
-            <p>Loaded chunks: {loadedChunks}</p>
-            <p>Total users: {allData.length}</p>
+            {/* <h1>Users</h1> */}
+            {/* <p>Loaded chunks: {loadedChunks}</p>
+            <p>Total users: {allData.length}</p> */}
 
             <div style={{ width: '100%', maxWidth: '900px', margin: 'auto' }}>
-                <Chart type='bar' data={chartData} />
+                {   loading? 
+                    <p>Loading data...</p> : 
+                    <Chart type='bar' data={chartData} options={chartOptions} />
+                }
             </div>
         </div>
     );
