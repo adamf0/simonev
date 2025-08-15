@@ -18,6 +18,7 @@
         return { ...state, loading: true, action_type:action.type };
   
       case FETCH_CHART_PRODI_LABEL_SUCCESS:
+        console.log(action.payload)
         return {
           ...state,
           chartProdiLabel: action.payload,
