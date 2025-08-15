@@ -100,7 +100,7 @@ export default function Tes() {
             }, {});
 
             // Hitung total per fakultas
-            const fakultasIncompleteResult = filteredComplete.reduce((acc, item) => {
+            const fakultasIncompleteResult = filteredIncomplete.reduce((acc, item) => {
                 let namaFak;
 
                 if (item?.mhs && item?.dosen) {
@@ -118,7 +118,7 @@ export default function Tes() {
             }, {});
 
             // Hitung total per prodi
-            const prodiIncompleteResult = filteredComplete.reduce((acc, item) => {
+            const prodiIncompleteResult = filteredIncomplete.reduce((acc, item) => {
                 let namaProdi;
 
                 if (item?.mhs && item?.dosen) {
