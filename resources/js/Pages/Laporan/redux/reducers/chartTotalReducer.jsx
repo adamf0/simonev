@@ -1,31 +1,31 @@
   import {
-    FETCH_CHART_PRODI_LABEL_REQUEST,
-    FETCH_CHART_PRODI_LABEL_SUCCESS,
-    FETCH_CHART_PRODI_LABEL_FAILURE
-  } from '../actions/fetchChartProdiLabel';
+    FETCH_CHART_TOTAL_REQUEST,
+    FETCH_CHART_TOTAL_SUCCESS,
+    FETCH_CHART_TOTAL_FAILURE
+  } from '../actions/chartTotalActions';
   
   const initialState = {
-    chartProdiLabel: [],
+    data: {},
     filters: {},
     loading: false,
     error: null,
     action_type: null
   };
   
-  const chartProdiLabelReducer = (state = initialState, action) => {
+  const chartTotalReducer = (state = initialState, action) => {
     switch (action.type) {
-      case FETCH_CHART_PRODI_LABEL_REQUEST:
+      case FETCH_CHART_TOTAL_REQUEST:
         return { ...state, loading: true, action_type:action.type };
   
-      case FETCH_CHART_PRODI_LABEL_SUCCESS:
+      case FETCH_CHART_TOTAL_SUCCESS:
         return {
           ...state,
-          chartProdiLabel: action.payload,
+          data: action.payload,
           loading: false, 
           action_type:action.type
         };
     
-      case FETCH_CHART_PRODI_LABEL_FAILURE:
+      case FETCH_CHART_TOTAL_FAILURE:
         return { ...state, loading: false, error: action.error, action_type:action.type };
   
       default:
@@ -33,5 +33,5 @@
     }
   };
   
-  export default chartProdiLabelReducer;
+  export default chartTotalReducer;
   

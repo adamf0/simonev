@@ -18,7 +18,6 @@
         return { ...state, loading: true, action_type:action.type };
   
       case FETCH_CHART_FAKULTAS_LABEL_SUCCESS:
-        console.log(action.payload)
         return {
           ...state,
           chartFakultasLabel: action.payload,

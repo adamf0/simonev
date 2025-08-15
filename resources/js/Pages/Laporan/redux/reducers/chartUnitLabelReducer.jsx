@@ -18,7 +18,6 @@
         return { ...state, loading: true, action_type:action.type };
   
       case FETCH_CHART_UNIT_LABEL_SUCCESS:
-        console.log(action.payload)
         return {
           ...state,
           chartUnitLabel: action.payload,

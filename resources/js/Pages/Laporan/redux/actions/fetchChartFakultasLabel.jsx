@@ -11,7 +11,7 @@ export const fetchChartFakultasLabel = (id_bank_soal, type="fakultas") => {
     dispatch({ type: FETCH_CHART_FAKULTAS_LABEL_REQUEST });
     try {
       const response = await axios.get(`${api_chart_fakultas}/${id_bank_soal}/${type}`);
-      dispatch({ type: FETCH_CHART_FAKULTAS_SUCCESS, payload: response.data });
+      dispatch({ type: FETCH_CHART_FAKULTAS_LABEL_SUCCESS, payload: response.data });
     } catch (error) {
       dispatch({ type: FETCH_CHART_FAKULTAS_LABEL_FAILURE, error });
     }
