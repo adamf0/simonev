@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use InvalidArgumentException;
+use Illuminate\Support\Facades\Response;
 
 class LaporanApiController extends Controller
 {
@@ -147,8 +148,85 @@ class LaporanApiController extends Controller
         ]);
     }
 
-    public function chart($id_bank_soal, $type){
+    public function chart($id_bank_soal){
         set_time_limit(0);
+        ini_set('output_buffering', 'off');
+        ini_set('zlib.output_compression', false);
+        set_time_limit(0);
+        ob_implicit_flush(true);
+        
+        if(in_array($id_bank_soal, ["","undefinied",null])){
+            throw new InvalidArgumentException("bank soal '$id_bank_soal' tidak terdaftar di sistem");
+        }
+
+        $totalChunks = 0;
+
+        return Response::stream(function () use (&$totalChunks, &$id_bank_soal) {
+                VKuesioner::with([
+                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
+                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                        concat(
+                            nama_prodi,
+                            case 
+                                when kode_jenjang = "C" then " (S1)"
+                                when kode_jenjang = "B" then " (S2)"
+                                when kode_jenjang = "A" then " (S3)"
+                                when kode_jenjang = "E" then " (D3)"
+                                when kode_jenjang = "D" then " (D4)"
+                                when kode_jenjang = "J" then " (Profesi)"
+                                else "?"
+                            end
+                        )    
+                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
+                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                        concat(
+                            nama_prodi,
+                            case 
+                                when kode_jenjang = "C" then " (S1)"
+                                when kode_jenjang = "B" then " (S2)"
+                                when kode_jenjang = "A" then " (S3)"
+                                when kode_jenjang = "E" then " (D3)"
+                                when kode_jenjang = "D" then " (D4)"
+                                when kode_jenjang = "J" then " (Profesi)"
+                                else "?"
+                            end
+                        )    
+                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                    'Tendik',
+                ])
+                ->where("id_bank_soal",$id_bank_soal)
+                ->chunk(500, function ($rows) use (&$totalChunks) {
+                $batch = $rows->map(function ($row) {
+                    return [
+                        'id'    => $row->id,
+                        'nidn'  => $row->nidn,
+                        'nip' => $row->nip,
+                        'npm' => $row->npm,
+                        'id_bank_soal' => $row->id_bank_soal,
+                        'status_pengisian' => $row->statusPengisian,
+                        'mhs' => $row?->Mahasiswa,
+                        'dosen' => $row?->Dosen,
+                        'tendik' => $row?->Tendik,
+                    ];
+                });
+        
+                echo json_encode($batch) . "\n";
+                $totalChunks++;
+        
+                ob_flush();
+                flush();
+                });
+        }, 200, [
+            'Content-Type' => 'application/x-ndjson',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+    public function chartLabel($id_bank_soal, $type){
         if(!in_array($type, ["fakultas","prodi","unit"])){
             throw new InvalidArgumentException("type '$type' tidak terdaftar di sistem");
         }
@@ -212,7 +290,6 @@ class LaporanApiController extends Controller
             "unit"=>Pengangkatan::select(DB::raw('unit_kerja as text'))->distinct()->get(),
             default=>collect([])
         };
-        DB::disconnect();
 
         $labels = $list->pluck('text')->reduce(function($carry, $item) {
             if(!empty($item)){
@@ -221,199 +298,7 @@ class LaporanApiController extends Controller
             return $carry;
         }, []);
 
-        $dataset = [];
-
-        if($type == "prodi"){
-            $allData = VKuesioner::with([
-                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
-                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                        concat(
-                            nama_prodi,
-                            case 
-                                when kode_jenjang = "C" then " (S1)"
-                                when kode_jenjang = "B" then " (S2)"
-                                when kode_jenjang = "A" then " (S3)"
-                                when kode_jenjang = "E" then " (D3)"
-                                when kode_jenjang = "D" then " (D4)"
-                                when kode_jenjang = "J" then " (Profesi)"
-                                else "?"
-                            end
-                        )    
-                    ) as nama_prodi_jenjang'), "nama_prodi"),
-                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
-                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                        concat(
-                            nama_prodi,
-                            case 
-                                when kode_jenjang = "C" then " (S1)"
-                                when kode_jenjang = "B" then " (S2)"
-                                when kode_jenjang = "A" then " (S3)"
-                                when kode_jenjang = "E" then " (D3)"
-                                when kode_jenjang = "D" then " (D4)"
-                                when kode_jenjang = "J" then " (Profesi)"
-                                else "?"
-                            end
-                        )    
-                    ) as nama_prodi_jenjang'), "nama_prodi"),
-                    'Tendik',
-                ])
-                ->where("id_bank_soal",$id_bank_soal)
-                ->get();
-
-            DB::disconnect();
-            foreach($labels as $l){
-                $count = $allData->filter(function ($item) use ($l) {
-                    $dosenFakultas = optional(optional($item->Dosen)->Prodi)->nama_prodi_jenjang;
-                    $mhsFakultas   = optional(optional($item->Mahasiswa)->Prodi)->nama_prodi_jenjang;
-
-                    return $dosenFakultas === $l || $mhsFakultas === $l;
-                })->count();
-                $dataset[] = $count;
-            }
-            $colors = $this->generateRandomColors(count($labels), false);
-
-            return json_encode([
-                "labels"=> $labels,
-                "datasets"=> [
-                [
-                    "label"=> '# Total',
-                    "data"=> $dataset,
-                    "backgroundColor"=> $colors,
-                    "borderColor"=> $colors,
-                    "borderWidth"=> 1,
-                ],
-                ],
-            ]);
-
-        } else if($type == "fakultas"){
-            $allData = VKuesioner::with([
-                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
-                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                        concat(
-                            nama_prodi,
-                            case 
-                                when kode_jenjang = "C" then " (S1)"
-                                when kode_jenjang = "B" then " (S2)"
-                                when kode_jenjang = "A" then " (S3)"
-                                when kode_jenjang = "E" then " (D3)"
-                                when kode_jenjang = "D" then " (D4)"
-                                when kode_jenjang = "J" then " (Profesi)"
-                                else "?"
-                            end
-                        )    
-                    ) as nama_prodi_jenjang'), "nama_prodi"),
-                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
-                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                        concat(
-                            nama_prodi,
-                            case 
-                                when kode_jenjang = "C" then " (S1)"
-                                when kode_jenjang = "B" then " (S2)"
-                                when kode_jenjang = "A" then " (S3)"
-                                when kode_jenjang = "E" then " (D3)"
-                                when kode_jenjang = "D" then " (D4)"
-                                when kode_jenjang = "J" then " (Profesi)"
-                                else "?"
-                            end
-                        )    
-                    ) as nama_prodi_jenjang'), "nama_prodi"),
-                    'Tendik',
-                ])
-                ->where("id_bank_soal",$id_bank_soal)
-                ->get();
-
-            DB::disconnect();
-            foreach($labels as $l){
-                $count = $allData->filter(function ($item) use ($l) {
-                    $dosenFakultas = optional(optional($item->Dosen)->Fakultas)->nama_fakultas;
-                    $mhsFakultas   = optional(optional($item->Mahasiswa)->Fakultas)->nama_fakultas;
-                    $tdkFakultas   = optional($item->Tendik)->nama_fakultas;
-                    
-                    return $dosenFakultas === $l || $tdkFakultas === $l || $mhsFakultas === $l;
-                })->count();
-                $dataset[] = $count;
-            }
-            $colors = $this->generateRandomColors(count($labels));
-
-            return json_encode([
-                "labels"=> $labels,
-                "datasets"=> [
-                [
-                    "label"=> '# Total',
-                    "data"=> $dataset,
-                    "backgroundColor"=> $colors,
-                    "borderColor"=> $colors,
-                    "borderWidth"=> 1,
-                ],
-                ],
-            ]);
-        } else {
-            $allData = VKuesioner::with([
-                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
-                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                        concat(
-                            nama_prodi,
-                            case 
-                                when kode_jenjang = "C" then " (S1)"
-                                when kode_jenjang = "B" then " (S2)"
-                                when kode_jenjang = "A" then " (S3)"
-                                when kode_jenjang = "E" then " (D3)"
-                                when kode_jenjang = "D" then " (D4)"
-                                when kode_jenjang = "J" then " (Profesi)"
-                                else "?"
-                            end
-                        )    
-                    ) as nama_prodi_jenjang'), "nama_prodi"),
-                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
-                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                        concat(
-                            nama_prodi,
-                            case 
-                                when kode_jenjang = "C" then " (S1)"
-                                when kode_jenjang = "B" then " (S2)"
-                                when kode_jenjang = "A" then " (S3)"
-                                when kode_jenjang = "E" then " (D3)"
-                                when kode_jenjang = "D" then " (D4)"
-                                when kode_jenjang = "J" then " (Profesi)"
-                                else "?"
-                            end
-                        )    
-                    ) as nama_prodi_jenjang'), "nama_prodi"),
-                    'Tendik',
-                ])
-                ->where("id_bank_soal",$id_bank_soal)
-                ->get();
-
-            DB::disconnect();
-            foreach($labels as $l){
-                $count = $allData->filter(function ($item) use ($l) {
-                    $tdkFakultas   = optional($item->Tendik)->unit;
-                    
-                    return $tdkFakultas === $l;
-                })->count();
-                $dataset[] = $count;
-            }
-            $colors = $this->generateRandomColors(count($labels));
-
-            return json_encode([
-                "labels"=> $labels,
-                "datasets"=> [
-                [
-                    "label"=> '# Total',
-                    "data"=> $dataset,
-                    "backgroundColor"=> $colors,
-                    "borderColor"=> $colors,
-                    "borderWidth"=> 1,
-                ],
-                ],
-            ]);
-        }
+        return response()->json($labels);
     }
 
     public function laporanV2($id_bank_soal){

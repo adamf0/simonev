@@ -101,7 +101,7 @@ export default function Tes() {
 
   const makePieConfig = (labels, rawData) => {
     const total = rawData.reduce((sum, val) => sum + val, 0);
-    const percentageData = rawData.map(val => (val / total * 100).toFixed(1)+"%");
+    const percentageData = rawData.map(val => (val / total * 100).toFixed(1));
   
     return {
       data: {

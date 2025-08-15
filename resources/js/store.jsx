@@ -10,9 +10,9 @@ import laporanReducer from './Pages/Laporan/redux/reducers/laporanReducer';
 import kategoriReducer from './Pages/Kategori/redux/reducers/kategoriReducer';
 import subkategoriReducer from './Pages/SubKategori/redux/reducers/subkategoriReducer';
 
-import chartFakultasReducer from './Pages/Laporan/redux/reducers/chartFakultasReducer';
-import chartProdiReducer from './Pages/Laporan/redux/reducers/chartProdiReducer';
-import chartUnitReducer from './Pages/Laporan/redux/reducers/chartUnitReducer';
+import chartFakultasLabelReducer from './Pages/Laporan/redux/reducers/chartFakultasLabelReducer';
+import chartProdiLabelReducer from './Pages/Laporan/redux/reducers/chartProdiLabelReducer';
+import chartUnitLabelReducer from './Pages/Laporan/redux/reducers/chartUnitLabelReducer';
 import chartReducer from './Pages/Laporan/redux/reducers/chartReducer';
 
 const store = createStore(
@@ -27,9 +27,9 @@ const store = createStore(
         kategori: kategoriReducer,
         subkategori: subkategoriReducer,
 
-        chartFakultas:chartFakultasReducer,
-        chartProdi:chartProdiReducer,
-        chartUnit:chartUnitReducer,
+        chartFakultasLabel:chartFakultasLabelReducer,
+        chartProdiLabel:chartProdiLabelReducer,
+        chartUnitLabel:chartUnitLabelReducer,
         chart:chartReducer,
     }), 
     applyMiddleware(thunk)

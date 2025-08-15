@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import Layout from "../../Component/Layout";
 import 'react-calendar-datetime-picker/dist/style.css'
 import { useDispatch, useSelector } from "react-redux";
-import { FETCH_CHART_FAKULTAS_FAILURE, FETCH_CHART_FAKULTAS_REQUEST, fetchChartFakultas } from "./redux/actions/chartFakultasActions";
-import { FETCH_CHART_PRODI_FAILURE, FETCH_CHART_PRODI_REQUEST, fetchChartProdi } from "./redux/actions/chartProdiActions";
-import { FETCH_CHART_UNIT_FAILURE, FETCH_CHART_UNIT_REQUEST, fetchChartUnit } from "./redux/actions/chartUnitActions";
+import { FETCH_CHART_FAKULTAS_LABEL_FAILURE, FETCH_CHART_FAKULTAS_LABEL_REQUEST, fetchChartFakultasLabel } from "./redux/actions/fetchChartFakultasLabel";
+import { FETCH_CHART_PRODI_LABEL_FAILURE, FETCH_CHART_PRODI_LABEL_SUCCESS, fetchChartProdiLabel } from "./redux/actions/fetchChartProdiLabel";
+import { FETCH_CHART_UNIT_LABEL_FAILURE, FETCH_CHART_UNIT_LABEL_REQUEST, fetchChartUnitLabel } from "./redux/actions/fetchChartUnitLabel";
 import 'react-calendar-datetime-picker/dist/style.css'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, Filler, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Bar, Pie } from 'react-chartjs-2';
@@ -16,20 +16,20 @@ ChartJS.register(ArcElement, Tooltip, Legend, Title, Filler, ChartDataLabels, Ca
 function Laporan({level, listBankSoal=[]}) {
     const dispatch = useDispatch();
     
-    const cfFakultas = useSelector((state) => state.chartFakultas.chartFakultas);
-    const cfActionType = useSelector((state) => state.chartFakultas.action_type);
-    const cfErrorMessage = useSelector((state) => state.chartFakultas.error);
-    const cfLoading = useSelector((state) => state.chartFakultas.loading); 
+    const cfFakultas = useSelector((state) => state.chartFakultasLabel.chartFakultasLabel);
+    const cfActionType = useSelector((state) => state.chartFakultasLabel.action_type);
+    const cfErrorMessage = useSelector((state) => state.chartFakultasLabel.error);
+    const cfLoading = useSelector((state) => state.chartFakultasLabel.loading); 
 
-    const cpProdi = useSelector((state) => state.chartProdi.chartProdi);
-    const cpActionType = useSelector((state) => state.chartProdi.action_type);
-    const cpErrorMessage = useSelector((state) => state.chartProdi.error);
-    const cpLoading = useSelector((state) => state.chartProdi.loading); 
+    const cpProdi = useSelector((state) => state.chartProdiLabel.chartProdiLabel);
+    const cpActionType = useSelector((state) => state.chartProdiLabel.action_type);
+    const cpErrorMessage = useSelector((state) => state.chartProdiLabel.error);
+    const cpLoading = useSelector((state) => state.chartProdiLabel.loading); 
 
-    const cuUnit = useSelector((state) => state.chartUnit.chartUnit);
-    const cuActionType = useSelector((state) => state.chartUnit.action_type);
-    const cuErrorMessage = useSelector((state) => state.chartUnit.error);
-    const cuLoading = useSelector((state) => state.chartUnit.loading); 
+    const cuUnit = useSelector((state) => state.chartUnitLabel.chartUnitLabel);
+    const cuActionType = useSelector((state) => state.chartUnitLabel.action_type);
+    const cuErrorMessage = useSelector((state) => state.chartUnitLabel.error);
+    const cuLoading = useSelector((state) => state.chartUnitLabel.loading); 
 
     const chart = useSelector((state) => state.chart.chart);
     const ActionType = useSelector((state) => state.chart.action_type);
@@ -66,13 +66,13 @@ function Laporan({level, listBankSoal=[]}) {
 
     useEffect(() => {
         if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
-            dispatch(fetchChartFakultas(bankSoal));
+            dispatch(fetchChartFakultasLabel(bankSoal));
         }
         if (![null, "", undefined].includes(bankSoal) && chartProdi) {
-            dispatch(fetchChartProdi(bankSoal));
+            dispatch(fetchChartProdiLabel(bankSoal));
         }
         if (![null, "", undefined].includes(bankSoal) && chartUnit) {
-            dispatch(fetchChartUnit(bankSoal));
+            dispatch(fetchChartUnitLabel(bankSoal));
         }
 
         if(![null, "", undefined].includes(bankSoal)){
@@ -122,55 +122,30 @@ function Laporan({level, listBankSoal=[]}) {
     }
 
     function renderChartFakultas(){
-        if(cfActionType==FETCH_CHART_FAKULTAS_REQUEST){
+        if(cfActionType==FETCH_CHART_FAKULTAS_LABEL_REQUEST){
             return "loading...";
-        } else if(cfActionType==FETCH_CHART_FAKULTAS_FAILURE){
+        } else if(cfActionType==FETCH_CHART_FAKULTAS_LABEL_FAILURE){
             return cfErrorMessage;
-        } else if (!cfFakultas || !cfFakultas.datasets || !cfFakultas.labels) {
-                return <p>No data available</p>;
         } else{
-            return <Pie data={cfFakultas} options={buildOptionsChart(cfFakultas)} />
+            console.log("cfFakultas",cfFakultas);  
         }
     }
     function renderChartProdi(){
-        if(cpActionType==FETCH_CHART_PRODI_REQUEST){
+        if(cpActionType==FETCH_CHART_PRODI_LABEL_SUCCESS){
             return "loading...";
-        } else if(cpActionType==FETCH_CHART_PRODI_FAILURE){
+        } else if(cpActionType==FETCH_CHART_PRODI_LABEL_FAILURE){
             return cpErrorMessage;
-        } else if (!cpProdi || !cpProdi.datasets || !cpProdi.labels) {
-            return <p>No data available</p>;
         } else{
-            return <Bar
-                data={cpProdi}
-                options={{
-                    ...buildOptionsChart(cpProdi), // tetap pakai buildOptionsChart yang lama
-                    indexAxis: 'y', // biar bentuknya horizontal bar
-                    plugins: {
-                        ...buildOptionsChart(cpProdi).plugins,
-                        legend: { display: false } // legend biasanya nggak perlu kalau bar chart kategori banyak
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 }
-                        },
-                        y: {
-                            ticks: { autoSkip: false } // supaya semua label prodi tampil
-                        }
-                    }
-                }}
-            />
+            console.log("cpProdi",cpProdi);  
         }
     }
     function renderChartUnit(){
-        if(cuActionType==FETCH_CHART_UNIT_REQUEST){
+        if(cuActionType==FETCH_CHART_UNIT_LABEL_REQUEST){
             return "loading...";
-        } else if(cuActionType==FETCH_CHART_UNIT_FAILURE){
+        } else if(cuActionType==FETCH_CHART_UNIT_LABEL_FAILURE){
             return cuErrorMessage;
-        } else if (!cuUnit || !cuUnit.datasets || !cuUnit.labels) {
-            return <p>No data available</p>;
         } else{
-            return <Pie data={cuUnit} options={buildOptionsChart(cuUnit)}/>
+            console.log("cuUnit",cuUnit);  
         }
     }
     function RataRataRatingChart({ data }) {
