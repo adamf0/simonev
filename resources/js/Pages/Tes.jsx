@@ -6,11 +6,11 @@ export default function Tes() {
     const [loadedChunks, setLoadedChunks] = useState(0);
     const [loading, setLoading] = useState(true);
     
-    const [fakultas1Count, setFakultas1Count] = useState({});
-    const [prodi1Count, setProdi1Count] = useState({});
+    const [fakultasCompleteCount, setFakultasCompleteCount] = useState({});
+    const [prodiCompleteCount, setProdiCompleteCount] = useState({});
     
-    const [fakultas0Count, setFakultas0Count] = useState({});
-    const [prodi0Count, setProdi0Count] = useState({});
+    const [fakultasIncompleteCount, setFakultasIncompleteCount] = useState({});
+    const [prodiIncompleteCount, setProdiIncompleteCount] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -140,10 +140,10 @@ export default function Tes() {
             console.log("📊 Total per Fakultas (0):", fakultasIncompleteResult);
             console.log("📊 Total per Prodi (0):", prodiIncompleteResult);
 
-            setFakultas1Count(fakultasCompleteResult);
-            setProdi1Count(prodiCompleteResult);
-            setFakultas0Count(fakultasIncompleteResult);
-            setProdi0Count(prodiIncompleteResult);
+            setFakultasCompleteCount(fakultasCompleteResult);
+            setProdiCompleteCount(prodiCompleteResult);
+            setFakultasIncompleteCount(fakultasIncompleteResult);
+            setProdiIncompleteCount(prodiIncompleteResult);
         }
     }, [loading, allData]);
 
