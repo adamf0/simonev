@@ -5,6 +5,8 @@ export default function Tes() {
     const [allUsers, setAllUsers] = useState([]);
     const [loadedChunks, setLoadedChunks] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [fakultasCount, setFakultasCount] = useState({});
+    const [prodiCount, setProdiCount] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,6 +51,26 @@ export default function Tes() {
     useEffect(() => {
         if (!loading && allUsers.length > 0) {
             console.log("✅ Semua data sudah lengkap:", allUsers);
+
+            // Hitung total per fakultas
+            const fakultasResult = allUsers.reduce((acc, item) => {
+                const namaFak = item?.mhs?.fakultas?.nama_fakultas || "Tidak diketahui";
+                acc[namaFak] = (acc[namaFak] || 0) + 1;
+                return acc;
+            }, {});
+
+            // Hitung total per prodi (nama_prodi_jenjang)
+            const prodiResult = allUsers.reduce((acc, item) => {
+                const namaProdiJenjang = item?.mhs?.prodi?.nama_prodi_jenjang || "Tidak diketahui";
+                acc[namaProdiJenjang] = (acc[namaProdiJenjang] || 0) + 1;
+                return acc;
+            }, {});
+
+            console.log("📊 Total per Fakultas:", fakultasResult);
+            console.log("📊 Total per Prodi:", prodiResult);
+
+            setFakultasCount(fakultasResult);
+            setProdiCount(prodiResult);
         }
     }, [loading, allUsers]);
 
@@ -59,11 +81,17 @@ export default function Tes() {
             <p>Loaded chunks: {loadedChunks}</p>
             <p>Total users: {allUsers.length}</p>
 
+            <h2>📊 Total Per Fakultas</h2>
             <ul>
-                {allUsers.map(user => (
-                    <li key={user.id}>
-                        {user.status_pengisian}
-                    </li>
+                {Object.entries(fakultasCount).map(([nama, jumlah]) => (
+                    <li key={nama}>{nama}: {jumlah}</li>
+                ))}
+            </ul>
+
+            <h2>📊 Total Per Prodi</h2>
+            <ul>
+                {Object.entries(prodiCount).map(([nama, jumlah]) => (
+                    <li key={nama}>{nama}: {jumlah}</li>
                 ))}
             </ul>
         </div>
