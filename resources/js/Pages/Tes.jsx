@@ -52,8 +52,12 @@ export default function Tes() {
         if (!loading && allUsers.length > 0) {
             console.log("✅ Semua data sudah lengkap:", allUsers);
 
+            const filteredUsers = allUsers.filter(
+                item => item.status_pengisian === "isi lengkap"
+            );
+
             // Hitung total per fakultas
-            const fakultasResult = allUsers.reduce((acc, item) => {
+            const fakultasResult = filteredUsers.reduce((acc, item) => {
                 let namaFak;
 
                 if (item?.mhs && item?.dosen) {
@@ -71,7 +75,7 @@ export default function Tes() {
             }, {});
 
             // Hitung total per prodi
-            const prodiResult = allUsers.reduce((acc, item) => {
+            const prodiResult = filteredUsers.reduce((acc, item) => {
                 let namaProdi;
 
                 if (item?.mhs && item?.dosen) {
