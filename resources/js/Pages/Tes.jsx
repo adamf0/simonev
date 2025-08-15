@@ -101,7 +101,7 @@ export default function Tes() {
 
   const makePieConfig = (labels, rawData) => {
     const total = rawData.reduce((sum, val) => sum + val, 0);
-    const percentageData = rawData.map(val => (val / total * 100).toFixed(1));
+    const percentageData = rawData.map(val => (val / total * 100).toFixed(1)+"%");
   
     return {
       data: {
@@ -121,21 +121,43 @@ export default function Tes() {
       options: {
         responsive: true,
         plugins: {
-            legend: {
-                display: false // kita matikan legend default
-              },
-                tooltip: {
-                    callbacks: {
-                    label: function (context) {
-                        const rawValue = context.dataset.customData[context.dataIndex];
-                        const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
-                        const percentage = ((rawValue / total) * 100).toFixed(1);
-                        return `${context.label}: ${rawValue} (${percentage}%)`;
-                    }
-                    }
-                }
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const rawValue = context.dataset.customData[context.dataIndex];
+                const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
+                const percentage = ((rawValue / total) * 100).toFixed(1);
+                return `${context.label}: ${rawValue} (${percentage}%)`;
+              }
+            }
+          }
+        },
+        // Plugin untuk memberi teks kontras
+        elements: {
+          arc: {
+            borderColor: "#fff"
+          }
         }
-      }
+      },
+      plugins: [{
+        id: 'textInCenter',
+        afterDraw: chart => {
+          const ctx = chart.ctx;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((element, index) => {
+              const value = dataset.data[index];
+              ctx.fillStyle = '#fff'; // warna teks (putih)
+              ctx.font = 'bold 14px Arial';
+              const position = element.tooltipPosition();
+              ctx.fillText(value, position.x, position.y);
+            });
+          });
+        }
+      }]
     };
   };
 
