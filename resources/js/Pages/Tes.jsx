@@ -112,7 +112,7 @@ export default function Tes() {
             data: percentageData, // tampilkan persentase di chart
             customData: rawData,  // simpan data asli untuk tooltip
             backgroundColor: labels.map((_, i) =>
-              `hsl(${(i * 40) % 360}, 70%, 35%)`
+              `hsl(${(i * 40) % 360}, 70%, 60%)`
             ),
             borderWidth: 1
           }
@@ -121,31 +121,17 @@ export default function Tes() {
       options: {
         responsive: true,
         plugins: {
-            legend: {
-                display: false // kita matikan legend default
-              },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            const rawValue = context.dataset.customData[context.dataIndex];
-                            const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
-                            const percentage = ((rawValue / total) * 100).toFixed(1);
-                            return `${context.label}: ${rawValue} (${percentage}%)`;
-                        }
-                    }
-                },
-                datalabels: {
-                    color: '#fff', // selalu putih
-                    font: {
-                      weight: 'bold',
-                      size: 14
-                    },
-                    formatter: (value, context) => {
-                      const total = context.chart.data.datasets[0].data
-                        .reduce((sum, val) => sum + val, 0);
-                      return ((value / total) * 100).toFixed(1) + '%';
-                    }
-                  }
+            legend: {display: false},
+            tooltip: {
+                callbacks: {
+                label: function (context) {
+                    const rawValue = context.dataset.customData[context.dataIndex];
+                    const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
+                    const percentage = ((rawValue / total) * 100).toFixed(1);
+                    return `${context.label}: ${rawValue} (${percentage}%)`;
+                }
+                }
+            }
         }
       }
     };
@@ -154,13 +140,13 @@ export default function Tes() {
   const fakultasLabels = Object.keys(fakultasCompleteCount);
   const fakultasValues = Object.values(fakultasCompleteCount);
   const fakultasColors = fakultasLabels.map((_, i) =>
-    `hsl(${(i * 40) % 360}, 70%, 35%)`
+    `hsl(${(i * 40) % 360}, 70%, 60%)`
   );
 
   const prodiLabels = Object.keys(prodiCompleteCount);
   const prodiValues = Object.values(prodiCompleteCount);
   const prodiColors = prodiLabels.map((_, i) =>
-    `hsl(${(i * 40) % 360}, 70%, 35%)`
+    `hsl(${(i * 40) % 360}, 70%, 60%)`
     );
 
   return (
