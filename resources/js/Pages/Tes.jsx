@@ -160,6 +160,12 @@ export default function Tes() {
                     <li key={nama}>{nama}: {jumlah}</li>
                 ))}
             </ul>
+            <h2>📊 Total Per Prodi (1)</h2>
+            <ul>
+                {Object.entries(prodiCompleteCount).map(([nama, jumlah]) => (
+                    <li key={nama}>{nama}: {jumlah}</li>
+                ))}
+            </ul>
 
             <h2>📊 Total Per Prodi (0)</h2>
             <ul>
@@ -171,13 +177,6 @@ export default function Tes() {
             <h2>📊 Total Per Fakultas (0)</h2>
             <ul>
                 {Object.entries(fakultasIncompleteCount).map(([nama, jumlah]) => (
-                    <li key={nama}>{nama}: {jumlah}</li>
-                ))}
-            </ul>
-
-            <h2>📊 Total Per Prodi (1)</h2>
-            <ul>
-                {Object.entries(prodiCompleteCount).map(([nama, jumlah]) => (
                     <li key={nama}>{nama}: {jumlah}</li>
                 ))}
             </ul>
