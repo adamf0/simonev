@@ -159,7 +159,6 @@ function Laporan({level, listBankSoal=[]}) {
         } else if(cuActionType==FETCH_CHART_UNIT_LABEL_FAILURE){
             return cuErrorMessage;
         } else{
-            console.log(cuUnit); 
             console.log(cuUnit);
             return (
                 <ul>
