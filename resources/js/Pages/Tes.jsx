@@ -36,6 +36,8 @@ export default function Tes() {
 
     const [fakultasCompleteCount, setFakultasCompleteCount] = useState({});
     const [fakultasIncompleteCount, setFakultasIncompleteCount] = useState({});
+    const [prodiCompleteCount, setProdiCompleteCount] = useState({});
+    const [prodiIncompleteCount, setProdiIncompleteCount] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -78,14 +80,25 @@ export default function Tes() {
             const filteredComplete = allData.filter(item => item.status_pengisian === "isi lengkap");
             const filteredIncomplete = allData.filter(item => item.status_pengisian !== "isi lengkap");
 
+            // Fakultas
             const fakultasCompleteResult = filteredComplete.reduce((acc, item) => {
                 let namaFak;
-                if (item?.mhs && item?.dosen) {
-                    namaFak = "Invalid Data";
-                } else if (item?.mhs) {
-                    namaFak = item?.mhs?.fakultas?.nama_fakultas || "Tidak diketahui";
+                if (item?.mhs) {
+                    namaFak = item.mhs?.fakultas?.nama_fakultas || "Tidak diketahui";
                 } else if (item?.dosen) {
-                    namaFak = item?.dosen?.prodi?.fakultas?.nama_fakultas || "Tidak diketahui";
+                    namaFak = item.dosen?.prodi?.fakultas?.nama_fakultas || "Tidak diketahui";
+                } else {
+                    namaFak = "Tidak diketahui";
+                }
+                acc[namaFak] = (acc[namaFak] || 0) + 1;
+                return acc;
+            }, {});
+            const fakultasIncompleteResult = filteredIncomplete.reduce((acc, item) => {
+                let namaFak;
+                if (item?.mhs) {
+                    namaFak = item.mhs?.fakultas?.nama_fakultas || "Tidak diketahui";
+                } else if (item?.dosen) {
+                    namaFak = item.dosen?.prodi?.fakultas?.nama_fakultas || "Tidak diketahui";
                 } else {
                     namaFak = "Tidak diketahui";
                 }
@@ -93,105 +106,127 @@ export default function Tes() {
                 return acc;
             }, {});
 
-            const fakultasIncompleteResult = filteredIncomplete.reduce((acc, item) => {
-                let namaFak;
-                if (item?.mhs && item?.dosen) {
-                    namaFak = "Invalid Data";
-                } else if (item?.mhs) {
-                    namaFak = item?.mhs?.fakultas?.nama_fakultas || "Tidak diketahui";
+            // Prodi
+            const prodiCompleteResult = filteredComplete.reduce((acc, item) => {
+                let namaProdi;
+                if (item?.mhs) {
+                    namaProdi = item.mhs?.prodi?.nama_prodi || "Tidak diketahui";
                 } else if (item?.dosen) {
-                    namaFak = item?.dosen?.prodi?.fakultas?.nama_fakultas || "Tidak diketahui";
+                    namaProdi = item.dosen?.prodi?.nama_prodi || "Tidak diketahui";
                 } else {
-                    namaFak = "Tidak diketahui";
+                    namaProdi = "Tidak diketahui";
                 }
-                acc[namaFak] = (acc[namaFak] || 0) + 1;
+                acc[namaProdi] = (acc[namaProdi] || 0) + 1;
+                return acc;
+            }, {});
+            const prodiIncompleteResult = filteredIncomplete.reduce((acc, item) => {
+                let namaProdi;
+                if (item?.mhs) {
+                    namaProdi = item.mhs?.prodi?.nama_prodi || "Tidak diketahui";
+                } else if (item?.dosen) {
+                    namaProdi = item.dosen?.prodi?.nama_prodi || "Tidak diketahui";
+                } else {
+                    namaProdi = "Tidak diketahui";
+                }
+                acc[namaProdi] = (acc[namaProdi] || 0) + 1;
                 return acc;
             }, {});
 
             setFakultasCompleteCount(fakultasCompleteResult);
             setFakultasIncompleteCount(fakultasIncompleteResult);
+            setProdiCompleteCount(prodiCompleteResult);
+            setProdiIncompleteCount(prodiIncompleteResult);
         }
     }, [loading, allData]);
 
-    const labels = Object.keys({
-        ...fakultasCompleteCount,
-        ...fakultasIncompleteCount
-    });
-
-    const selesai = labels.map(label => fakultasCompleteCount[label] || 0);
-    const belum = labels.map(label => fakultasIncompleteCount[label] || 0);
-    const total = labels.map((label, i) => selesai[i] + belum[i]);
-
-    const chartData = {
-        labels,
-        datasets: [
-            {
-                type: 'bar',
-                label: 'Total',
-                data: total,
-                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            },
-            {
-                type: 'line',
-                label: 'Selesai',
-                data: selesai,
-                borderColor: 'rgba(54, 162, 235, 1)',
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                fill: false,
-                tension: 0.3
-            },
-            {
-                type: 'line',
-                label: 'Belum Selesai',
-                data: belum,
-                borderColor: 'rgba(255, 206, 86, 1)',
-                backgroundColor: 'rgba(255, 206, 86, 0.5)',
-                fill: false,
-                tension: 0.3
-            }
-        ]
-    };
-
-    const chartOptions = {
-        responsive: true,
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function (context) {
-                        const datasetIndex = context.datasetIndex;
-                        const value = context.parsed.y;
+    // Fungsi buat chart config
+    const makeChartConfig = (labels, selesai, belum, total) => ({
+        data: {
+            labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Total',
+                    data: total,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    type: 'line',
+                    label: 'Selesai',
+                    data: selesai,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    fill: false,
+                    tension: 0.3
+                },
+                {
+                    type: 'line',
+                    label: 'Belum Selesai',
+                    data: belum,
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                    fill: false,
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.parsed.y;
+                            const totalForLabel = total[context.dataIndex];
+                            const percentage = totalForLabel > 0 ? ((value / totalForLabel) * 100).toFixed(1) : 0;
+                            return `${context.dataset.label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#000',
+                    font: { weight: 'bold' },
+                    formatter: (value, context) => {
                         const totalForLabel = total[context.dataIndex];
                         const percentage = totalForLabel > 0 ? ((value / totalForLabel) * 100).toFixed(1) : 0;
-                        return `${context.dataset.label}: ${value} (${percentage}%)`;
+                        return `${percentage}%`;
                     }
-                }
-            },
-            datalabels: {
-                color: '#000',
-                font: {
-                    weight: 'bold'
-                },
-                formatter: (value, context) => {
-                    const totalForLabel = total[context.dataIndex];
-                    const percentage = totalForLabel > 0 ? ((value / totalForLabel) * 100).toFixed(1) : 0;
-                    return `${percentage}%`;
                 }
             }
         }
-    };
+    });
+
+    // Fakultas data
+    const fakultasLabels = Object.keys({ ...fakultasCompleteCount, ...fakultasIncompleteCount });
+    const fakultasSelesai = fakultasLabels.map(label => fakultasCompleteCount[label] || 0);
+    const fakultasBelum = fakultasLabels.map(label => fakultasIncompleteCount[label] || 0);
+    const fakultasTotal = fakultasLabels.map((_, i) => fakultasSelesai[i] + fakultasBelum[i]);
+
+    // Prodi data
+    const prodiLabels = Object.keys({ ...prodiCompleteCount, ...prodiIncompleteCount });
+    const prodiSelesai = prodiLabels.map(label => prodiCompleteCount[label] || 0);
+    const prodiBelum = prodiLabels.map(label => prodiIncompleteCount[label] || 0);
+    const prodiTotal = prodiLabels.map((_, i) => prodiSelesai[i] + prodiBelum[i]);
 
     return (
         <div>
-            {/* <h1>Users</h1> */}
-            {/* <p>Loaded chunks: {loadedChunks}</p>
-            <p>Total users: {allData.length}</p> */}
+            <p>Total users: {allData.length}</p>
 
+            <h2>Per Fakultas</h2>
             <div style={{ width: '100%', maxWidth: '900px', margin: 'auto' }}>
                 {   loading? 
                     <p>Loading data...</p> : 
-                    <Chart type='bar' data={chartData} options={chartOptions} />
+                    <Chart type='bar' {...makeChartConfig(fakultasLabels, fakultasSelesai, fakultasBelum, fakultasTotal)} />
+                }
+            </div>
+
+            <h2>Per Prodi</h2>
+            <div style={{ width: '100%', maxWidth: '900px', margin: 'auto' }}>
+                {   loading? 
+                    <p>Loading data...</p> : 
+                    <Chart type='bar' {...makeChartConfig(prodiLabels, prodiSelesai, prodiBelum, prodiTotal)} />
                 }
             </div>
         </div>
