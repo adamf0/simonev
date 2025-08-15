@@ -215,7 +215,7 @@ export default function Tes() {
             <p>Total users: {allData.length}</p>
 
             <h2>Per Fakultas</h2>
-            <div style={{ width: '100%', maxWidth: '900px', margin: 'auto' }}>
+            <div style={{ width: '100%', margin: 'auto' }}>
                 {   loading? 
                     <p>Loading data...</p> : 
                     <Chart type='bar' {...makeChartConfig(fakultasLabels, fakultasSelesai, fakultasBelum, fakultasTotal)} />
@@ -223,7 +223,7 @@ export default function Tes() {
             </div>
 
             <h2>Per Prodi</h2>
-            <div style={{ width: '100%', maxWidth: '900px', margin: 'auto' }}>
+            <div style={{ width: '100%', margin: 'auto' }}>
                 {   loading? 
                     <p>Loading data...</p> : 
                     <Chart type='bar' {...makeChartConfig(prodiLabels, prodiSelesai, prodiBelum, prodiTotal)} />
