@@ -46,6 +46,12 @@ export default function Tes() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        if (!loading && allUsers.length > 0) {
+            console.log("✅ Semua data sudah lengkap:", allUsers);
+        }
+    }, [loading, allUsers]);
+
     return (
         <div>
             <h1>Users</h1>
@@ -56,7 +62,7 @@ export default function Tes() {
             <ul>
                 {allUsers.map(user => (
                     <li key={user.id}>
-                        {user.status_pengisian} - {user.email}
+                        {user.status_pengisian}
                     </li>
                 ))}
             </ul>
