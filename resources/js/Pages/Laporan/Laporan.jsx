@@ -127,7 +127,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if(cfActionType==FETCH_CHART_FAKULTAS_LABEL_FAILURE){
             return cfErrorMessage;
         } else{
-            console.log("cfFakultas",cfFakultas);  
+            console.log(cfFakultas);  
         }
     }
     function renderChartProdi(){
@@ -136,7 +136,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if(cpActionType==FETCH_CHART_PRODI_LABEL_FAILURE){
             return cpErrorMessage;
         } else{
-            console.log("cpProdi",cpProdi);  
+            console.log(cpProdi);  
         }
     }
     function renderChartUnit(){
@@ -145,7 +145,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if(cuActionType==FETCH_CHART_UNIT_LABEL_FAILURE){
             return cuErrorMessage;
         } else{
-            console.log("cuUnit",cuUnit);  
+            console.log(cuUnit);  
         }
     }
     function RataRataRatingChart({ data }) {
