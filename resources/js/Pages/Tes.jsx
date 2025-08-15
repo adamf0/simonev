@@ -121,16 +121,28 @@ export default function Tes() {
       options: {
         responsive: true,
         plugins: {
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const rawValue = context.dataset.customData[context.dataIndex];
-                const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
-                const percentage = ((rawValue / total) * 100).toFixed(1);
-                return `${context.label}: ${rawValue} (${percentage}%)`;
-              }
-            }
-          }
+                legend: {
+                    position: 'right', // atau 'bottom'
+                    labels: {
+                    boxWidth: 20,
+                    padding: 10
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                    label: function (context) {
+                        const rawValue = context.dataset.customData[context.dataIndex];
+                        const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
+                        const percentage = ((rawValue / total) * 100).toFixed(1);
+                        return `${context.label}: ${rawValue} (${percentage}%)`;
+                    }
+                    }
+                },
+                layout: {
+                    padding: {
+                      right: 50
+                    }
+                  }
         }
       }
     };
@@ -153,10 +165,25 @@ export default function Tes() {
       </div>
 
       <h2>Prodi (Selesai)</h2>
-      <div style={{ width: '500px', margin: 'auto' }}>
-        {loading ? <p>Loading...</p> :
-          <Chart type="pie" {...makePieConfig(prodiLabels, prodiValues)} />}
-      </div>
+      <div className="chart-container">
+        <div style={{ width: '500px' }}>
+            <Chart type="pie" {...makePieConfig(prodiLabels, prodiValues)} />
+        </div>
+        <div className="chart-legend">
+            {/* Legend manual */}
+            {prodiLabels.map((label, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                <div style={{
+                width: '12px',
+                height: '12px',
+                backgroundColor: colors[i],
+                marginRight: '6px'
+                }}></div>
+                <span>{label}</span>
+            </div>
+            ))}
+        </div>
+        </div>
     </div>
   );
 }

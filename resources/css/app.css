@@ -1,1 +1,11 @@
 @import "bootstrap-icons/font/bootstrap-icons.css";
+
+.chart-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .chart-legend {
+    max-height: 300px; /* atur sesuai kebutuhan */
+    overflow-y: auto;
+  }
