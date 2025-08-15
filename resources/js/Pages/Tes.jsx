@@ -141,7 +141,7 @@ export default function Tes() {
 
   const fakultasLabels = Object.keys(fakultasCompleteCount);
   const fakultasValues = Object.values(fakultasCompleteCount);
-  const fakultasColors = prodiLabels.map((_, i) =>
+  const fakultasColors = fakultasLabels.map((_, i) =>
     `hsl(${(i * 40) % 360}, 70%, 60%)`
   );
 
