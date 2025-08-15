@@ -19,12 +19,54 @@ export default function Tes() {
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch("/tes/all");
-      const data = await response.json();
-      setAllData(data);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let allItems = [];
+  
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+  
+        buffer += decoder.decode(value, { stream: true });
+        let lines = buffer.split("\n");
+        buffer = lines.pop(); // sisa partial JSON
+  
+        for (let line of lines) {
+          if (line.trim()) {
+            try {
+              const parsed = JSON.parse(line);
+              if (Array.isArray(parsed)) {
+                allItems.push(...parsed);
+              } else {
+                allItems.push(parsed);
+              }
+            } catch (err) {
+              console.error("JSON parse error:", err, line);
+            }
+          }
+        }
+      }
+  
+      if (buffer.trim()) {
+        try {
+          const parsed = JSON.parse(buffer);
+          if (Array.isArray(parsed)) {
+            allItems.push(...parsed);
+          } else {
+            allItems.push(parsed);
+          }
+        } catch (err) {
+          console.error("JSON parse error (final buffer):", err, buffer);
+        }
+      }
+  
+      setAllData(allItems);
       setLoading(false);
     };
+  
     fetchData();
-  }, []);
+  }, []); 
 
   useEffect(() => {
     if (!loading && allData.length > 0) {
