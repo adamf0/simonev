@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Head, usePage } from "@inertiajs/react";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function Tes() {
     const [allData, setAllData] = useState([]);
     const [loadedChunks, setLoadedChunks] = useState(0);
     const [loading, setLoading] = useState(true);
-    
+
     const [fakultasCompleteCount, setFakultasCompleteCount] = useState({});
-    const [prodiCompleteCount, setProdiCompleteCount] = useState({});
-    
     const [fakultasIncompleteCount, setFakultasIncompleteCount] = useState({});
-    const [prodiIncompleteCount, setProdiIncompleteCount] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,11 +25,8 @@ export default function Tes() {
 
                 buffer += decoder.decode(value, { stream: true });
                 let lines = buffer.split("\n");
-
-                // Simpan baris terakhir (mungkin belum lengkap) di buffer
                 buffer = lines.pop();
 
-                // Proses setiap baris lengkap
                 for (let line of lines) {
                     if (line.trim()) {
                         const chunkData = JSON.parse(line);
@@ -39,7 +36,6 @@ export default function Tes() {
                 }
             }
 
-            // Jika masih ada sisa data di buffer
             if (buffer.trim()) {
                 const chunkData = JSON.parse(buffer);
                 setAllData(prev => [...prev, ...chunkData]);
@@ -54,19 +50,11 @@ export default function Tes() {
 
     useEffect(() => {
         if (!loading && allData.length > 0) {
-            console.log("✅ Semua data sudah lengkap:", allData);
+            const filteredComplete = allData.filter(item => item.status_pengisian === "isi lengkap");
+            const filteredIncomplete = allData.filter(item => item.status_pengisian !== "isi lengkap");
 
-            const filteredComplete = allData.filter(
-                item => item.status_pengisian === "isi lengkap"
-            );
-            const filteredIncomplete = allData.filter(
-                item => item.status_pengisian !== "isi lengkap"
-            );
-
-            // Hitung total per fakultas
             const fakultasCompleteResult = filteredComplete.reduce((acc, item) => {
                 let namaFak;
-
                 if (item?.mhs && item?.dosen) {
                     namaFak = "Invalid Data";
                 } else if (item?.mhs) {
@@ -76,33 +64,12 @@ export default function Tes() {
                 } else {
                     namaFak = "Tidak diketahui";
                 }
-
                 acc[namaFak] = (acc[namaFak] || 0) + 1;
                 return acc;
             }, {});
 
-            // Hitung total per prodi
-            const prodiCompleteResult = filteredComplete.reduce((acc, item) => {
-                let namaProdi;
-
-                if (item?.mhs && item?.dosen) {
-                    namaProdi = "Invalid Data";
-                } else if (item?.mhs) {
-                    namaProdi = item?.mhs?.prodi?.nama_prodi_jenjang || "Tidak diketahui";
-                } else if (item?.dosen) {
-                    namaProdi = item?.dosen?.prodi?.nama_prodi_jenjang || "Tidak diketahui";
-                } else {
-                    namaProdi = "Tidak diketahui";
-                }
-
-                acc[namaProdi] = (acc[namaProdi] || 0) + 1;
-                return acc;
-            }, {});
-
-            // Hitung total per fakultas
             const fakultasIncompleteResult = filteredIncomplete.reduce((acc, item) => {
                 let namaFak;
-
                 if (item?.mhs && item?.dosen) {
                     namaFak = "Invalid Data";
                 } else if (item?.mhs) {
@@ -112,40 +79,55 @@ export default function Tes() {
                 } else {
                     namaFak = "Tidak diketahui";
                 }
-
                 acc[namaFak] = (acc[namaFak] || 0) + 1;
                 return acc;
             }, {});
 
-            // Hitung total per prodi
-            const prodiIncompleteResult = filteredIncomplete.reduce((acc, item) => {
-                let namaProdi;
-
-                if (item?.mhs && item?.dosen) {
-                    namaProdi = "Invalid Data";
-                } else if (item?.mhs) {
-                    namaProdi = item?.mhs?.prodi?.nama_prodi_jenjang || "Tidak diketahui";
-                } else if (item?.dosen) {
-                    namaProdi = item?.dosen?.prodi?.nama_prodi_jenjang || "Tidak diketahui";
-                } else {
-                    namaProdi = "Tidak diketahui";
-                }
-
-                acc[namaProdi] = (acc[namaProdi] || 0) + 1;
-                return acc;
-            }, {});
-
-            console.log("📊 Total per Fakultas (1):", fakultasCompleteResult);
-            console.log("📊 Total per Prodi (1):", prodiCompleteResult);
-            console.log("📊 Total per Fakultas (0):", fakultasIncompleteResult);
-            console.log("📊 Total per Prodi (0):", prodiIncompleteResult);
-
             setFakultasCompleteCount(fakultasCompleteResult);
-            setProdiCompleteCount(prodiCompleteResult);
             setFakultasIncompleteCount(fakultasIncompleteResult);
-            setProdiIncompleteCount(prodiIncompleteResult);
         }
     }, [loading, allData]);
+
+    const labels = Object.keys({
+        ...fakultasCompleteCount,
+        ...fakultasIncompleteCount
+    });
+
+    const selesai = labels.map(label => fakultasCompleteCount[label] || 0);
+    const belum = labels.map(label => fakultasIncompleteCount[label] || 0);
+    const total = labels.map((label, i) => selesai[i] + belum[i]);
+
+    const chartData = {
+        labels,
+        datasets: [
+            {
+                type: 'bar',
+                label: 'Total',
+                data: total,
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            },
+            {
+                type: 'line',
+                label: 'Selesai',
+                data: selesai,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                fill: false,
+                tension: 0.3
+            },
+            {
+                type: 'line',
+                label: 'Belum Selesai',
+                data: belum,
+                borderColor: 'rgba(255, 206, 86, 1)',
+                backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                fill: false,
+                tension: 0.3
+            }
+        ]
+    };
 
     return (
         <div>
@@ -154,32 +136,9 @@ export default function Tes() {
             <p>Loaded chunks: {loadedChunks}</p>
             <p>Total users: {allData.length}</p>
 
-            {/* <h2>📊 Total Per Fakultas (1)</h2>
-            <ul>
-                {Object.entries(fakultasCompleteCount).map(([nama, jumlah]) => (
-                    <li key={nama}>{nama}: {jumlah}</li>
-                ))}
-            </ul>
-            <h2>📊 Total Per Prodi (1)</h2>
-            <ul>
-                {Object.entries(prodiCompleteCount).map(([nama, jumlah]) => (
-                    <li key={nama}>{nama}: {jumlah}</li>
-                ))}
-            </ul> */}
-
-            <h2>📊 Total Per Prodi (0)</h2>
-            <ul>
-                {Object.entries(prodiIncompleteCount).map(([nama, jumlah]) => (
-                    <li key={nama}>{nama}: {jumlah}</li>
-                ))}
-            </ul>
-
-            <h2>📊 Total Per Fakultas (0)</h2>
-            <ul>
-                {Object.entries(fakultasIncompleteCount).map(([nama, jumlah]) => (
-                    <li key={nama}>{nama}: {jumlah}</li>
-                ))}
-            </ul>
+            <div style={{ width: '100%', maxWidth: '900px', margin: 'auto' }}>
+                <Chart type='bar' data={chartData} />
+            </div>
         </div>
     );
 }
