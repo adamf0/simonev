@@ -153,6 +153,9 @@ export default function Tes() {
 
   const prodiLabels = Object.keys(prodiCompleteCount);
   const prodiValues = Object.values(prodiCompleteCount);
+  const colors = prodiLabels.map((_, i) =>
+    `hsl(${(i * 40) % 360}, 70%, 60%)`
+    );
 
   return (
     <div>
