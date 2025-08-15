@@ -112,7 +112,7 @@ export default function Tes() {
             data: percentageData, // tampilkan persentase di chart
             customData: rawData,  // simpan data asli untuk tooltip
             backgroundColor: labels.map((_, i) =>
-              `hsl(${(i * 40) % 360}, 70%, 60%)`
+              `hsl(${(i * 40) % 360}, 70%, 35%)`
             ),
             borderWidth: 1
           }
@@ -121,56 +121,46 @@ export default function Tes() {
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const rawValue = context.dataset.customData[context.dataIndex];
-                const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
-                const percentage = ((rawValue / total) * 100).toFixed(1);
-                return `${context.label}: ${rawValue} (${percentage}%)`;
-              }
-            }
-          }
-        },
-        // Plugin untuk memberi teks kontras
-        elements: {
-          arc: {
-            borderColor: "#fff"
-          }
+            legend: {
+                display: false // kita matikan legend default
+              },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const rawValue = context.dataset.customData[context.dataIndex];
+                            const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
+                            const percentage = ((rawValue / total) * 100).toFixed(1);
+                            return `${context.label}: ${rawValue} (${percentage}%)`;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#fff', // selalu putih
+                    font: {
+                      weight: 'bold',
+                      size: 14
+                    },
+                    formatter: (value, context) => {
+                      const total = context.chart.data.datasets[0].data
+                        .reduce((sum, val) => sum + val, 0);
+                      return ((value / total) * 100).toFixed(1) + '%';
+                    }
+                  }
         }
-      },
-      plugins: [{
-        id: 'textInCenter',
-        afterDraw: chart => {
-          const ctx = chart.ctx;
-          chart.data.datasets.forEach((dataset, i) => {
-            const meta = chart.getDatasetMeta(i);
-            meta.data.forEach((element, index) => {
-              const value = dataset.data[index];
-              ctx.fillStyle = '#fff'; // warna teks (putih)
-              ctx.font = 'bold 14px Arial';
-              const position = element.tooltipPosition();
-              ctx.fillText(value, position.x, position.y);
-            });
-          });
-        }
-      }]
+      }
     };
   };
 
   const fakultasLabels = Object.keys(fakultasCompleteCount);
   const fakultasValues = Object.values(fakultasCompleteCount);
   const fakultasColors = fakultasLabels.map((_, i) =>
-    `hsl(${(i * 40) % 360}, 70%, 60%)`
+    `hsl(${(i * 40) % 360}, 70%, 35%)`
   );
 
   const prodiLabels = Object.keys(prodiCompleteCount);
   const prodiValues = Object.values(prodiCompleteCount);
   const prodiColors = prodiLabels.map((_, i) =>
-    `hsl(${(i * 40) % 360}, 70%, 60%)`
+    `hsl(${(i * 40) % 360}, 70%, 35%)`
     );
 
   return (
