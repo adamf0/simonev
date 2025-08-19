@@ -73,10 +73,9 @@ class LaporanController extends Controller
                         ->toArray();
     
                 $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
-                return $row->text;
+            } else{
+                $row->text = "[LPM] ".$row->text;
             }
-            
-            $row->text = "[LPM] ".$row->text;
 
             return $row;
         });
