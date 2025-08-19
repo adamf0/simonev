@@ -20,6 +20,10 @@ class LaporanController extends Controller
      */
     public function rekap()
     {
+        $level = session()->get('level');
+        $fakultas = session()->get('fakultas');
+        $prodi = session()->get('prodi');
+        
         $listUnit = Pengangkatan::select('unit_kerja', DB::raw('rtrim(REPLACE(unit_kerja, "F.", "Fakultas")) as text'))->distinct()->get()->filter(fn($item)=>!empty($item->text))->values();
         $listMahasiswa = Mahasiswa::select('nim','nama_mahasiswa','kode_fak','kode_prodi')->get();
         $listDosen = DosenTendik::whereNotNull('nidn')->get();
@@ -43,7 +47,39 @@ class LaporanController extends Controller
                                     "prodis" => $prodis
                                 ];
                             });
-        $listBankSoal = BankSoal::select('id',DB::raw('judul as text'))->get();
+        
+        $listBankSoal = DB::table('v_bank_soal')->select('id',DB::raw('judul as text'), 'createdBy', 'target_list', 'peruntukan');
+        if($level=="fakultas"){
+            $listTarget = Prodi::where('kode_fak', $fakultas)->pluck('kode_prodi');
+
+            $listBankSoal = $listBankSoal
+                                ->where("createdBy", "fakultas")
+                                ->where(function($q) use ($listTarget) {
+                                    foreach ($listTarget as $kode) {
+                                        $q->orWhereRaw('JSON_CONTAINS(target_list, ?)', [json_encode($kode)]);
+                                    }
+                                });
+        }
+        $listBankSoal = $listBankSoal->get()->map(function($row){
+            if($row->createdBy=="fakultas"){
+                $targetList = json_decode($row?->target_list ?? '[]', true);
+                $targetList = in_array("all",$targetList)? []:$targetList;
+                $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
+                        ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
+                        ->whereIn("m_program_studi.kode_prodi",$targetList)
+                        ->distinct()
+                        ->get()
+                        ->pluck("text")
+                        ->toArray();
+    
+                $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
+                return $row->text;
+            }
+            
+            $row->text = "[LPM] ".$row->text;
+
+            return $row;
+        });
 
         return Inertia::render('Laporan/Rekap', [
             'kode_fakultas'=>session()->get('level')=="fakultas"? session()->get('fakultas'):null, 
@@ -100,17 +136,22 @@ class LaporanController extends Controller
                                 });
         }
         $listBankSoal = $listBankSoal->get()->map(function($row){
-            $targetList = json_decode($row?->target_list ?? '[]', true);
-            $targetList = in_array("all",$targetList)? []:$targetList;
-            $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
-                    ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
-                    ->whereIn("m_program_studi.kode_prodi",$targetList)
-                    ->distinct()
-                    ->get()
-                    ->pluck("text")
-                    ->toArray();
-
-            $row->text = count($targetList) && $row->createdBy=="fakultas"? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
+            if($row->createdBy=="fakultas"){
+                $targetList = json_decode($row?->target_list ?? '[]', true);
+                $targetList = in_array("all",$targetList)? []:$targetList;
+                $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
+                        ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
+                        ->whereIn("m_program_studi.kode_prodi",$targetList)
+                        ->distinct()
+                        ->get()
+                        ->pluck("text")
+                        ->toArray();
+    
+                $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
+                return $row->text;
+            }
+            
+            $row->text = "[LPM] ".$row->text;
 
             return $row;
         });
