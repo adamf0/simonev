@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class AkunSimpeg extends Model
 {
-    protected $table = 'pengguna';
-    protected $connection = 'simpeg';
+    protected $table = 'pengguna_simpeg';
+    // protected $connection = 'simpeg';
     protected $fillable = ['*'];
 
     public function Pengangkatan():HasOne{

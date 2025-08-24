@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Dosen extends Model
 {
-    protected $table = 'm_dosen';
+    protected $table = 'm_dosen_simak';
     // protected $connection = 'simak';
     protected $fillable = ['*'];
 
