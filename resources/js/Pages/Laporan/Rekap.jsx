@@ -178,7 +178,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                                                 }}>
                                                 <option value=""></option>
                                                 {
-                                                    listDosen.map(dosen => <option value={dosen.nidn} selected={dosen.nidn==nidn}>{dosen.nidn} - {dosen.nama}</option>)
+                                                    listDosen.map(dosen => <option value={dosen.NIDN} selected={dosen.NIDN==nidn}>{dosen.NIDN} - {dosen.nama_dosen}</option>)
                                                 }
                                             </select>
                                         </div>
