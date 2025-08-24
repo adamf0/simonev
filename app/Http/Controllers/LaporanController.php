@@ -27,8 +27,8 @@ class LaporanController extends Controller
         $listUnit = Pengangkatan::select('unit_kerja', DB::raw('rtrim(REPLACE(unit_kerja, "F.", "Fakultas")) as text'))->distinct()->get()->filter(fn($item)=>!empty($item->text))->values();
         $listMahasiswa = Mahasiswa::select('nim','nama_mahasiswa','kode_fak','kode_prodi')->get();
         $listDosen = DosenTendik::whereNotNull('nidn')->get();
-        $listTendik = DosenTendik::select('v_tendik.*','n_pengangkatan.unit_kerja')
-                        ->join('n_pengangkatan','v_tendik.nip','=','n_pengangkatan.nip')
+        $listTendik = DosenTendik::select('v_tendik.*','n_pengangkatan_simpeg.unit_kerja')
+                        ->join('n_pengangkatan_simpeg','v_tendik.nip','=','n_pengangkatan_simpeg.nip')
                         ->whereNotNull('v_tendik.nip')
                         ->get();
         $listFakultas = Fakultas::select('kode_fakultas', 'nama_fakultas')
@@ -65,8 +65,8 @@ class LaporanController extends Controller
                 $targetList = json_decode($row?->target_list ?? '[]', true);
                 $targetList = in_array("all",$targetList)? []:$targetList;
                 $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
-                        ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
-                        ->whereIn("m_program_studi.kode_prodi",$targetList)
+                        ->join("m_program_studi_simak", "m_program_studi_simak.kode_fak","=","m_fakultas_simak.kode_fakultas")
+                        ->whereIn("m_program_studi_simak.kode_prodi",$targetList)
                         ->distinct()
                         ->get()
                         ->pluck("text")
@@ -139,8 +139,8 @@ class LaporanController extends Controller
                 $targetList = json_decode($row?->target_list ?? '[]', true);
                 $targetList = in_array("all",$targetList)? []:$targetList;
                 $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
-                        ->join("m_program_studi", "m_program_studi.kode_fak","=","m_fakultas.kode_fakultas")
-                        ->whereIn("m_program_studi.kode_prodi",$targetList)
+                        ->join("m_program_studi_simak", "m_program_studi_simak.kode_fak","=","m_fakultas_simak.kode_fakultas")
+                        ->whereIn("m_program_studi_simak.kode_prodi",$targetList)
                         ->distinct()
                         ->get()
                         ->pluck("text")
