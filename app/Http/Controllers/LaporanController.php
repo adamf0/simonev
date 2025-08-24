@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BankSoal;
+use App\Models\Dosen;
 use App\Models\DosenTendik;
 use App\Models\Fakultas;
 use App\Models\KuesionerJawaban;
@@ -26,7 +27,7 @@ class LaporanController extends Controller
         
         $listUnit = Pengangkatan::select('unit_kerja', DB::raw('rtrim(REPLACE(unit_kerja, "F.", "Fakultas")) as text'))->distinct()->get()->filter(fn($item)=>!empty($item->text))->values();
         $listMahasiswa = Mahasiswa::select('nim','nama_mahasiswa','kode_fak','kode_prodi')->get();
-        $listDosen = DosenTendik::whereNotNull('nidn')->get();
+        $listDosen = Dosen::get();
         $listTendik = DosenTendik::select('v_tendik.*','n_pengangkatan_simpeg.unit_kerja')
                         ->join('n_pengangkatan_simpeg','v_tendik.nip','=','n_pengangkatan_simpeg.nip')
                         ->whereNotNull('v_tendik.nip')
