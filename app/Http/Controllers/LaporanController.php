@@ -148,7 +148,7 @@ class LaporanController extends Controller
                         ->toArray();
     
                 $row->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$row->text):$row->text;
-                return $row->text;
+                return $row;
             }
             
             $row->text = "[LPM] ".$row->text;
