@@ -115,10 +115,11 @@ function Laporan({level, listBankSoal=[]}) {
     }
 
 
-    const { fakultasCompleteCount, prodiCompleteCount, unitCompleteCount } = useMemo(() => {
+    const { fakultasCompleteCount, prodiCompleteCount, unitCompleteCount, totalData } = useMemo(() => {
         const fakultasResult = {};
         const prodiResult = {};
         const unitResult = {};
+        let totalData = 0;
     
         if (!loading && allData?.length > 0) {
           const filteredComplete = allData?.filter(item => item.status_pengisian === "isi lengkap");
@@ -139,6 +140,7 @@ function Laporan({level, listBankSoal=[]}) {
             fakultasResult[namaFak] = (fakultasResult[namaFak] || 0) + 1;
             prodiResult[namaProdi] = (prodiResult[namaProdi] || 0) + 1;
             unitResult[namaUnit] = (unitResult[namaUnit] || 0) + 1;
+            totalData += 1;
           });
         }
     
@@ -239,7 +241,14 @@ function Laporan({level, listBankSoal=[]}) {
                 if(fakultasLabels.length > 0 && fakultasValues.length>0){
                     return <div className="row">
                                 <div className="col-xl-9 col-lg-9 col-md-8 col-sm-12" style={{ maxHeight: "300px" }}>
-                                    <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />
+                                    <div className="row">
+                                        <div className="col-12">
+                                            <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />
+                                        </div>
+                                        <div className="col-12">
+                                            <h3>Total Data: <b className="text-success">{totalData}</b></h3>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="col-xl-3 col-lg-3 col-md-4 col-sm-12">
                                     <div style={{ maxHeight: "300px", overflowY: "scroll" }}>
