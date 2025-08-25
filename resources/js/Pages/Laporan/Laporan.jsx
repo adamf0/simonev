@@ -241,14 +241,7 @@ function Laporan({level, listBankSoal=[]}) {
                 if(fakultasLabels.length > 0 && fakultasValues.length>0){
                     return <div className="row">
                                 <div className="col-xl-9 col-lg-9 col-md-8 col-sm-12" style={{ maxHeight: "300px" }}>
-                                    <div className="row">
-                                        <div className="col-12">
-                                            <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />
-                                        </div>
-                                        <div className="col-12">
-                                            <h3>Total Data: <b className="text-success">{totalData}</b></h3>
-                                        </div>
-                                    </div>
+                                    <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />
                                 </div>
                                 <div className="col-xl-3 col-lg-3 col-md-4 col-sm-12">
                                     <div style={{ maxHeight: "300px", overflowY: "scroll" }}>
@@ -264,6 +257,9 @@ function Laporan({level, listBankSoal=[]}) {
                                         </div>
                                         ))}
                                     </div>
+                                </div>
+                                <div className="col-12">
+                                    <h3>Total Data: <b className="text-success">{totalData}</b></h3>
                                 </div>
                     </div>
                 }
@@ -292,6 +288,9 @@ function Laporan({level, listBankSoal=[]}) {
                 return <div className="row">
                         <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12" >
                             <Bar type="pie" {...makePieConfig(prodiLabels, prodiValues, true)} />
+                        </div>
+                        <div className="col-12">
+                            <h3>Total Data: <b className="text-success">{totalData}</b></h3>
                         </div>
                     </div>
             }
@@ -332,6 +331,9 @@ function Laporan({level, listBankSoal=[]}) {
                                         </div>
                                         ))}
                                     </div>
+                                </div>
+                                <div className="col-12">
+                                    <h3>Total Data: <b className="text-success">{totalData}</b></h3>
                                 </div>
                     </div>
             }
