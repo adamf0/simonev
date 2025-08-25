@@ -144,7 +144,7 @@ function Laporan({level, listBankSoal=[]}) {
           });
         }
     
-        return { fakultasCompleteCount: fakultasResult, prodiCompleteCount: prodiResult, unitCompleteCount:unitResult };
+        return { fakultasCompleteCount: fakultasResult, prodiCompleteCount: prodiResult, unitCompleteCount:unitResult, totalData:totalData };
       }, [allData, loading]);
 
       const makePieConfig = (labels, rawData, isstatic=false) => {
