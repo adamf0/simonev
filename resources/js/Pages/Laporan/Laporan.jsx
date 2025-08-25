@@ -515,7 +515,7 @@ function Laporan({level, listBankSoal=[]}) {
 
                         <div class="col-xl-9 col-lg-9 col-md-8 col-sm-12">
                             <div class="card px-4 py-3">
-                                <div className="">
+                                <div className="row gap-5">
                                 {
                                         colChart==0 && 
                                         <div class="col-12">
