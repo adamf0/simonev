@@ -383,13 +383,11 @@ class LaporanApiController extends Controller
         $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
                             ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
                             ->get();
-
-
-        dd($listPertanyaan);
+                            
         foreach($listPertanyaan as $pertanyaan){
-            if($pertanyaan->pertanyaan == "Keterpahaman Visi, Misi, Tujuan, dan Strategi (VMTS) Universitas Pakuan (C1)"){
-                                    dd($pertanyaan);
-                                }
+            if($pertanyaan->pertanyaan == "Keterpahaman Visi, Misi, Tujuan, dan Strategi (VMTS) Universitas Pakuan"){
+                dd($pertanyaan);
+            }
             $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
                                     $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                                                 ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
