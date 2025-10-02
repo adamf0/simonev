@@ -307,7 +307,7 @@ class LaporanApiController extends Controller
         $labels2 = [];
 
         if($branchBankSoal != null){
-            $bankSoal = DB::table('v_bank_soal')->whereIn('id', $branchBankSoal)->first();
+            $bankSoal = DB::table('v_bank_soal')->where('id', $branchBankSoal)->first();
             $targetList = json_decode($bankSoal?->target_list ?? '[]', true);
             $targetList = in_array("all",$targetList)? []:$targetList;
 
