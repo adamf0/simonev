@@ -430,20 +430,20 @@ class LaporanApiController extends Controller
                                     ];
                                 }
                                 return $pertanyaan;
-                            })
-                            ->reduce(function($carry, $item) {
-                                $kategori = $item->Kategori?->nama_kategori ?? "unknown";
-                                $sub_kategori = $item->SubKategori?->nama_sub ?? "";
-                                $pattern = "$kategori#$sub_kategori";
+                            });
+                            // ->reduce(function($carry, $item) {
+                            //     $kategori = $item->Kategori?->nama_kategori ?? "unknown";
+                            //     $sub_kategori = $item->SubKategori?->nama_sub ?? "";
+                            //     $pattern = "$kategori#$sub_kategori";
 
-                                $carry[$pattern][] = [
-                                    "pertanyaan"=>$item->pertanyaan,
-                                    "jenis_pilihan"=>$item->jenis_pilihan,
-                                    "chart"=>$item->chart,
-                                ];
+                            //     $carry[$pattern][] = [
+                            //         "pertanyaan"=>$item->pertanyaan,
+                            //         "jenis_pilihan"=>$item->jenis_pilihan,
+                            //         "chart"=>$item->chart,
+                            //     ];
 
-                                return $carry;
-                            }, []);
+                            //     return $carry;
+                            // }, []);
 
         return json_encode($listPertanyaan);
     }
