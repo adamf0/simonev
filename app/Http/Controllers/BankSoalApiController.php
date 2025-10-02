@@ -66,7 +66,7 @@ class BankSoalApiController extends Controller
 
                 $number = 3;
                 $rule["target_list_all"] = $targetListInput;
-                $rule["target_fakultas"] = Prodi::with(["fakultas"])->whereIn("kode_prodi",$targetListInput)->get()->pluck("fakultas.nama_fakultas")->unique()->values();
+                $rule["target_fakultas"] = Prodi::with(["fakultas"])->whereIn("kode_prodi",$targetListInput)->get()->pluck("fakultas.kode_fakultas")->unique()->values();
                 $rule["target_list"] = count($target_list)>$number? array_merge(array_slice($target_list, 0, $number), ["+".(count($target_list)-$number)." prodi"]):$target_list;
             } 
 

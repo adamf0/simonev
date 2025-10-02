@@ -30,7 +30,6 @@ class BankSoalController extends Controller
         
         $listTarget = array_values(array_unique(array_merge($prodi->pluck("id")->toArray(), [session()->get("unit")])));
 
-        dd(session()->all());
         return Inertia::render('BankSoal/BankSoal', ["listTarget"=> $listTarget, "level"=>session()->get('level'), "fakultas"=>session()->get('fakultas'),"prodi"=>session()->get('prodi'), "listUnit"=>$unit, "listProdi"=>$prodi, "listMahahsiswa"=>$mahasiswa,]);
     }
 
