@@ -488,7 +488,7 @@ class LaporanApiController extends Controller
                             //     return $carry;
                             // }, []);
 
-        return json_encode($listPertanyaan);
+        // return json_encode($listPertanyaan);
     }
 
     public function laporan(Request $request){
