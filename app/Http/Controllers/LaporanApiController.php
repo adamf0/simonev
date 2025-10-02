@@ -389,7 +389,7 @@ class LaporanApiController extends Controller
                                                 ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
                                                 ->where('id_template_pertanyaan','like',"%$pertanyaan->pertanyaan%")
                                                 ->where('id_template_jawaban','like',"%$jawaban->jawaban%")
-                                                ->count();
+                                                ->toRawSql();
                                                 
                                     $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
                                     $jawaban->total = $results;
