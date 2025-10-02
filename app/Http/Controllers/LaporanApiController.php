@@ -386,9 +386,11 @@ class LaporanApiController extends Controller
                             ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal){
                                 $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
                                     $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                                                ->join('template_pertanyaan as tp', 'kj.id_template_pertanyaan', '=', 'tp.id')
+                                                ->join('template_pilihan as tp2', 'kj.id_template_jawaban', '=', 'tp2.id')
                                                 ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
-                                                ->where('id_template_pertanyaan','like',"%$pertanyaan->pertanyaan%")
-                                                ->where('id_template_jawaban','like',"%$jawaban->jawaban%")
+                                                ->where('tp.nama','like',"%$pertanyaan->pertanyaan%")
+                                                ->where('tp2.nama','like',"%$jawaban->jawaban%")
                                                 ->toRawSql();
                                                 
                                     $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
