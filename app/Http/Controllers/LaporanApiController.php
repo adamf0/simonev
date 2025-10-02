@@ -389,8 +389,8 @@ class LaporanApiController extends Controller
                                                 ->join('template_pertanyaan as tp', 'kj.id_template_pertanyaan', '=', 'tp.id')
                                                 ->join('template_pilihan as tp2', 'kj.id_template_jawaban', '=', 'tp2.id')
                                                 ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
-                                                ->where('tp.nama','like',"%$pertanyaan->pertanyaan%")
-                                                ->where('tp2.nama','like',"%$jawaban->jawaban%")
+                                                ->where('tp.pertanyaan','like',"%$pertanyaan->pertanyaan%")
+                                                ->where('tp2.jawaban','like',"%$jawaban->jawaban%")
                                                 ->count();
                                                 
                                     $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
