@@ -479,6 +479,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         target_type: ${item.rule?.target_type},
         type: ${item.rule?.type},
         target_list_all: ${target_list_all},
+        target_fakultas: ${item.target_fakultas}
         listTarget: ${listTarget.concat(["all"])},
         item.rule: ${item.rule}
         `
