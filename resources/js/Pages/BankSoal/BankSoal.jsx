@@ -467,6 +467,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         return [...output];
     }
     const target_list_all = item.rule?.target_list_all ?? [];
+    const target_fakultas = item.rule?.target_fakultas ?? [];
     const match = (target_list_all ?? []).some(item => listTarget.includes(item) || item === "all");
 
     console.log(`
@@ -479,7 +480,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         target_type: ${item.rule?.target_type},
         type: ${item.rule?.type},
         target_list_all: ${target_list_all},
-        target_fakultas: ${item.target_fakultas}
+        target_fakultas: ${target_fakultas}
         listTarget: ${listTarget.concat(["all"])},
         item.rule: ${item.rule}
         `
@@ -508,13 +509,13 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
             <td>
                 <div className="d-flex justify-content-center gap-2">
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && item.target_fakultas.includes(fakultas))) && 
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) && 
                         <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
                             <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
                     }
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && item.target_fakultas.includes(fakultas))) &&
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
                         <button
                             className="btn"
                             disabled={loading}
@@ -528,13 +529,13 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
                         </button>
                     }
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && item.target_fakultas.includes(fakultas))) &&
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
                         <button className="btn" disabled={loading} onClick={() => openCopy(item.id, item.judul)}>
                             <i className="bi bi-copy text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
                     }
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && item.target_fakultas.includes(fakultas))) &&
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
                         <button className="btn" disabled={loading} onClick={() => openPertanyaan(item.id)}>
                             <i className="bi bi-arrow-right-circle text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
