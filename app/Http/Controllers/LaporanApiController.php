@@ -382,9 +382,9 @@ class LaporanApiController extends Controller
 
         $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
                             ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
-                            ->get()
-                            ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal){
-                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
+                            ->get();
+        foreach($listPertanyaan as $pertanyaan){
+            $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
                                     $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                                                 ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
                                                 ->where('id_template_pertanyaan','like',"%$pertanyaan->pertanyaan%")
@@ -398,10 +398,9 @@ class LaporanApiController extends Controller
                                 $labels = $pertanyaan->TemplatePilihan->pluck('jawaban')->toArray();
                                 $data = $pertanyaan->TemplatePilihan->pluck('total')->toArray();
 
-                                if($pertanyaan->pertanyaan=="Keterpahaman Visi, Misi, Tujuan, dan Strategi (VMTS) Universitas Pakuan (C1)"){
-                                    break;
+                                if($pertanyaan->pertanyaan == "Keterpahaman Visi, Misi, Tujuan, dan Strategi (VMTS) Universitas Pakuan (C1)"){
+                                    dd($pertanyaan);
                                 }
-
                                 if($pertanyaan->jenis_pilihan=="rating5"){
                                     $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
                                     $pertanyaan->chart = [
@@ -430,7 +429,51 @@ class LaporanApiController extends Controller
                                     ];
                                 }
                                 return $pertanyaan;
-                            });
+        }
+                            // ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal){
+                            //     $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
+                            //         $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                            //                     ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+                            //                     ->where('id_template_pertanyaan','like',"%$pertanyaan->pertanyaan%")
+                            //                     ->where('id_template_jawaban','like',"%$jawaban->jawaban%")
+                            //                     ->count();
+                                                
+                            //         $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
+                            //         $jawaban->total = $results;
+                            //     });
+
+                            //     $labels = $pertanyaan->TemplatePilihan->pluck('jawaban')->toArray();
+                            //     $data = $pertanyaan->TemplatePilihan->pluck('total')->toArray();
+
+                            //     if($pertanyaan->jenis_pilihan=="rating5"){
+                            //         $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
+                            //         $pertanyaan->chart = [
+                            //             "labels" => $labels,
+                            //             "datasets" => [
+                            //                 [
+                            //                     "label" => 'Dataset 1',
+                            //                     "data" => $data,
+                            //                     "backgroundColor" => $colors,
+                            //                 ],
+                            //             ],
+                            //         ];
+                            //     } else{
+                            //         $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
+                            //         $pertanyaan->chart = [
+                            //             "labels"=> $labels,
+                            //             "datasets"=> [
+                            //               [
+                            //                 "label"=> '# Total',
+                            //                 "data"=> $data,
+                            //                 "backgroundColor"=> $colors,
+                            //                 "borderColor"=> $colors,
+                            //                 "borderWidth"=> 1,
+                            //               ],
+                            //             ],
+                            //         ];
+                            //     }
+                            //     return $pertanyaan;
+                            // })
                             // ->reduce(function($carry, $item) {
                             //     $kategori = $item->Kategori?->nama_kategori ?? "unknown";
                             //     $sub_kategori = $item->SubKategori?->nama_sub ?? "";
