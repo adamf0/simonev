@@ -400,10 +400,6 @@ class LaporanApiController extends Controller
                                 $labels = $pertanyaan->TemplatePilihan->pluck('jawaban')->toArray();
                                 $data = $pertanyaan->TemplatePilihan->pluck('total')->toArray();
 
-                                if($pertanyaan->kategori->nama_kategori=="Keterpahaman Visi, Misi, Tujuan, dan Strategi (VMTS) Universitas Pakuan (C1)"){
-                                    dd($pertanyaan);
-                                }
-
                                 if($pertanyaan->jenis_pilihan=="rating5"){
                                     $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
                                     $pertanyaan->chart = [
