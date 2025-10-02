@@ -398,8 +398,8 @@ class LaporanApiController extends Controller
                                 $labels = $pertanyaan->TemplatePilihan->pluck('jawaban')->toArray();
                                 $data = $pertanyaan->TemplatePilihan->pluck('total')->toArray();
 
-                                if($pertanyaan->pertanyaan!="Keterpahaman Visi, Misi, Tujuan, dan Strategi (VMTS) Universitas Pakuan (C1)"){
-                                    continue;
+                                if($pertanyaan->pertanyaan=="Keterpahaman Visi, Misi, Tujuan, dan Strategi (VMTS) Universitas Pakuan (C1)"){
+                                    break;
                                 }
 
                                 if($pertanyaan->jenis_pilihan=="rating5"){
