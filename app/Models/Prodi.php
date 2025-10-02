@@ -11,7 +11,7 @@ class Prodi extends Model
     // protected $connection = 'simak';
     protected $fillable = ['*'];
 
-    function Fakultas(): HasOne{
+    function fakultas(): HasOne{
         return $this->hasOne(Fakultas::class, 'kode_fakultas', 'kode_fak');
     }
 }
