@@ -383,6 +383,9 @@ class LaporanApiController extends Controller
         $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
                             ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
                             ->get();
+
+
+        dd($listPertanyaan);
         foreach($listPertanyaan as $pertanyaan){
             if($pertanyaan->pertanyaan == "Keterpahaman Visi, Misi, Tujuan, dan Strategi (VMTS) Universitas Pakuan (C1)"){
                                     dd($pertanyaan);
@@ -488,7 +491,7 @@ class LaporanApiController extends Controller
                             //     return $carry;
                             // }, []);
 
-        // return json_encode($listPertanyaan);
+        return json_encode($listPertanyaan);
     }
 
     public function laporan(Request $request){
