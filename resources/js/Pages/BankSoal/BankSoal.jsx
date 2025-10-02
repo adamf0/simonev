@@ -469,18 +469,19 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
     const target_list_all = item.rule?.target_list_all ?? [];
     const match = (target_list_all ?? []).some(item => listTarget.includes(item) || item === "all");
 
-    console.log(
-        item.id,
-        level,
-        fakultas, 
-        prodi,
-        item.createdBy,
-        item.branch,
-        item.rule?.target_type,
-        item.rule?.type,
-        target_list_all,
-        listTarget.concat(["all"]),
-        item.rule
+    console.log(`
+        id: ${item.id},
+        level: ${level},
+        fakultas: ${fakultas}, 
+        prodi: ${prodi},
+        createdBy: ${item.createdBy},
+        branch: ${item.branch},
+        target_type: ${item.rule?.target_type},
+        type: ${item.rule?.type},
+        target_list_all: ${target_list_all},
+        listTarget: ${listTarget.concat(["all"])},
+        item.rule: ${item.rule}
+        `
     )
     return (
         <tr key={item.id}>
