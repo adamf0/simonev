@@ -237,7 +237,7 @@ class LaporanApiController extends Controller
             throw new InvalidArgumentException("bank soal '$id_bank_soal' tidak terdaftar di sistem");
         }
         
-        $bankSoal = DB::table('v_bank_soal')->whereIn('id', $id_bank_soal)->first();
+        $bankSoal = DB::table('v_bank_soal')->where('id', $id_bank_soal)->first();
         $targetList = json_decode($bankSoal?->target_list ?? '[]', true);
         $targetList = in_array("all",$targetList)? []:$targetList;
 
