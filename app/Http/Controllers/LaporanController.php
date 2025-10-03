@@ -110,8 +110,10 @@ class LaporanController extends Controller
                                 });
         }
         $listBankSoal = $listBankSoal->get()->map(function($row){
-            $row->target_list_name = empty($row->target_list_name)? []:explode(",",$row->target_list_name);
-            
+            $row->target_list_name = empty($row->target_list) 
+                                        ? [] 
+                                        : array_map('trim', explode(',', $row->target_list));
+
             if($row->createdBy=="fakultas"){
                 $targetList = json_decode($row?->target_list ?? '[]', true);
                 $targetList = in_array("all",$targetList)? []:$targetList;
