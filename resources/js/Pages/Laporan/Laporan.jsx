@@ -498,6 +498,7 @@ function Laporan({level, listBankSoal=[]}) {
                                             setColChart(1)
                                         }
 
+                                        console.log(listBankSoal.find(l => l.id == e.target.value))
                                         changeFilter("bankSoal",e.target.value);
                                         changeFilter("target",bs.target_type);
                                     }}>
