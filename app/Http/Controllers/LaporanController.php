@@ -110,10 +110,6 @@ class LaporanController extends Controller
                                 });
         }
         $listBankSoal = $listBankSoal->get()->map(function($row){
-            $row->target_list_name = empty($row->target_list) 
-                                        ? [] 
-                                        : array_map('trim', explode(',', $row->target_list));
-
             if($row->createdBy=="fakultas"){
                 $targetList = json_decode($row?->target_list ?? '[]', true);
                 $targetList = in_array("all",$targetList)? []:$targetList;
@@ -175,7 +171,55 @@ class LaporanController extends Controller
                             ->pluck('tahun_masuk'),
             default=>collect([]),
         };
-        $listBankSoal = DB::table('v_bank_soal')->select('id',DB::raw('judul as text'), 'createdBy', 'target_list', 'peruntukan');
+        $listBankSoal = DB::table('v_bank_soal as bs')
+        ->select(
+            'bs.id',
+            DB::raw('bs.judul as text'),
+            'bs.createdBy',
+            'bs.target_type',
+            'bs.target_list',
+            'bs.peruntukan',
+            DB::raw("
+                CASE 
+                    WHEN bs.target_type = 'prodi' THEN (
+                        CASE 
+                            WHEN JSON_CONTAINS(bs.target_list, '\"all\"') THEN 
+                                (SELECT GROUP_CONCAT(p.nama_prodi SEPARATOR ', ') 
+                                 FROM m_program_studi_simak p)
+                            ELSE
+                                (SELECT GROUP_CONCAT(p.nama_prodi SEPARATOR ', ')
+                                 FROM JSON_TABLE(bs.target_list, '$[*]' 
+                                     COLUMNS (kode_prodi VARCHAR(10) PATH '$')
+                                 ) jt
+                                 JOIN m_program_studi_simak p 
+                                     ON p.kode_prodi = jt.kode_prodi)
+                        END
+                    )
+                    WHEN bs.target_type = 'unit' THEN (
+                        CASE 
+                            WHEN JSON_CONTAINS(bs.target_list, '\"all\"') THEN 
+                                (SELECT GROUP_CONCAT(
+                                            RTRIM(REPLACE(u.unit_kerja, 'F.', 'Fakultas')) 
+                                            SEPARATOR ', '
+                                        )
+                                 FROM n_pengangkatan_simpeg u)
+                            ELSE
+                                (SELECT GROUP_CONCAT(
+                                            RTRIM(REPLACE(u.unit_kerja, 'F.', 'Fakultas')) 
+                                            SEPARATOR ', '
+                                        )
+                                 FROM JSON_TABLE(bs.target_list, '$[*]' 
+                                     COLUMNS (kode_unit VARCHAR(255) PATH '$')
+                                 ) jt
+                                 JOIN n_pengangkatan_simpeg u 
+                                     ON u.unit_kerja = jt.kode_unit)
+                        END
+                    )
+                    ELSE NULL
+                END AS target_list_name
+            ")
+        );
+
         if($level=="fakultas"){
             $listTarget = Prodi::where('kode_fak', $fakultas)->pluck('kode_prodi');
 
@@ -188,6 +232,10 @@ class LaporanController extends Controller
                                 });
         }
         $listBankSoal = $listBankSoal->get()->map(function($row){
+            $row->target_list_name = empty($row->target_list) 
+                                        ? [] 
+                                        : array_map('trim', explode(',', $row->target_list));
+                                        
             if($row->createdBy=="fakultas"){
                 $targetList = json_decode($row?->target_list ?? '[]', true);
                 $targetList = in_array("all",$targetList)? []:$targetList;
