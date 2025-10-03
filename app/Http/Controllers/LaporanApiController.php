@@ -166,7 +166,7 @@ class LaporanApiController extends Controller
 
         $target = $request?->target;
         $target_value = $request?->target_value;
-        
+
         return Response::stream(function () use (&$totalChunks, &$id_bank_soal, &$branchBankSoal, $target , $target_value ) {
                 $query = VKuesioner::select(
                         "*",
@@ -269,7 +269,7 @@ class LaporanApiController extends Controller
                 ]);
                 if (!empty($target) && !empty($target_value)) {
                     $query = $query->where("v_kuesioner.peruntukan", $target);
-                    $query = $query->having('v_kuesioner.target_list_name', 'LIKE', "%$target_value%");
+                    $query = $query->having('target_list_name', 'LIKE', "%$target_value%");
                 }
                 
                 $query = $query->whereIn("id_bank_soal",[$id_bank_soal, $branchBankSoal])
