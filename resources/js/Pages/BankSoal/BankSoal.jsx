@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 // import { Inertia } from '@inertiajs/inertia';
 
-function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listMahahsiswa=[], listTarget=[]}) {
+function BankSoal({level=null, fakultas=null, prodi=null, listUnit=[], listFakultas=[], listProdi=[], listMahahsiswa=[], listTarget=[]}) {
     const dispatch = useDispatch();
     const bankSoals = useSelector((state) => state.bankSoal.bankSoals);
     const action_type = useSelector((state) => state.bankSoal.action_type);
@@ -382,6 +382,8 @@ function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listM
                                     </thead>
                                     <BankSoal.BankSoalsBody
                                             level={level}
+                                            fakultas={fakultas}
+                                            prodi={prodi}
                                             action_type={action_type}
                                             bankSoals={bankSoals}
                                             loading={loading}
@@ -412,7 +414,7 @@ function BankSoal({level=null, listUnit=[], listFakultas=[], listProdi=[], listM
     );
 }
 
-BankSoal.BankSoalsBody = ({ level, action_type, bankSoals, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan, createBranch, listTarget }) => {
+BankSoal.BankSoalsBody = ({ level, fakultas, prodi, action_type, bankSoals, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan, createBranch, listTarget }) => {
     if (action_type === FETCH_BANK_SOALS_REQUEST) {
         return <BankSoal.LoadingRow />;
     } else if (action_type === FETCH_BANK_SOALS_FAILURE) {
@@ -424,6 +426,8 @@ BankSoal.BankSoalsBody = ({ level, action_type, bankSoals, loading, changeSelect
                     <BankSoal.BankSoalsRow 
                         key={item.id}
                         level={level}
+                        fakultas={fakultas}
+                        prodi={prodi}
                         item={item}
                         loading={loading}
                         changeSelected={changeSelected}
@@ -440,7 +444,7 @@ BankSoal.BankSoalsBody = ({ level, action_type, bankSoals, loading, changeSelect
         );
     }
 };
-BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan, createBranch,listTarget }) => { 
+BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected, openEdit, changeStatusHandler, openPertanyaan, openCopy, previewPertanyaan, createBranch,listTarget }) => { 
     function renderAturan(item){
         let output = [<span class="badge bg-secondary">{item.peruntukan}</span>];
         if(item.rule!=null || rule!="" || rule!="{}" || rule!=undefined){
@@ -463,18 +467,23 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
         return [...output];
     }
     const target_list_all = item.rule?.target_list_all ?? [];
+    const target_fakultas = item.rule?.target_fakultas ?? [];
     const match = (target_list_all ?? []).some(item => listTarget.includes(item) || item === "all");
 
-    console.log(
-        item.id,
-        level,
-        item.createdBy,
-        item.branch,
-        item.rule?.target_type,
-        item.rule?.type,
-        target_list_all,
-        listTarget.concat(["all"]),
-        item.rule
+    console.log(`
+        id: ${item.id},
+        level: ${level},
+        fakultas: ${fakultas}, 
+        prodi: ${prodi},
+        createdBy: ${item.createdBy},
+        branch: ${item.branch},
+        target_type: ${item.rule?.target_type},
+        type: ${item.rule?.type},
+        target_list_all: ${target_list_all},
+        target_fakultas: ${target_fakultas}
+        listTarget: ${listTarget.concat(["all"])},
+        item.rule: ${item.rule}
+        `
     )
     return (
         <tr key={item.id}>
@@ -500,13 +509,13 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
             <td>
                 <div className="d-flex justify-content-center gap-2">
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) && 
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) && 
                         <button className="btn" disabled={loading} onClick={() => openEdit(item.id)}>
                             <i className="bi bi-pencil text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
                     }
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) &&
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
                         <button
                             className="btn"
                             disabled={loading}
@@ -520,13 +529,13 @@ BankSoal.BankSoalsRow = ({ level, item, loading, changeSelected, openEdit, chang
                         </button>
                     }
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) &&
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
                         <button className="btn" disabled={loading} onClick={() => openCopy(item.id, item.judul)}>
                             <i className="bi bi-copy text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
                     }
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0)) &&
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
                         <button className="btn" disabled={loading} onClick={() => openPertanyaan(item.id)}>
                             <i className="bi bi-arrow-right-circle text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>

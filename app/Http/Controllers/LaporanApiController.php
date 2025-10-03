@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankSoal;
 use App\Models\Dosen;
 use App\Models\Fakultas;
 use App\Models\Kuesioner;
@@ -159,9 +160,11 @@ class LaporanApiController extends Controller
             throw new InvalidArgumentException("bank soal '$id_bank_soal' tidak terdaftar di sistem");
         }
 
+        $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
+
         $totalChunks = 0;
 
-        return Response::stream(function () use (&$totalChunks, &$id_bank_soal) {
+        return Response::stream(function () use (&$totalChunks, &$id_bank_soal, &$branchBankSoal) {
                 VKuesioner::with([
                     'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
                     'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
@@ -197,7 +200,7 @@ class LaporanApiController extends Controller
                     ) as nama_prodi_jenjang'), "nama_prodi"),
                     'Tendik',
                 ])
-                ->where("id_bank_soal",$id_bank_soal)
+                ->whereIn("id_bank_soal",[$id_bank_soal, $branchBankSoal])
                 ->chunk(500, function ($rows) use (&$totalChunks) {
                 $batch = $rows->map(function ($row) {
                     return [
@@ -233,7 +236,7 @@ class LaporanApiController extends Controller
         if(in_array($id_bank_soal, ["","undefinied",null])){
             throw new InvalidArgumentException("bank soal '$id_bank_soal' tidak terdaftar di sistem");
         }
-
+        
         $bankSoal = DB::table('v_bank_soal')->where('id', $id_bank_soal)->first();
         $targetList = json_decode($bankSoal?->target_list ?? '[]', true);
         $targetList = in_array("all",$targetList)? []:$targetList;
@@ -298,19 +301,96 @@ class LaporanApiController extends Controller
             return $carry;
         }, []);
 
-        return response()->json($labels);
+        ///
+
+        $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
+        $labels2 = [];
+
+        if($branchBankSoal != null){
+            $bankSoal = DB::table('v_bank_soal')->where('id', $branchBankSoal)->first();
+            $targetList = json_decode($bankSoal?->target_list ?? '[]', true);
+            $targetList = in_array("all",$targetList)? []:$targetList;
+
+            $list = match($type){
+                "fakultas"=>$bankSoal->createdBy=="fakultas" && count($targetList)>0?
+                    Fakultas::select(DB::raw('nama_fakultas as text'))
+                        ->join("m_program_studi_simak", "m_program_studi_simak.kode_fak","=","m_fakultas_simak.kode_fakultas")
+                        ->whereIn("m_program_studi_simak.kode_prodi",$targetList)
+                        ->distinct()
+                        ->get() : 
+                    Fakultas::select(DB::raw('nama_fakultas as text'))->distinct()->get(),
+                "prodi"=>(
+                    $bankSoal->createdBy=="fakultas" && count($targetList)>0?  
+                    Prodi::select(
+                        DB::raw('
+                        concat(
+                            `nama_prodi`, 
+                            " (",
+                            (
+                            case 
+                                when kode_jenjang = "C" then "S1"
+                                when kode_jenjang = "B" then "S2"
+                                when kode_jenjang = "A" then "S3"
+                                when kode_jenjang = "E" then "D3"
+                                when kode_jenjang = "D" then "D4"
+                                when kode_jenjang = "J" then "Profesi"
+                                else "?"
+                            end
+                            ),
+                            ")"
+                        ) as text')
+                    )->whereIn("kode_prodi", $targetList)->distinct()->get() : 
+                    Prodi::select(
+                    DB::raw('
+                    concat(
+                        `nama_prodi`, 
+                        " (",
+                        (
+                        case 
+                            when kode_jenjang = "C" then "S1"
+                            when kode_jenjang = "B" then "S2"
+                            when kode_jenjang = "A" then "S3"
+                            when kode_jenjang = "E" then "D3"
+                            when kode_jenjang = "D" then "D4"
+                            when kode_jenjang = "J" then "Profesi"
+                            else "?"
+                        end
+                        ),
+                        ")"
+                    ) as text')
+                )->distinct()->get()
+                ) ,
+                "unit"=>Pengangkatan::select(DB::raw('unit_kerja as text'))->distinct()->get(),
+                default=>collect([])
+            };
+
+            $labels2 = $list->pluck('text')->reduce(function($carry, $item) {
+                if(!empty($item)){
+                    $carry[] = $item;
+                }
+                return $carry;
+            }, []);
+        }
+
+        $labelsFinal = array_values(array_unique(array_merge($labels, $labels2)));
+
+        return response()->json($labelsFinal);
     }
 
     public function laporanV2($id_bank_soal){
+        $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
+
         $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
-                            ->where('id_bank_soal',$id_bank_soal)
+                            ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
                             ->get()
-                            ->map(function($pertanyaan) use(&$id_bank_soal){
-                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal){
+                            ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal){
+                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
                                     $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
-                                                ->where('kuesioner.id_bank_soal', $id_bank_soal)
-                                                ->where('id_template_pertanyaan',$pertanyaan->id)
-                                                ->where('id_template_jawaban',$jawaban->id)
+                                                ->join('template_pertanyaan as tp', 'kj.id_template_pertanyaan', '=', 'tp.id')
+                                                ->join('template_pilihan as tp2', 'kj.id_template_jawaban', '=', 'tp2.id')
+                                                ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+                                                ->where('tp.pertanyaan','like',"%$pertanyaan->pertanyaan%")
+                                                ->where('tp2.jawaban','like',"%$jawaban->jawaban%")
                                                 ->count();
                                                 
                                     $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
