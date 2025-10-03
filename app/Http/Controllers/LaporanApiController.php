@@ -512,6 +512,7 @@ class LaporanApiController extends Controller
                                             });
                                         });
                                     }
+                                    dd($results->toRawSql());
                                     $results = $results->count();
                                                 
                                     $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
