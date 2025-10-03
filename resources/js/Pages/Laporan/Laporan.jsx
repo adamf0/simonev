@@ -488,7 +488,7 @@ function Laporan({level, listBankSoal=[]}) {
                                             setChartFakultas(true)
                                             setChartProdi(true)
                                             setChartUnit(false)
-                                            setColChart(1)
+                                            setColChart(2)
                                         }
                                         if(bs.peruntukan=="tendik"){
                                             setChartFakultas(false)
