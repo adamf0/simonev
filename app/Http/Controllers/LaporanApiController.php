@@ -204,43 +204,45 @@ class LaporanApiController extends Controller
                     'Tendik',
                 ]);
                 
-                $query = $query->where(function($q) use ($target_value) {
-                    $q->whereHas('Mahasiswa.Prodi', function($q2) use ($target_value) {
-                        if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
-                            $nama = $matches[1];
-                            $jenjang = match($matches[2]) {
-                                'S1' => 'C',
-                                'S2' => 'B',
-                                'S3' => 'A',
-                                'D3' => 'E',
-                                'D4' => 'D',
-                                'Profesi' => 'J',
-                                default => null
-                            };
-                            $q2->where('nama_prodi', $nama)
-                               ->where('kode_jenjang', $jenjang);
-                        }
-                    })
-                    ->orWhereHas('Dosen.Prodi', function($q2) use ($target_value) {
-                        if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
-                            $nama = $matches[1];
-                            $jenjang = match($matches[2]) {
-                                'S1' => 'C',
-                                'S2' => 'B',
-                                'S3' => 'A',
-                                'D3' => 'E',
-                                'D4' => 'D',
-                                'Profesi' => 'J',
-                                default => null
-                            };
-                            $q2->where('nama_prodi', $nama)
-                               ->where('kode_jenjang', $jenjang);
-                        }
-                    })
-                    ->orWhereHas('Tendik', function($q2) use ($target_value) {
-                        $q2->where('unit', $target_value);
+                if (!empty($target) && !empty($target_value)) {
+                    $query = $query->where(function($q) use ($target_value) {
+                        $q->whereHas('Mahasiswa.Prodi', function($q2) use ($target_value) {
+                            if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
+                                $nama = $matches[1];
+                                $jenjang = match($matches[2]) {
+                                    'S1' => 'C',
+                                    'S2' => 'B',
+                                    'S3' => 'A',
+                                    'D3' => 'E',
+                                    'D4' => 'D',
+                                    'Profesi' => 'J',
+                                    default => null
+                                };
+                                $q2->where('nama_prodi', $nama)
+                                ->where('kode_jenjang', $jenjang);
+                            }
+                        })
+                        ->orWhereHas('Dosen.Prodi', function($q2) use ($target_value) {
+                            if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
+                                $nama = $matches[1];
+                                $jenjang = match($matches[2]) {
+                                    'S1' => 'C',
+                                    'S2' => 'B',
+                                    'S3' => 'A',
+                                    'D3' => 'E',
+                                    'D4' => 'D',
+                                    'Profesi' => 'J',
+                                    default => null
+                                };
+                                $q2->where('nama_prodi', $nama)
+                                ->where('kode_jenjang', $jenjang);
+                            }
+                        })
+                        ->orWhereHas('Tendik', function($q2) use ($target_value) {
+                            $q2->where('unit', $target_value);
+                        });
                     });
-                });                
+                }        
 
                 $query = $query->whereIn("id_bank_soal",[$id_bank_soal, $branchBankSoal])
                 ->chunk(500, function ($rows) use (&$totalChunks) {
@@ -421,19 +423,96 @@ class LaporanApiController extends Controller
 
     public function laporanV2($id_bank_soal, Request $request){
         $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
+        $target = $request?->target;
+        $target_value = $request?->target_value;
 
         $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
                             ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
                             ->get()
-                            ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal){
-                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
-                                    $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                            ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal, $target , $target_value){
+                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal, $target , $target_value){
+                                    $results = VKuesioner::with([
+                                                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
+                                                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                                                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                                                        concat(
+                                                            nama_prodi,
+                                                            case 
+                                                                when kode_jenjang = "C" then " (S1)"
+                                                                when kode_jenjang = "B" then " (S2)"
+                                                                when kode_jenjang = "A" then " (S3)"
+                                                                when kode_jenjang = "E" then " (D3)"
+                                                                when kode_jenjang = "D" then " (D4)"
+                                                                when kode_jenjang = "J" then " (Profesi)"
+                                                                else "?"
+                                                            end
+                                                        )    
+                                                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                                                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
+                                                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+                                                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
+                                                        concat(
+                                                            nama_prodi,
+                                                            case 
+                                                                when kode_jenjang = "C" then " (S1)"
+                                                                when kode_jenjang = "B" then " (S2)"
+                                                                when kode_jenjang = "A" then " (S3)"
+                                                                when kode_jenjang = "E" then " (D3)"
+                                                                when kode_jenjang = "D" then " (D4)"
+                                                                when kode_jenjang = "J" then " (Profesi)"
+                                                                else "?"
+                                                            end
+                                                        )    
+                                                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                                                    'Tendik',
+                                                ])
+                                                ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                                                 ->join('template_pertanyaan as tp', 'kj.id_template_pertanyaan', '=', 'tp.id')
                                                 ->join('template_pilihan as tp2', 'kj.id_template_jawaban', '=', 'tp2.id')
                                                 ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
                                                 ->where('tp.pertanyaan','like',"%$pertanyaan->pertanyaan%")
-                                                ->where('tp2.jawaban','like',"%$jawaban->jawaban%")
-                                                ->count();
+                                                ->where('tp2.jawaban','like',"%$jawaban->jawaban%");
+
+                                    if (!empty($target) && !empty($target_value)) {
+                                        $results = $results->where(function($q) use ($target_value) {
+                                            $q->whereHas('Mahasiswa.Prodi', function($q2) use ($target_value) {
+                                                if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
+                                                    $nama = $matches[1];
+                                                    $jenjang = match($matches[2]) {
+                                                        'S1' => 'C',
+                                                        'S2' => 'B',
+                                                        'S3' => 'A',
+                                                        'D3' => 'E',
+                                                        'D4' => 'D',
+                                                        'Profesi' => 'J',
+                                                        default => null
+                                                    };
+                                                    $q2->where('nama_prodi', $nama)
+                                                    ->where('kode_jenjang', $jenjang);
+                                                }
+                                            })
+                                            ->orWhereHas('Dosen.Prodi', function($q2) use ($target_value) {
+                                                if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
+                                                    $nama = $matches[1];
+                                                    $jenjang = match($matches[2]) {
+                                                        'S1' => 'C',
+                                                        'S2' => 'B',
+                                                        'S3' => 'A',
+                                                        'D3' => 'E',
+                                                        'D4' => 'D',
+                                                        'Profesi' => 'J',
+                                                        default => null
+                                                    };
+                                                    $q2->where('nama_prodi', $nama)
+                                                    ->where('kode_jenjang', $jenjang);
+                                                }
+                                            })
+                                            ->orWhereHas('Tendik', function($q2) use ($target_value) {
+                                                $q2->where('unit', $target_value);
+                                            });
+                                        });
+                                    }
+                                    $results = $results->count();
                                                 
                                     $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
                                     $jawaban->total = $results;
