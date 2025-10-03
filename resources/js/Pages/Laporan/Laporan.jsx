@@ -54,7 +54,7 @@ function Laporan({level, listBankSoal=[]}) {
     const { data: allData, loading, error } = useSelector(state => state.chartTotal);
 
     useEffect(() => {
-        console.log(`filters: ${filters}`);
+        console.log(filters);
         if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
             dispatch(fetchChartFakultasLabel(bankSoal));
         }
