@@ -4,12 +4,12 @@ export const FETCH_CHART_TOTAL_REQUEST = 'FETCH_CHART_TOTAL_REQUEST';
 export const FETCH_CHART_TOTAL_SUCCESS = 'FETCH_CHART_TOTAL_SUCCESS';
 export const FETCH_CHART_TOTAL_FAILURE = 'FETCH_CHART_TOTAL_FAILURE';
 
-export const fetchChartTotal = (id_bank_soal) => {
+export const fetchChartTotal = (id_bank_soal, target='', target_value='') => {
   return async (dispatch) => {
     dispatch({ type: FETCH_CHART_TOTAL_REQUEST });
 
     try {
-      const response = await fetch(`/api/kuesioner/chart/${id_bank_soal}`);
+      const response = await fetch(`/api/kuesioner/chart/${id_bank_soal}?target=${target}&target_value=${target_value}`);
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";

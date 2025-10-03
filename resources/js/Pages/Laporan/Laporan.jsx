@@ -68,11 +68,11 @@ function Laporan({level, listBankSoal=[]}) {
         }
 
         if(![null, "", undefined].includes(bankSoal)){
-            dispatch(fetchChart(bankSoal));
+            dispatch(fetchChart(bankSoal, filters?.target ?? '', filters?.target_value ?? ''));
         }
 
         if(![null, "", undefined].includes(bankSoal)){
-            dispatch(fetchChartTotal(bankSoal));
+            dispatch(fetchChartTotal(bankSoal, filters?.target ?? '', filters?.target_value ?? ''));
         }
 
     }, [filters]);

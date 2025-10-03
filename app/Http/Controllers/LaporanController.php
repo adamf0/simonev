@@ -184,10 +184,33 @@ class LaporanController extends Controller
                     WHEN bs.target_type = 'prodi' THEN (
                         CASE 
                             WHEN JSON_CONTAINS(bs.target_list, '\"all\"') THEN 
-                                (SELECT GROUP_CONCAT(p.nama_prodi SEPARATOR ', ') 
+                                (SELECT GROUP_CONCAT(
+                                    concat(
+                                        p.nama_prodi,
+                                        case 
+                                            when kode_jenjang = 'C' then ' (S1)'
+                                            when kode_jenjang = 'B' then ' (S2)'
+                                            when kode_jenjang = 'A' then ' (S3)'
+                                            when kode_jenjang = 'E' then ' (D3)'
+                                            when kode_jenjang = 'D' then ' (D4)'
+                                            when kode_jenjang = 'J' then ' (Profesi)'
+                                            else '(x)'
+                                        end
+                                    ) SEPARATOR ', ') 
                                  FROM m_program_studi_simak p)
                             ELSE
-                                (SELECT GROUP_CONCAT(p.nama_prodi SEPARATOR ', ')
+                                (SELECT GROUP_CONCAT(concat(
+                                        p.nama_prodi,
+                                        case 
+                                            when kode_jenjang = 'C' then ' (S1)'
+                                            when kode_jenjang = 'B' then ' (S2)'
+                                            when kode_jenjang = 'A' then ' (S3)'
+                                            when kode_jenjang = 'E' then ' (D3)'
+                                            when kode_jenjang = 'D' then ' (D4)'
+                                            when kode_jenjang = 'J' then ' (Profesi)'
+                                            else '(x)'
+                                        end
+                                    ) SEPARATOR ', ')
                                  FROM JSON_TABLE(bs.target_list, '$[*]' 
                                      COLUMNS (kode_prodi VARCHAR(10) PATH '$')
                                  ) jt
