@@ -43,7 +43,7 @@ function Laporan({level, listBankSoal=[]}) {
     const ErrorMessage = useSelector((state) => state.chart.error);
     const Loading = useSelector((state) => state.chart.loading); 
 
-    const [filters, setFilters] = useState({level: level, bankSoal: ''});
+    const [filters, setFilters] = useState({level: level, bankSoal: '', target: '', target_value: ''});
 
     const [bankSoal, setBankSoal] = useState(null);
     const [chartFakultas, setChartFakultas] = useState(false);
@@ -54,6 +54,7 @@ function Laporan({level, listBankSoal=[]}) {
     const { data: allData, loading, error } = useSelector(state => state.chartTotal);
 
     useEffect(() => {
+        console.log(`filters: ${filters}`);
         if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
             dispatch(fetchChartFakultasLabel(bankSoal));
         }
@@ -498,11 +499,25 @@ function Laporan({level, listBankSoal=[]}) {
                                         }
 
                                         changeFilter("bankSoal",e.target.value);
+                                        changeFilter("target",bs.target_type);
                                     }}>
                                         <option value=""></option>
                                         {
                                             listBankSoal.map(b => {
                                                 return <option value={b.id} selected={bankSoal==b.id}>{b.text}</option>
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label>Target</label>
+                                    <select className="form-select" onChange={(e)=>{
+                                        changeFilter("target_value",e.target.value);
+                                    }}>
+                                        <option value=""></option>
+                                        {
+                                            (listBankSoal.find(l => l.id == filter.bankSoal)?.target_list_name ?? []).map(b => {
+                                                return <option value={b} selected={filter.target_value==b}>{b}</option>
                                             })
                                         }
                                     </select>
