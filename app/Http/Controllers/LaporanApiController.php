@@ -206,15 +206,41 @@ class LaporanApiController extends Controller
                 
                 $query = $query->where(function($q) use ($target_value) {
                     $q->whereHas('Mahasiswa.Prodi', function($q2) use ($target_value) {
-                        $q2->where('nama_prodi_jenjang', $target_value);
+                        if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
+                            $nama = $matches[1];
+                            $jenjang = match($matches[2]) {
+                                'S1' => 'C',
+                                'S2' => 'B',
+                                'S3' => 'A',
+                                'D3' => 'E',
+                                'D4' => 'D',
+                                'Profesi' => 'J',
+                                default => null
+                            };
+                            $q2->where('nama_prodi', $nama)
+                               ->where('kode_jenjang', $jenjang);
+                        }
                     })
-                    ->orWhereHas('Dosen.Prodi', function($q3) use ($target_value) {
-                        $q3->where('nama_prodi_jenjang', $target_value);
+                    ->orWhereHas('Dosen.Prodi', function($q2) use ($target_value) {
+                        if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
+                            $nama = $matches[1];
+                            $jenjang = match($matches[2]) {
+                                'S1' => 'C',
+                                'S2' => 'B',
+                                'S3' => 'A',
+                                'D3' => 'E',
+                                'D4' => 'D',
+                                'Profesi' => 'J',
+                                default => null
+                            };
+                            $q2->where('nama_prodi', $nama)
+                               ->where('kode_jenjang', $jenjang);
+                        }
                     })
-                    ->orWhereHas('Tendik', function($q4) use ($target_value) {
-                        $q4->where('unit', $target_value);
+                    ->orWhereHas('Tendik', function($q2) use ($target_value) {
+                        $q2->where('unit', $target_value);
                     });
-                });
+                });                
 
                 $query = $query->whereIn("id_bank_soal",[$id_bank_soal, $branchBankSoal])
                 ->chunk(500, function ($rows) use (&$totalChunks) {
