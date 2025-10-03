@@ -271,6 +271,7 @@ class LaporanApiController extends Controller
                     $query = $query->where("v_kuesioner.peruntukan", $target);
                     $query = $query->having('target_list_name', 'LIKE', "%$target_value%");
                 }
+                dd($query->toRawSql());
                 
                 $query = $query->whereIn("id_bank_soal",[$id_bank_soal, $branchBankSoal])
                 ->chunk(500, function ($rows) use (&$totalChunks) {
