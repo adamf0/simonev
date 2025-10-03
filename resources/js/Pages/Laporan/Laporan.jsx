@@ -53,6 +53,8 @@ function Laporan({level, listBankSoal=[]}) {
 
     const { data: allData, loading, error } = useSelector(state => state.chartTotal);
 
+    console.log(listBankSoal);
+    
     useEffect(() => {
         console.log(filters);
         if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
@@ -498,7 +500,7 @@ function Laporan({level, listBankSoal=[]}) {
                                             setColChart(1)
                                         }
 
-                                        console.log(listBankSoal.find(l => l.id == e.target.value))
+                                        // console.log(listBankSoal.find(l => l.id == e.target.value))
                                         changeFilter("bankSoal",e.target.value);
                                         changeFilter("target",bs.target_type);
                                     }}>
