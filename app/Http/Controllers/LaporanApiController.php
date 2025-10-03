@@ -466,10 +466,10 @@ class LaporanApiController extends Controller
                                                     ) as nama_prodi_jenjang'), "nama_prodi"),
                                                     'Tendik',
                                                 ])
-                                                ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                                                ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'v_kuesioner.id')
                                                 ->join('template_pertanyaan as tp', 'kj.id_template_pertanyaan', '=', 'tp.id')
                                                 ->join('template_pilihan as tp2', 'kj.id_template_jawaban', '=', 'tp2.id')
-                                                ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+                                                ->whereIn('v_kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
                                                 ->where('tp.pertanyaan','like',"%$pertanyaan->pertanyaan%")
                                                 ->where('tp2.jawaban','like',"%$jawaban->jawaban%");
 
