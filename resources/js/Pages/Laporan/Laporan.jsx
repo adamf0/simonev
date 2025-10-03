@@ -486,7 +486,7 @@ function Laporan({level, listBankSoal=[]}) {
                                         }
                                         if(bs.peruntukan=="dosen"){
                                             setChartFakultas(true)
-                                            setChartProdi(false)
+                                            setChartProdi(true)
                                             setChartUnit(false)
                                             setColChart(1)
                                         }
