@@ -168,71 +168,7 @@ class LaporanApiController extends Controller
         $target_value = $request?->target_value;
 
         return Response::stream(function () use (&$totalChunks, &$id_bank_soal, &$branchBankSoal, $target , $target_value ) {
-                $query = VKuesioner::select(
-                        "*",
-                        DB::raw("
-                            CASE 
-                                WHEN v_kuesioner.target_type = 'prodi' THEN (
-                                    CASE 
-                                        WHEN JSON_CONTAINS(v_kuesioner.target_list, '\"all\"') THEN 
-                                            (SELECT GROUP_CONCAT(concat(
-                                                p.nama_prodi,
-                                                case 
-                                                    when kode_jenjang = 'C' then ' (S1)'
-                                                    when kode_jenjang = 'B' then ' (S2)'
-                                                    when kode_jenjang = 'A' then ' (S3)'
-                                                    when kode_jenjang = 'E' then ' (D3)'
-                                                    when kode_jenjang = 'D' then ' (D4)'
-                                                    when kode_jenjang = 'J' then ' (Profesi)'
-                                                    else '(x)'
-                                                end
-                                            ) SEPARATOR ', ') 
-                                            FROM m_program_studi_simak p)
-                                        ELSE
-                                            (SELECT GROUP_CONCAT(concat(
-                                                p.nama_prodi,
-                                                case 
-                                                    when kode_jenjang = 'C' then ' (S1)'
-                                                    when kode_jenjang = 'B' then ' (S2)'
-                                                    when kode_jenjang = 'A' then ' (S3)'
-                                                    when kode_jenjang = 'E' then ' (D3)'
-                                                    when kode_jenjang = 'D' then ' (D4)'
-                                                    when kode_jenjang = 'J' then ' (Profesi)'
-                                                    else '(x)'
-                                                end
-                                            ) SEPARATOR ', ')
-                                            FROM JSON_TABLE(v_kuesioner.target_list, '$[*]' 
-                                                COLUMNS (kode_prodi VARCHAR(10) PATH '$')
-                                            ) jt
-                                            JOIN m_program_studi_simak p 
-                                                ON p.kode_prodi = jt.kode_prodi)
-                                    END
-                                )
-                                WHEN v_kuesioner.target_type = 'unit' THEN (
-                                    CASE 
-                                        WHEN JSON_CONTAINS(v_kuesioner.target_list, '\"all\"') THEN 
-                                        (SELECT GROUP_CONCAT(
-                                                    RTRIM(REPLACE(u.unit_kerja, 'F.', 'Fakultas')) 
-                                                    SEPARATOR ', '
-                                                )
-                                        FROM n_pengangkatan_simpeg u)
-                                    ELSE
-                                        (SELECT GROUP_CONCAT(
-                                                    RTRIM(REPLACE(u.unit_kerja, 'F.', 'Fakultas')) 
-                                                    SEPARATOR ', '
-                                                )
-                                        FROM JSON_TABLE(v_kuesioner.target_list, '$[*]' 
-                                            COLUMNS (kode_unit VARCHAR(255) PATH '$')
-                                        ) jt
-                                        JOIN n_pengangkatan_simpeg u 
-                                            ON u.unit_kerja = jt.kode_unit)
-                                END
-                            )
-                            ELSE NULL
-                            END AS target_list_name
-                        ")
-                    )
-                    ->with([
+                $query = VKuesioner::with([
                     'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
                     'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
                     'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
@@ -267,10 +203,19 @@ class LaporanApiController extends Controller
                     ) as nama_prodi_jenjang'), "nama_prodi"),
                     'Tendik',
                 ]);
-                if (!empty($target) && !empty($target_value)) {
-                    $query = $query->having('target_list_name', 'LIKE', "%$target_value%");
-                }
                 
+                $query = $query->where(function($q) use ($target_value) {
+                    $q->whereHas('Mahasiswa.Prodi', function($q2) use ($target_value) {
+                        $q2->where('nama_prodi_jenjang', $target_value);
+                    })
+                    ->orWhereHas('Dosen.Prodi', function($q3) use ($target_value) {
+                        $q3->where('nama_prodi_jenjang', $target_value);
+                    })
+                    ->orWhereHas('Tendik', function($q4) use ($target_value) {
+                        $q4->where('unit', $target_value);
+                    });
+                });
+
                 $query = $query->whereIn("id_bank_soal",[$id_bank_soal, $branchBankSoal])
                 ->chunk(500, function ($rows) use (&$totalChunks) {
                 $batch = $rows->map(function ($row) {
