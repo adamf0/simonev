@@ -377,13 +377,8 @@ class LaporanApiController extends Controller
                     ) as nama_prodi_jenjang'), "nama_prodi"),
                     'Tendik',
                 ]);
-                // Filter target kalau diisi
-                if (!empty($target)) {
+                if (!empty($target) && !empty($target_value)) {
                     $query = $query->where("v_kuesioner.peruntukan", $target);
-                }
-
-                // Filter target_value terhadap alias target_list_name pakai HAVING
-                if (!empty($target_value)) {
                     $query = $query->having('v_kuesioner.target_list_name', 'LIKE', "%$target_value%");
                 }
                 
