@@ -564,6 +564,7 @@ class LaporanApiController extends Controller
 
         $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
             ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->orderBy("pertanyaan", "asc")
             ->limit(2)
             ->get()
             ->unique('pertanyaan')
@@ -571,6 +572,7 @@ class LaporanApiController extends Controller
         dump($pertanyaanList);
 
         $allPertanyaanIds = TemplatePertanyaan::whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->orderBy("pertanyaan", "asc")
             ->limit(2)
             ->get()
             ->groupBy('pertanyaan')
