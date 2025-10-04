@@ -541,18 +541,20 @@ function Laporan({level, listBankSoal=[]}) {
                                         <option value=""></option>
                                         {
                                             [
-                                                ...new Set(listBankSoal.find(l => l.id == filters.bankSoal)?.target_list_name ?? [])
+                                                ...new Set(listBankSoal.find(l => l.id == filters.bankSoal)?.target_list_name ?? []).filter(b => b && b.trim() !== "")
                                             ].map(b => {
-                                                if(b!="" || b!=null){
-                                                    return <option value={b} selected={filters.target_value==b}>{b}</option>
-                                                }
+                                                return <option value={b} selected={filters.target_value==b}>{b}</option>
                                             })
                                         }
                                     </select>
                                 </div>
                                 <div class="col-12 d-flex gap-2">
                                     <button className="btn btn-primary" onClick={()=>handlerFilter()}>Filter</button>
-                                    <button className="btn btn-primary" onClick={()=>{setBankSoal(null)}}>Hapus filter</button>
+                                    <button className="btn btn-primary" onClick={()=>{
+                                        setBankSoal(null);
+                                        changeFilter("target_value",'');
+                                        changeFilter("target_value",'');
+                                    }}>Hapus filter</button>
                                 </div>
                             </div>
                         </div>
