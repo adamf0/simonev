@@ -559,34 +559,31 @@ class LaporanApiController extends Controller
     //     ]);
         
     // }
-    public function laporanV2($id_bank_soal){
-        $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
-
+    public function laporanV2($id_bank_soal) {
+        $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->first()?->id;
+    
         // 1️⃣ Ambil semua pertanyaan unik per teks
         $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
-        ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
-        ->orderBy("pertanyaan", "asc")
-        ->limit(2)
-        ->get()
-        ->groupBy('pertanyaan');
-        dump($pertanyaanList);
-
+            ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->orderBy("pertanyaan", "asc")
+            ->get()
+            ->groupBy('pertanyaan');
+    
         // 2️⃣ Ambil semua jawaban terkait pertanyaan
         $allJawabanIds = TemplatePilihan::whereIn(
             'id_template_soal',
             $pertanyaanList->flatten()->pluck('id')->toArray()
         )->get();
-        dump($allJawabanIds);
-
+    
         // 3️⃣ Hitung total per jawaban dan gabungkan template yang sama
         $jawabanCounts = collect();
-
+    
         foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
             $detail = collect();
-
+    
             // Ambil jawaban untuk semua template pertanyaan dengan teks yang sama
             $jawabanGroup = $allJawabanIds->whereIn('id_template_soal', $pertGroup->pluck('id'));
-
+    
             // Gabungkan jawaban yang sama dari template berbeda
             foreach ($jawabanGroup->groupBy('jawaban') as $jawabanValue => $jawabanItems) {
                 $detail->push([
@@ -595,12 +592,12 @@ class LaporanApiController extends Controller
                     'total' => $jawabanItems->count(), // hitung per ID template jawaban
                 ]);
             }
-
+    
             // Siapkan chart
             $labels = $detail->pluck('jawaban')->toArray();
             $data = $detail->pluck('total')->toArray();
             $colors = $this->generateRandomColors(count($labels));
-
+    
             $pertanyaanList[$pertanyaanText]->each(function ($pertanyaan) use ($detail, $labels, $data, $colors) {
                 $pertanyaan->chart = [
                     'labels' => $labels,
@@ -614,68 +611,18 @@ class LaporanApiController extends Controller
                         ],
                     ],
                 ];
-
+    
                 $pertanyaan->TemplatePilihan = $detail; // update jawaban
             });
-
+    
             $jawabanCounts[$pertanyaanText] = [
                 'pertanyaan' => $pertanyaanText,
                 'total' => $detail->sum('total'), // total semua jawaban
                 'detail' => $detail,
             ];
         }
-        dd($jawabanCounts);
-
-        $pertanyaanList = $pertanyaanList->map(function ($pertanyaan) use ($jawabanCounts, $allJawabanIds, $allPertanyaanIds) {
-            $groupJawaban = $allJawabanIds
-                ->whereIn('id_template_soal', $allPertanyaanIds[$pertanyaan->pertanyaan] ?? []);
-
-            $groupCountsData = $jawabanCounts[$pertanyaan->pertanyaan]['detail'] ?? [];
-            $groupCounts = collect($groupCountsData);
-
-            $groupJawaban->map(function ($jawaban) use ($groupCounts) {
-                $total = optional($groupCounts->firstWhere('id_template_jawaban', $jawaban->id))->total ?? 0;
-                $jawaban->jawaban = $jawaban->isFreeText ? 'Lainnya' : $jawaban->jawaban;
-                $jawaban->total = $total;
-            });
-
-            $labels = $groupJawaban->pluck('jawaban')->toArray();
-            $data = $groupJawaban->pluck('total')->toArray();
-            $colors = $this->generateRandomColors(count($labels));
-
-            $pertanyaan->chart = [
-                'labels' => $labels,
-                'datasets' => [
-                    [
-                        'label' => $pertanyaan->jenis_pilihan == 'rating5' ? 'Dataset 1' : '# Total',
-                        'data' => $data,
-                        'backgroundColor' => $colors,
-                        'borderColor' => $colors,
-                        'borderWidth' => 1,
-                    ],
-                ],
-            ];
-
-            $pertanyaan->TemplatePilihan = $groupJawaban->values();
-
-            return $pertanyaan;
-        });
-
-        dd($pertanyaanList);
-
-        $listPertanyaanGrouped = $pertanyaanList->reduce(function ($carry, $item) {
-            $kategori = $item->Kategori?->nama_kategori ?? 'unknown';
-            $subKategori = $item->SubKategori?->nama_sub ?? '';
-            $pattern = "$kategori#$subKategori";
-        
-            $carry[$pattern][] = [
-                'pertanyaan' => $item->pertanyaan,
-                'jenis_pilihan' => $item->jenis_pilihan,
-                'chart' => $item->chart,
-            ];
-        
-            return $carry;
-        }, []);
+    
+        return json_encode($jawabanCounts);    
 
         // $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
         //                     ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
