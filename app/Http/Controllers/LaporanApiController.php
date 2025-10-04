@@ -571,8 +571,9 @@ class LaporanApiController extends Controller
 
         $allPertanyaanIds = TemplatePertanyaan::whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
             ->pluck('id', 'pertanyaan')
-            ->groupBy(function ($id, $pertanyaan) {
-                return $pertanyaan;
+            ->groupBy('pertanyaan')
+            ->map(function ($group) {
+                return $group->pluck('id');
             });
         dump($allPertanyaanIds);
 
