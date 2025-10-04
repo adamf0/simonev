@@ -567,7 +567,7 @@ class LaporanApiController extends Controller
             ->orderBy("pertanyaan", "asc")
             ->limit(2)
             ->get()
-            ->unique('pertanyaan')
+            ->groupBy('pertanyaan')
             ->values();
         dump($pertanyaanList);
 
