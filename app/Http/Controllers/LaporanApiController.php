@@ -590,7 +590,7 @@ class LaporanApiController extends Controller
                 $total = Kuesioner::with(['tendik'])
                             ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                             ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
-                            ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
+                            ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id')->toArray())
                             ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray());
                             
                 if (!empty($target_value)) {
@@ -642,7 +642,7 @@ class LaporanApiController extends Controller
                     });
                 }
 
-                if(in_array("221",$pertGroup->pluck('id'))){
+                if(in_array("221",$pertGroup->pluck('id')->toArray())){
                     dd($pertGroup->pluck('id'), $total->toRawSql());
                 }
                 $total = $total->count();
