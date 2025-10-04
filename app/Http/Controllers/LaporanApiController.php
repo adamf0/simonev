@@ -565,7 +565,6 @@ class LaporanApiController extends Controller
         // 1️⃣ Ambil semua pertanyaan unik per teks
         $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
             ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
-            ->orderBy("pertanyaan", "asc")
             ->get()
             ->groupBy('pertanyaan');
     
@@ -644,10 +643,7 @@ class LaporanApiController extends Controller
             return $carry;
         }, []);
 
-        return response()->json([
-            'raw' => $jawabanCounts,        // total per pertanyaan
-            'grouped' => $listPertanyaanGrouped // data terstruktur per kategori
-        ]);
+        return response()->json($listPertanyaanGrouped);
 
         // $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
         //                     ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
