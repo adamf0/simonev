@@ -543,7 +543,9 @@ function Laporan({level, listBankSoal=[]}) {
                                             [
                                                 ...new Set(listBankSoal.find(l => l.id == filters.bankSoal)?.target_list_name ?? [])
                                             ].map(b => {
-                                                return <option value={b} selected={filters.target_value==b}>{b}</option>
+                                                if(b!="" || b!=null){
+                                                    return <option value={b} selected={filters.target_value==b}>{b}</option>
+                                                }
                                             })
                                         }
                                     </select>
