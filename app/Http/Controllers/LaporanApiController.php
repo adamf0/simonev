@@ -447,12 +447,14 @@ class LaporanApiController extends Controller
                                                     'Tendik',
                                                 ])
                                                 ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
-                                                ->whereHas('Pertanyaan', fn($q) => 
-                                                    $q->where('pertanyaan', 'like', "%$pertanyaan->pertanyaan%")
-                                                )
-                                                ->whereHas('Pilihan', fn($q) => 
-                                                    $q->where('jawaban', 'like', "%$jawaban->jawaban%")
-                                                );
+                                                ->where('id_template_pertanyaan',$pertanyaan->id)
+                                                ->where('id_template_jawaban',$jawaban->id);
+                                                // ->whereHas('Pertanyaan', fn($q) => 
+                                                //     $q->where('pertanyaan', 'like', "%$pertanyaan->pertanyaan%")
+                                                // )
+                                                // ->whereHas('Pilihan', fn($q) => 
+                                                //     $q->where('jawaban', 'like', "%$jawaban->jawaban%")
+                                                // );
 
                                     if (!empty($target) && !empty($target_value)) {
                                         $results = $results->where(function($q) use ($target_value) {
