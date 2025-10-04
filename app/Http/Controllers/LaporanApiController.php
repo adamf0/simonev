@@ -590,9 +590,8 @@ class LaporanApiController extends Controller
                             ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                             ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
                             ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
-                            ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray());
-                dd($total->toRawSql());
-                            // ->count();
+                            ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray())
+                            ->count();
 
                 $detail->push([
                     'jawaban' => $jawabanValue,
@@ -630,7 +629,25 @@ class LaporanApiController extends Controller
             ];
         }
     
-        return json_encode($jawabanCounts);    
+       // 4️⃣ Kelompokkan pertanyaan berdasarkan kategori dan subkategori
+        $listPertanyaanGrouped = $pertanyaanList->flatten()->reduce(function($carry, $item) {
+            $kategori = $item->Kategori?->nama_kategori ?? "unknown";
+            $subKategori = $item->SubKategori?->nama_sub ?? "";
+            $pattern = "$kategori#$subKategori";
+
+            $carry[$pattern][] = [
+                'pertanyaan' => $item->pertanyaan,
+                'jenis_pilihan' => $item->jenis_pilihan,
+                'chart' => $item->chart,
+            ];
+
+            return $carry;
+        }, []);
+
+        return response()->json([
+            'raw' => $jawabanCounts,        // total per pertanyaan
+            'grouped' => $listPertanyaanGrouped // data terstruktur per kategori
+        ]);
 
         // $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
         //                     ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
