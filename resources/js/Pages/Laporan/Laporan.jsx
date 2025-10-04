@@ -550,7 +550,7 @@ function Laporan({level, listBankSoal=[]}) {
                                         }
                                     </select>
                                 </div>
-                                <div class="col-12">
+                                <div class="col-12 d-flex gap-2">
                                     <button className="btn btn-primary" onClick={()=>handlerFilter()}>Filter</button>
                                     <button className="btn btn-primary" onClick={()=>{setBankSoal(null)}}>Hapus filter</button>
                                 </div>
