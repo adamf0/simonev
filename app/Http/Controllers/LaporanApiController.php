@@ -614,10 +614,11 @@ class LaporanApiController extends Controller
             $groupJawaban = $allJawabanIds
                 ->whereIn('id_template_soal', $allPertanyaanIds[$pertanyaan->pertanyaan] ?? []);
 
-            $groupCounts = $jawabanCounts[$pertanyaan->pertanyaan] ?? collect();
+            $groupCountsData = $jawabanCounts[$pertanyaan->pertanyaan]['detail'] ?? [];
+            $groupCounts = collect($groupCountsData);
 
             $groupJawaban->map(function ($jawaban) use ($groupCounts) {
-                $total = $groupCounts->firstWhere('id_template_jawaban', $jawaban->jawaban)->total ?? 0;
+                $total = optional($groupCounts->firstWhere('id_template_jawaban', $jawaban->id))->total ?? 0;
                 $jawaban->jawaban = $jawaban->isFreeText ? 'Lainnya' : $jawaban->jawaban;
                 $jawaban->total = $total;
             });
