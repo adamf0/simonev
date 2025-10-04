@@ -426,7 +426,7 @@ class LaporanApiController extends Controller
         ini_set('output_buffering', 'off');
         ini_set('zlib.output_compression', false);
         set_time_limit(0);
-        
+
         $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
         $target = $request?->target;
         $target_value = $request?->target_value;
@@ -471,12 +471,13 @@ class LaporanApiController extends Controller
                                                     ) as nama_prodi_jenjang'), "nama_prodi"),
                                                     'Tendik',
                                                 ])
-                                                ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'v_kuesioner.id')
-                                                ->join('template_pertanyaan as tp', 'kj.id_template_pertanyaan', '=', 'tp.id')
-                                                ->join('template_pilihan as tp2', 'kj.id_template_jawaban', '=', 'tp2.id')
-                                                ->whereIn('v_kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
-                                                ->where('tp.pertanyaan','like',"%$pertanyaan->pertanyaan%")
-                                                ->where('tp2.jawaban','like',"%$jawaban->jawaban%");
+                                                ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+                                                ->whereHas('Pertanyaan', fn($q) => 
+                                                    $q->where('pertanyaan', 'like', "%$pertanyaan->pertanyaan%")
+                                                )
+                                                ->whereHas('Pilihan', fn($q) => 
+                                                    $q->where('jawaban', 'like', "%$jawaban->jawaban%")
+                                                );
 
                                     if (!empty($target) && !empty($target_value)) {
                                         $results = $results->where(function($q) use ($target_value) {
