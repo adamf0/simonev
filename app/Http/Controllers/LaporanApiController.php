@@ -564,12 +564,14 @@ class LaporanApiController extends Controller
 
         $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
             ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->limit(2)
             ->get()
             ->unique('pertanyaan')
             ->values();
         dump($pertanyaanList);
 
         $allPertanyaanIds = TemplatePertanyaan::whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->limit(2)
             ->get()
             ->groupBy('pertanyaan')
             ->map(function ($group) {
