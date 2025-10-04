@@ -426,6 +426,7 @@ class LaporanApiController extends Controller
         ini_set('output_buffering', 'off');
         ini_set('zlib.output_compression', false);
         set_time_limit(0);
+        ob_implicit_flush(true);
 
         $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
         $target = $request?->target;
@@ -439,36 +440,10 @@ class LaporanApiController extends Controller
                                     $results = VKuesioner::with([
                                                     'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
                                                     'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                                                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                                                        concat(
-                                                            nama_prodi,
-                                                            case 
-                                                                when kode_jenjang = "C" then " (S1)"
-                                                                when kode_jenjang = "B" then " (S2)"
-                                                                when kode_jenjang = "A" then " (S3)"
-                                                                when kode_jenjang = "E" then " (D3)"
-                                                                when kode_jenjang = "D" then " (D4)"
-                                                                when kode_jenjang = "J" then " (Profesi)"
-                                                                else "?"
-                                                            end
-                                                        )    
-                                                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                                                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi","kode_jenjang", "nama_prodi"),
                                                     'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
                                                     'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                                                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                                                        concat(
-                                                            nama_prodi,
-                                                            case 
-                                                                when kode_jenjang = "C" then " (S1)"
-                                                                when kode_jenjang = "B" then " (S2)"
-                                                                when kode_jenjang = "A" then " (S3)"
-                                                                when kode_jenjang = "E" then " (D3)"
-                                                                when kode_jenjang = "D" then " (D4)"
-                                                                when kode_jenjang = "J" then " (Profesi)"
-                                                                else "?"
-                                                            end
-                                                        )    
-                                                    ) as nama_prodi_jenjang'), "nama_prodi"),
+                                                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi","kode_jenjang","nama_prodi"),
                                                     'Tendik',
                                                 ])
                                                 ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
@@ -561,7 +536,8 @@ class LaporanApiController extends Controller
                                 $sub_kategori = $item->SubKategori?->nama_sub ?? "";
                                 $pattern = "$kategori#$sub_kategori";
 
-                                $carry[$pattern][] = [
+                                $carry[] = [
+                                    "pattern"=>$pattern,
                                     "pertanyaan"=>$item->pertanyaan,
                                     "jenis_pilihan"=>$item->jenis_pilihan,
                                     "chart"=>$item->chart,
@@ -570,7 +546,17 @@ class LaporanApiController extends Controller
                                 return $carry;
                             }, []);
 
-        return json_encode($listPertanyaan);
+        // return json_encode($listPertanyaan);
+        return response()->stream(function() use ($listPertanyaan) {
+            foreach ($listPertanyaan as $row) {
+                echo json_encode($row, JSON_UNESCAPED_UNICODE) . "\n";
+                ob_flush();
+                flush();
+            }
+        }, 200, [
+            'Content-Type' => 'application/x-ndjson',
+        ]);
+        
     }
 
     public function laporan(Request $request){
