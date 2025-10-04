@@ -19,22 +19,100 @@ class Kuesioner extends Model
     public function Mahasiswa() : HasOne{
         return $this->hasOne(Mahasiswa::class, 'NIM', 'npm')
         ->select(
-            'm_mahasiswa.NIM',
-            'm_mahasiswa.nama_mahasiswa',
-            'm_mahasiswa.kode_fak',
-            'm_mahasiswa.kode_prodi',
+            'm_mahasiswa_simak.NIM',
+            'm_mahasiswa_simak.nama_mahasiswa',
+            'm_mahasiswa_simak.kode_fak',
+            'm_mahasiswa_simak.kode_prodi',
             'm_fakultas.nama_fakultas',
             'm_program_studi.nama_prodi',
             DB::raw("
             (case 
-                when m_mahasiswa.kode_jenjang='C' then 's1' 
-                when m_mahasiswa.kode_jenjang='B' then 's2' 
-                when m_mahasiswa.kode_jenjang='A' then 's3' 
-                when m_mahasiswa.kode_jenjang='E' then 'd3' 
-                when m_mahasiswa.kode_jenjang='D' then 'd4'
-                when m_mahasiswa.kode_jenjang='J' then 'profesi'
+                when m_mahasiswa_simak.kode_jenjang='C' then 's1' 
+                when m_mahasiswa_simak.kode_jenjang='B' then 's2' 
+                when m_mahasiswa_simak.kode_jenjang='A' then 's3' 
+                when m_mahasiswa_simak.kode_jenjang='E' then 'd3' 
+                when m_mahasiswa_simak.kode_jenjang='D' then 'd4'
+                when m_mahasiswa_simak.kode_jenjang='J' then 'profesi'
                 else null
             end) as jenjang 
+            ")
+        )
+        ->join('m_fakultas','m_fakultas.kode_fakultas','=','m_mahasiswa_simak.kode_fak')
+        ->join('m_program_studi','m_program_studi.kode_prodi','=','m_mahasiswa_simak.kode_prodi');
+    }
+
+    public function Mahasiswa2() : HasOne{
+        return $this->hasOne(Mahasiswa::class, 'NIM', 'npm')
+        ->select(
+            'm_mahasiswa_simak.NIM',
+            'm_mahasiswa_simak.nama_mahasiswa',
+            'm_mahasiswa_simak.kode_fak',
+            'm_mahasiswa_simak.kode_prodi',
+            'm_fakultas.nama_fakultas',
+            'm_program_studi.nama_prodi',
+            DB::raw("
+            (case 
+                when m_program_studi.kode_jenjang='C' then 's1' 
+                when m_program_studi.kode_jenjang='B' then 's2' 
+                when m_program_studi.kode_jenjang='A' then 's3' 
+                when m_program_studi.kode_jenjang='E' then 'd3' 
+                when m_program_studi.kode_jenjang='D' then 'd4'
+                when m_program_studi.kode_jenjang='J' then 'profesi'
+                else null
+            end) as jenjang 
+            "),
+            DB::raw("
+            (concat(
+                m_program_studi.nama_prodi, 
+                case 
+                    when m_program_studi.kode_jenjang='C' then 's1' 
+                    when m_program_studi.kode_jenjang='B' then 's2' 
+                    when m_program_studi.kode_jenjang='A' then 's3' 
+                    when m_program_studi.kode_jenjang='E' then 'd3' 
+                    when m_program_studi.kode_jenjang='D' then 'd4'
+                    when m_program_studi.kode_jenjang='J' then 'profesi'
+                    else null
+                end
+            )) as nama_prodi_jenjang 
+            ")
+        )
+        ->join('m_fakultas','m_fakultas.kode_fakultas','=','m_mahasiswa_simak.kode_fak')
+        ->join('m_program_studi','m_program_studi.kode_prodi','=','m_mahasiswa_simak.kode_prodi');
+    }
+
+    public function Dosen2() : HasOne{
+        return $this->hasOne(Dosen::class, 'nidn', 'nidn')
+        ->select(
+            "m_dosen_simak.NIDN",
+            "m_dosen_simak.nama_dosen",
+            "m_dosen_simak.kode_fak",
+            'm_fakultas.nama_fakultas',
+            "m_dosen_simak.kode_prodi",
+            'm_program_studi.nama_prodi',
+            DB::raw("
+            (case 
+                when m_program_studi.kode_jenjang='C' then 's1' 
+                when m_program_studi.kode_jenjang='B' then 's2' 
+                when m_program_studi.kode_jenjang='A' then 's3' 
+                when m_program_studi.kode_jenjang='E' then 'd3' 
+                when m_program_studi.kode_jenjang='D' then 'd4'
+                when m_program_studi.kode_jenjang='J' then 'profesi'
+                else null
+            end) as jenjang 
+            "),
+            DB::raw("
+            (concat(
+                m_program_studi.nama_prodi, 
+                case 
+                    when m_program_studi.kode_jenjang='C' then 's1' 
+                    when m_program_studi.kode_jenjang='B' then 's2' 
+                    when m_program_studi.kode_jenjang='A' then 's3' 
+                    when m_program_studi.kode_jenjang='E' then 'd3' 
+                    when m_program_studi.kode_jenjang='D' then 'd4'
+                    when m_program_studi.kode_jenjang='J' then 'profesi'
+                    else null
+                end
+            )) as nama_prodi_jenjang 
             ")
         )
         ->join('m_fakultas','m_fakultas.kode_fakultas','=','m_mahasiswa.kode_fak')

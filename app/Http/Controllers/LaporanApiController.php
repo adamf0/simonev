@@ -559,16 +559,33 @@ class LaporanApiController extends Controller
         
     // }
     public function laporanV2($id_bank_soal){
+        $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
+
         $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
-                            ->where('id_bank_soal',$id_bank_soal)
+                            ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
                             ->get()
                             ->map(function($pertanyaan) use(&$id_bank_soal){
                                 $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal){
-                                    $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                                    $results = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
+                                                ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                                                 ->where('kuesioner.id_bank_soal', $id_bank_soal)
                                                 ->where('id_template_pertanyaan',$pertanyaan->id)
-                                                ->where('id_template_jawaban',$jawaban->id)
-                                                ->count();
+                                                ->where('id_template_jawaban',$jawaban->id);
+
+                                    if (!empty($target) && !empty($target_value)) {
+                                        $results = $results->where(function($q) use ($target_value) {
+                                            $q->whereHas('Mahasiswa2', function($q2) use ($target_value) {
+                                                return $q2->where('nama_prodi_jenjang', $target_value);
+                                            })
+                                            ->orWhereHas('Dosen2', function($q2) use ($target_value) {
+                                                return $q2->where('nama_prodi_jenjang', $target_value);
+                                            })
+                                            ->orWhereHas('Tendik', function($q2) use ($target_value) {
+                                                $q2->where('unit', $target_value);
+                                            });
+                                        });
+                                    }
+                                    $results = $results->count();
                                                 
                                     $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
                                     $jawaban->total = $results;
