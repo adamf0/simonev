@@ -596,8 +596,16 @@ class LaporanApiController extends Controller
             )
             ->groupBy('pertanyaan_teks', 'id_template_jawaban')
             ->get()
-            ->groupBy(function ($item) {
-                return $item->pertanyaan_teks;
+            ->groupBy('pertanyaan_teks')
+            ->map(function ($group) {
+                return [
+                    'pertanyaan' => $group->first()->pertanyaan_teks,
+                    'total' => $group->sum('total'),
+                    'detail' => $group->map(fn($item) => [
+                        'id_template_jawaban' => $item->id_template_jawaban,
+                        'total' => $item->total,
+                    ])->values()
+                ];
             });
 
         dump($jawabanCounts);
