@@ -594,17 +594,19 @@ class LaporanApiController extends Controller
                             ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray());
                             
                 if(!empty($target_value)){
-                    $total = $total->whereHas('Mahasiswa2', function($query) use ($target_value) {
-                        $query->where('nama_prodi_jenjang', $target_value);
-                    })
-                    ->orwhereHas('Mahasiswa2', function($query) use ($target_value) {
-                        $query->where('nama_prodi_jenjang', $target_value);
-                    })
-                    ->ORwhereHas('Mahasiswa2', function($query) use ($target_value) {
-                        $query->where('nama_prodi_jenjang', $target_value);
+                    $total = $total->where(function($query) use ($target_value) {
+                        $query->whereHas('Mahasiswa2', function($q) use ($target_value) {
+                            $q->where('nama_prodi_jenjang', $target_value);
+                        })
+                        ->orWhereHas('Dosen2', function($q) use ($target_value) {
+                            $q->where('nama_prodi_jenjang', $target_value);
+                        })
+                        ->orWhereHas('Tendik', function($q) use ($target_value) {
+                            $q->where('unit', $target_value);
+                        });
                     });
                 }
-                
+
                 $total = $total->count();
 
                 $detail->push([
