@@ -585,44 +585,30 @@ class LaporanApiController extends Controller
         $allJawabanIds = TemplatePilihan::whereIn('id_template_soal', $allPertanyaanIds->flatten()->toArray())->get();
         dump($allJawabanIds);
 
-        $jawabanCounts = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
-            ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
-            ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
-            ->whereIn('id_template_pertanyaan', $allPertanyaanIds->flatten()->toArray())
-            ->select(
-                DB::raw('(SELECT pertanyaan FROM template_pertanyaan WHERE template_pertanyaan.id = id_template_pertanyaan LIMIT 1) as pertanyaan_teks'),
-                'id_template_jawaban',
-                DB::raw('(SELECT jawaban FROM template_pilihan WHERE template_pilihan.id = id_template_jawaban LIMIT 1) as jawaban_value')
-            )
-            ->get()
-            ->groupBy('pertanyaan_teks')
-            ->map(function ($group) {
-                $detail = collect();
+        $jawabanCounts = collect();
 
-                foreach ($group as $item) {
-                    $existing = $detail->firstWhere('jawaban', $item->jawaban_value);
-                    if ($existing) {
-                        // gabungkan ID tapi jangan jumlahkan total, cukup tambah 1 untuk setiap template
-                        $existing['id_template_jawaban'] = array_merge(
-                            (array) $existing['id_template_jawaban'],
-                            [$item->id_template_jawaban]
-                        );
-                        $existing['total'] = count($existing['id_template_jawaban']); // total = jumlah ID
-                    } else {
-                        $detail->push([
-                            'jawaban' => $item->jawaban_value,
-                            'id_template_jawaban' => [$item->id_template_jawaban],
-                            'total' => 1, // setiap ID = 1
-                        ]);
-                    }
-                }
+foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
+    $detail = collect();
 
-                return [
-                    'pertanyaan' => $group->first()->pertanyaan_teks,
-                    'total' => $detail->sum('total'), // total = jumlah semua ID jawaban
-                    'detail' => $detail,
-                ];
-            });
+    // Ambil semua jawaban untuk pertanyaan ini
+    $jawabanGroup = $allJawabanIds->whereIn('id_template_soal', $pertGroup->pluck('id'));
+
+    // Kelompokkan jawaban yang sama (misal jawaban "1") meski dari template berbeda
+    foreach ($jawabanGroup->groupBy('jawaban') as $jawabanValue => $jawabanItems) {
+        $detail->push([
+            'jawaban' => $jawabanValue,
+            'id_template_jawaban' => $jawabanItems->pluck('id')->toArray(),
+            'total' => $jawabanItems->count(), // jumlah template jawaban yang sama
+        ]);
+    }
+
+    $jawabanCounts[$pertanyaanText] = [
+        'pertanyaan' => $pertanyaanText,
+        'total' => $detail->sum('total'), // jumlah semua template jawaban unik
+        'detail' => $detail,
+    ];
+}
+
         dump($jawabanCounts);
 
         $pertanyaanList = $pertanyaanList->map(function ($pertanyaan) use ($jawabanCounts, $allJawabanIds, $allPertanyaanIds) {
