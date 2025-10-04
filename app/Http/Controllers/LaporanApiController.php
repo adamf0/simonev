@@ -587,25 +587,64 @@ class LaporanApiController extends Controller
     
             // Gabungkan jawaban yang sama dari template berbeda
             foreach ($jawabanGroup->groupBy('jawaban') as $jawabanValue => $jawabanItems) {
-                $total = Kuesioner::with(['Mahasiswa2','Dosen2','tendik'])
+                $total = Kuesioner::with(['tendik'])
                             ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                             ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
                             ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
                             ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray());
                             
-                if(!empty($target_value)){
+                if (!empty($target_value)) {
                     $total = $total->where(function($query) use ($target_value) {
-                        $query->whereHas('Mahasiswa2', function($q) use ($target_value) {
-                            $q->where('nama_prodi_jenjang', $target_value);
+                        // Mahasiswa
+                        $query->whereExists(function($sub) use ($target_value) {
+                            $sub->select(DB::raw(1))
+                                ->from('m_mahasiswa_simak')
+                                ->join('m_program_studi','m_program_studi.kode_prodi','=','m_mahasiswa_simak.kode_prodi')
+                                ->whereColumn('kuesioner.npm', 'm_mahasiswa_simak.NIM')
+                                ->whereRaw("
+                                    concat(
+                                        m_program_studi.nama_prodi, 
+                                        case 
+                                            when m_program_studi.kode_jenjang='C' then ' (S1)' 
+                                            when m_program_studi.kode_jenjang='B' then ' (S2)' 
+                                            when m_program_studi.kode_jenjang='A' then ' (S3)' 
+                                            when m_program_studi.kode_jenjang='E' then ' (D3)' 
+                                            when m_program_studi.kode_jenjang='D' then ' (D4)' 
+                                            when m_program_studi.kode_jenjang='J' then ' (Profesi)' 
+                                            else '' 
+                                        end
+                                    ) = ?", [$target_value]);
                         })
-                        ->orWhereHas('Dosen2', function($q) use ($target_value) {
-                            $q->where('nama_prodi_jenjang', $target_value);
+                        // Dosen
+                        ->orWhereExists(function($sub) use ($target_value) {
+                            $sub->select(DB::raw(1))
+                                ->from('m_dosen_simak')
+                                ->join('m_program_studi','m_program_studi.kode_prodi','=','m_dosen_simak.kode_prodi')
+                                ->whereColumn('kuesioner.nidn', 'm_dosen_simak.NIDN')
+                                ->whereRaw("
+                                    concat(
+                                        m_program_studi.nama_prodi, 
+                                        case 
+                                            when m_program_studi.kode_jenjang='C' then ' (S1)' 
+                                            when m_program_studi.kode_jenjang='B' then ' (S2)' 
+                                            when m_program_studi.kode_jenjang='A' then ' (S3)' 
+                                            when m_program_studi.kode_jenjang='E' then ' (D3)' 
+                                            when m_program_studi.kode_jenjang='D' then ' (D4)' 
+                                            when m_program_studi.kode_jenjang='J' then ' (Profesi)' 
+                                            else '' 
+                                        end
+                                    ) = ?", [$target_value]);
                         })
-                        ->orWhereHas('Tendik', function($q) use ($target_value) {
-                            $q->where('unit', $target_value);
+                        // Tendik
+                        ->orWhereExists(function($sub) use ($target_value) {
+                            $sub->select(DB::raw(1))
+                                ->from('m_tendik') // ganti sesuai nama tabel tendik
+                                ->whereColumn('kuesioner.nip', 'm_tendik.nip')
+                                ->where('unit', $target_value);
                         });
                     });
                 }
+
 
                 $total = $total->count();
 
