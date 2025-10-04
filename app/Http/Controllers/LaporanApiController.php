@@ -636,12 +636,9 @@ class LaporanApiController extends Controller
                                     ) = ?", [$target_value]);
                         })
                         // Tendik
-                        ->orWhereExists(function($sub) use ($target_value) {
-                            $sub->select(DB::raw(1))
-                                ->from('m_tendik') // ganti sesuai nama tabel tendik
-                                ->whereColumn('kuesioner.nip', 'm_tendik.nip')
-                                ->where('unit', $target_value);
-                        });
+                        ->orWhereHas('Tendik', function($q2) use ($target_value) {
+                            $q2->where('unit', $target_value);
+                        });;
                     });
                 }
 
