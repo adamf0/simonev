@@ -115,8 +115,8 @@ class Kuesioner extends Model
             )) as nama_prodi_jenjang 
             ")
         )
-        ->join('m_fakultas','m_fakultas.kode_fakultas','=','m_mahasiswa.kode_fak')
-        ->join('m_program_studi','m_program_studi.kode_prodi','=','m_mahasiswa.kode_prodi');
+        ->join('m_fakultas','m_fakultas.kode_fakultas','=','m_dosen_simak.kode_fak')
+        ->join('m_program_studi','m_program_studi.kode_prodi','=','m_dosen_simak.kode_prodi');
     }
 
     public function Dosen() : HasOne{
