@@ -642,10 +642,6 @@ class LaporanApiController extends Controller
                     });
                 }
 
-                if($pertanyaanText=="Di dalam melaksanakan kegiatan (Akademik dan non Akademik) di lingkup Universitas Pakuan, saya menggunakan visi dan misi Universitas Pakuan sebagai acuan"){
-                    dd($total->toRawSql());
-                }
-
                 $total = $total->count();
 
                 $detail->push([
