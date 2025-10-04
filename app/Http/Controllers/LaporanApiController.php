@@ -576,7 +576,7 @@ class LaporanApiController extends Controller
 
         $allJawabanIds = TemplatePilihan::whereIn('id_template_soal', $allPertanyaanIds->flatten()->toArray())->get();
 
-        $jawabanCounts = DB::table('kuesioner')
+        $jawabanCounts = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
             ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
             ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
             ->whereIn('id_template_pertanyaan', $allPertanyaanIds->flatten()->toArray())
