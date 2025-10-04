@@ -642,9 +642,6 @@ class LaporanApiController extends Controller
                     });
                 }
 
-                if(in_array("221",$pertGroup->pluck('id')->toArray())){
-                    dd($pertGroup->pluck('id'), $total->toRawSql());
-                }
                 $total = $total->count();
 
                 $detail->push([
