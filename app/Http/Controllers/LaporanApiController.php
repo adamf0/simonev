@@ -569,8 +569,8 @@ class LaporanApiController extends Controller
                                     $results = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
                                                 ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                                                 ->whereIn('kuesioner.id_bank_soal',[$id_bank_soal, $branchBankSoal])
-                                                ->where('id_template_pertanyaan',$pertanyaan->id)
-                                                ->where('id_template_jawaban',$jawaban->id);
+                                                ->where('id_template_pertanyaan','like',"%$pertanyaan->pertanyaan%")
+                                                ->where('id_template_jawaban','like',"%$jawaban->jawaban%");
 
                                     if (!empty($target) && !empty($target_value)) {
                                         $results = $results->where(function($q) use ($target_value) {
