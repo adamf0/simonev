@@ -565,10 +565,10 @@ class LaporanApiController extends Controller
                             ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
                             ->get()
                             ->map(function($pertanyaan) use(&$id_bank_soal){
-                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal){
+                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
                                     $results = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
                                                 ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
-                                                ->where('kuesioner.id_bank_soal', $id_bank_soal)
+                                                ->whereIn('kuesioner.id_bank_soal',[$id_bank_soal, $branchBankSoal])
                                                 ->where('id_template_pertanyaan',$pertanyaan->id)
                                                 ->where('id_template_jawaban',$jawaban->id);
 
