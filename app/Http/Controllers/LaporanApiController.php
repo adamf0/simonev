@@ -11,6 +11,7 @@ use App\Models\Mahasiswa;
 use App\Models\Pengangkatan;
 use App\Models\Prodi;
 use App\Models\TemplatePertanyaan;
+use App\Models\TemplatePilihan;
 use App\Models\VKuesioner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -561,84 +562,161 @@ class LaporanApiController extends Controller
     public function laporanV2($id_bank_soal){
         $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
 
-        $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
-                            ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
-                            ->get()
-                            ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal){
-                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
-                                    $results = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
-                                                ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
-                                                ->whereIn('kuesioner.id_bank_soal',[$id_bank_soal, $branchBankSoal])
-                                                ->where('id_template_pertanyaan','like',"%$pertanyaan->pertanyaan%")
-                                                ->where('id_template_jawaban','like',"%$jawaban->jawaban%");
+        $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
+            ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->get()
+            ->unique('pertanyaan')
+            ->values();
 
-                                    if (!empty($target) && !empty($target_value)) {
-                                        $results = $results->where(function($q) use ($target_value) {
-                                            $q->whereHas('Mahasiswa2', function($q2) use ($target_value) {
-                                                return $q2->where('nama_prodi_jenjang', $target_value);
-                                            })
-                                            ->orWhereHas('Dosen2', function($q2) use ($target_value) {
-                                                return $q2->where('nama_prodi_jenjang', $target_value);
-                                            })
-                                            ->orWhereHas('Tendik', function($q2) use ($target_value) {
-                                                $q2->where('unit', $target_value);
-                                            });
-                                        });
-                                    }
-                                    dd($results->toRawSql());
-                                    $results = $results->count();
+        $allPertanyaanIds = TemplatePertanyaan::whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->pluck('id', 'pertanyaan')
+            ->groupBy(function ($id, $pertanyaan) {
+                return $pertanyaan;
+            });
+
+        $allJawabanIds = TemplatePilihan::whereIn('id_template_soal', $allPertanyaanIds->flatten()->toArray())->get();
+
+        $jawabanCounts = DB::table('kuesioner')
+            ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+            ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->whereIn('id_template_pertanyaan', $allPertanyaanIds->flatten()->toArray())
+            ->select(
+                DB::raw('(SELECT pertanyaan FROM template_pertanyaan WHERE template_pertanyaan.id = id_template_pertanyaan LIMIT 1) as pertanyaan_teks'),
+                'id_template_jawaban',
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy('pertanyaan_teks', 'id_template_jawaban')
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->pertanyaan_teks;
+            });
+
+        $pertanyaanList = $pertanyaanList->map(function ($pertanyaan) use ($jawabanCounts, $allJawabanIds, $allPertanyaanIds) {
+            $groupJawaban = $allJawabanIds
+                ->whereIn('id_template_soal', $allPertanyaanIds[$pertanyaan->pertanyaan] ?? []);
+
+            $groupCounts = $jawabanCounts[$pertanyaan->pertanyaan] ?? collect();
+
+            $groupJawaban->map(function ($jawaban) use ($groupCounts) {
+                $total = $groupCounts->firstWhere('id_template_jawaban', $jawaban->jawaban)->total ?? 0;
+                $jawaban->jawaban = $jawaban->isFreeText ? 'Lainnya' : $jawaban->jawaban;
+                $jawaban->total = $total;
+            });
+
+            $labels = $groupJawaban->pluck('jawaban')->toArray();
+            $data = $groupJawaban->pluck('total')->toArray();
+            $colors = $this->generateRandomColors(count($labels));
+
+            $pertanyaan->chart = [
+                'labels' => $labels,
+                'datasets' => [
+                    [
+                        'label' => $pertanyaan->jenis_pilihan == 'rating5' ? 'Dataset 1' : '# Total',
+                        'data' => $data,
+                        'backgroundColor' => $colors,
+                        'borderColor' => $colors,
+                        'borderWidth' => 1,
+                    ],
+                ],
+            ];
+
+            $pertanyaan->TemplatePilihan = $groupJawaban->values();
+
+            return $pertanyaan;
+        });
+
+        $listPertanyaanGrouped = $pertanyaanList->reduce(function ($carry, $item) {
+            $kategori = $item->Kategori?->nama_kategori ?? 'unknown';
+            $subKategori = $item->SubKategori?->nama_sub ?? '';
+            $pattern = "$kategori#$subKategori";
+        
+            $carry[$pattern][] = [
+                'pertanyaan' => $item->pertanyaan,
+                'jenis_pilihan' => $item->jenis_pilihan,
+                'chart' => $item->chart,
+            ];
+        
+            return $carry;
+        }, []);
+
+        // $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
+        //                     ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
+        //                     ->groupBy("pertanyaan")
+        //                     ->get()
+        //                     ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal){
+        //                         $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
+        //                             $results = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
+        //                                         ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+        //                                         ->whereIn('kuesioner.id_bank_soal',[$id_bank_soal, $branchBankSoal])
+        //                                         ->where('id_template_pertanyaan',$pertanyaan->pertanyaan)
+        //                                         ->where('id_template_jawaban',$jawaban->jawaban);
+
+        //                             if (!empty($target) && !empty($target_value)) {
+        //                                 $results = $results->where(function($q) use ($target_value) {
+        //                                     $q->whereHas('Mahasiswa2', function($q2) use ($target_value) {
+        //                                         return $q2->where('nama_prodi_jenjang', $target_value);
+        //                                     })
+        //                                     ->orWhereHas('Dosen2', function($q2) use ($target_value) {
+        //                                         return $q2->where('nama_prodi_jenjang', $target_value);
+        //                                     })
+        //                                     ->orWhereHas('Tendik', function($q2) use ($target_value) {
+        //                                         $q2->where('unit', $target_value);
+        //                                     });
+        //                                 });
+        //                             }
+        //                             $results = $results->count();
                                                 
-                                    $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
-                                    $jawaban->total = $results;
-                                });
+        //                             $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
+        //                             $jawaban->total = $results;
+        //                         });
 
-                                $labels = $pertanyaan->TemplatePilihan->pluck('jawaban')->toArray();
-                                $data = $pertanyaan->TemplatePilihan->pluck('total')->toArray();
+        //                         $labels = $pertanyaan->TemplatePilihan->pluck('jawaban')->toArray();
+        //                         $data = $pertanyaan->TemplatePilihan->pluck('total')->toArray();
 
-                                if($pertanyaan->jenis_pilihan=="rating5"){
-                                    $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
-                                    $pertanyaan->chart = [
-                                        "labels" => $labels,
-                                        "datasets" => [
-                                            [
-                                                "label" => 'Dataset 1',
-                                                "data" => $data,
-                                                "backgroundColor" => $colors,
-                                            ],
-                                        ],
-                                    ];
-                                } else{
-                                    $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
-                                    $pertanyaan->chart = [
-                                        "labels"=> $labels,
-                                        "datasets"=> [
-                                          [
-                                            "label"=> '# Total',
-                                            "data"=> $data,
-                                            "backgroundColor"=> $colors,
-                                            "borderColor"=> $colors,
-                                            "borderWidth"=> 1,
-                                          ],
-                                        ],
-                                    ];
-                                }
-                                return $pertanyaan;
-                            })
-                            ->reduce(function($carry, $item) {
-                                $kategori = $item->Kategori?->nama_kategori ?? "unknown";
-                                $sub_kategori = $item->SubKategori?->nama_sub ?? "";
-                                $pattern = "$kategori#$sub_kategori";
+        //                         if($pertanyaan->jenis_pilihan=="rating5"){
+        //                             $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
+        //                             $pertanyaan->chart = [
+        //                                 "labels" => $labels,
+        //                                 "datasets" => [
+        //                                     [
+        //                                         "label" => 'Dataset 1',
+        //                                         "data" => $data,
+        //                                         "backgroundColor" => $colors,
+        //                                     ],
+        //                                 ],
+        //                             ];
+        //                         } else{
+        //                             $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
+        //                             $pertanyaan->chart = [
+        //                                 "labels"=> $labels,
+        //                                 "datasets"=> [
+        //                                   [
+        //                                     "label"=> '# Total',
+        //                                     "data"=> $data,
+        //                                     "backgroundColor"=> $colors,
+        //                                     "borderColor"=> $colors,
+        //                                     "borderWidth"=> 1,
+        //                                   ],
+        //                                 ],
+        //                             ];
+        //                         }
+        //                         return $pertanyaan;
+        //                     })
+        //                     ->reduce(function($carry, $item) {
+        //                         $kategori = $item->Kategori?->nama_kategori ?? "unknown";
+        //                         $sub_kategori = $item->SubKategori?->nama_sub ?? "";
+        //                         $pattern = "$kategori#$sub_kategori";
 
-                                $carry[$pattern][] = [
-                                    "pertanyaan"=>$item->pertanyaan,
-                                    "jenis_pilihan"=>$item->jenis_pilihan,
-                                    "chart"=>$item->chart,
-                                ];
+        //                         $carry[$pattern][] = [
+        //                             "pertanyaan"=>$item->pertanyaan,
+        //                             "jenis_pilihan"=>$item->jenis_pilihan,
+        //                             "chart"=>$item->chart,
+        //                         ];
 
-                                return $carry;
-                            }, []);
+        //                         return $carry;
+        //                     }, []);
 
-        return json_encode($listPertanyaan);
+        return json_encode($listPertanyaanGrouped);
     }
 
     public function laporan(Request $request){
