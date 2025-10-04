@@ -65,12 +65,12 @@ class Kuesioner extends Model
             (concat(
                 m_program_studi.nama_prodi, 
                 case 
-                    when m_program_studi.kode_jenjang='C' then 's1' 
-                    when m_program_studi.kode_jenjang='B' then 's2' 
-                    when m_program_studi.kode_jenjang='A' then 's3' 
-                    when m_program_studi.kode_jenjang='E' then 'd3' 
-                    when m_program_studi.kode_jenjang='D' then 'd4'
-                    when m_program_studi.kode_jenjang='J' then 'profesi'
+                    when m_program_studi.kode_jenjang='C' then ' (S1)' 
+                    when m_program_studi.kode_jenjang='B' then ' (S2)' 
+                    when m_program_studi.kode_jenjang='A' then ' (S3)' 
+                    when m_program_studi.kode_jenjang='E' then ' (D3)' 
+                    when m_program_studi.kode_jenjang='D' then ' (D4)'
+                    when m_program_studi.kode_jenjang='J' then ' (Profesi)'
                     else null
                 end
             )) as nama_prodi_jenjang 
@@ -91,12 +91,12 @@ class Kuesioner extends Model
             'm_program_studi.nama_prodi',
             DB::raw("
             (case 
-                when m_program_studi.kode_jenjang='C' then 's1' 
-                when m_program_studi.kode_jenjang='B' then 's2' 
-                when m_program_studi.kode_jenjang='A' then 's3' 
-                when m_program_studi.kode_jenjang='E' then 'd3' 
-                when m_program_studi.kode_jenjang='D' then 'd4'
-                when m_program_studi.kode_jenjang='J' then 'profesi'
+                when m_program_studi.kode_jenjang='C' then ' (S1)' 
+                when m_program_studi.kode_jenjang='B' then ' (S2)' 
+                when m_program_studi.kode_jenjang='A' then ' (S3)' 
+                when m_program_studi.kode_jenjang='E' then ' (D3)' 
+                when m_program_studi.kode_jenjang='D' then ' (D4)'
+                when m_program_studi.kode_jenjang='J' then ' (Profesi)'
                 else null
             end) as jenjang 
             "),

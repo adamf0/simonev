@@ -559,7 +559,9 @@ class LaporanApiController extends Controller
     //     ]);
         
     // }
-    public function laporanV2($id_bank_soal) {
+    public function laporanV2($id_bank_soal, Request $request) {
+        $target = $request?->target;
+        $target_value = $request?->target_value;
         $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->first()?->id;
     
         // 1️⃣ Ambil semua pertanyaan unik per teks
@@ -589,8 +591,21 @@ class LaporanApiController extends Controller
                             ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                             ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
                             ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
-                            ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray())
-                            ->count();
+                            ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray());
+                            
+                if(!empty($target_value)){
+                    $total = $total->whereHas('Mahasiswa2', function($query) use ($target_value) {
+                        $query->where('nama_prodi_jenjang', $target_value);
+                    })
+                    ->orwhereHas('Mahasiswa2', function($query) use ($target_value) {
+                        $query->where('nama_prodi_jenjang', $target_value);
+                    })
+                    ->ORwhereHas('Mahasiswa2', function($query) use ($target_value) {
+                        $query->where('nama_prodi_jenjang', $target_value);
+                    });
+                }
+                
+                $total = $total->count();
 
                 $detail->push([
                     'jawaban' => $jawabanValue,
