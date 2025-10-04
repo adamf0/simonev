@@ -564,7 +564,7 @@ class LaporanApiController extends Controller
         $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
                             ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
                             ->get()
-                            ->map(function($pertanyaan) use(&$id_bank_soal){
+                            ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal){
                                 $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal){
                                     $results = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
                                                 ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
