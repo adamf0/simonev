@@ -590,8 +590,9 @@ class LaporanApiController extends Controller
                             ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                             ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
                             ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
-                            ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray())
-                            ->count();
+                            ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray());
+                dd($total->toRawSql());
+                            // ->count();
 
                 $detail->push([
                     'jawaban' => $jawabanValue,
