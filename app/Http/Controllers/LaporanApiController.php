@@ -586,44 +586,46 @@ class LaporanApiController extends Controller
         dump($allJawabanIds);
 
         $jawabanCounts = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
-            ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
-            ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
-            ->whereIn('id_template_pertanyaan', $allPertanyaanIds->flatten()->toArray())
-            ->select(
-                DB::raw('(SELECT pertanyaan FROM template_pertanyaan WHERE template_pertanyaan.id = id_template_pertanyaan LIMIT 1) as pertanyaan_teks'),
-                'id_template_jawaban',
-                DB::raw('COUNT(*) as total')
-            )
-            ->groupBy('pertanyaan_teks', 'id_template_jawaban')
-            ->get()
-            ->groupBy('pertanyaan_teks')
-            ->map(function ($group) {
-                $detail = collect();
+    ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+    ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+    ->whereIn('id_template_pertanyaan', $allPertanyaanIds->flatten()->toArray())
+    ->select(
+        DB::raw('(SELECT pertanyaan FROM template_pertanyaan WHERE template_pertanyaan.id = id_template_pertanyaan LIMIT 1) as pertanyaan_teks'),
+        'id_template_jawaban',
+        DB::raw('(SELECT jawaban FROM template_pilihan WHERE template_pilihan.id = id_template_jawaban LIMIT 1) as jawaban_value'),
+        DB::raw('COUNT(*) as total')
+    )
+    ->groupBy('pertanyaan_teks', 'id_template_jawaban')
+    ->get()
+    ->groupBy('pertanyaan_teks')
+    ->map(function ($group) {
+        $detail = collect();
 
-                // gabungkan jawaban yang sama (misal "1") dari beberapa template pertanyaan
-                foreach ($group as $item) {
-                    $existing = $detail->firstWhere('id_template_jawaban', $item->id_template_jawaban);
-                    if ($existing) {
-                        // jika sudah ada, gabungkan ID dan jumlahkan total
-                        $existing['id_template_jawaban'] = array_merge(
-                            (array) $existing['id_template_jawaban'],
-                            [$item->id_template_jawaban]
-                        );
-                        $existing['total'] += $item->total;
-                    } else {
-                        $detail->push([
-                            'id_template_jawaban' => [$item->id_template_jawaban],
-                            'total' => $item->total,
-                        ]);
-                    }
-                }
+        foreach ($group as $item) {
+            $existing = $detail->firstWhere('jawaban', $item->jawaban_value);
+            if ($existing) {
+                // gabungkan ID dan jumlahkan total
+                $existing['id_template_jawaban'] = array_merge(
+                    (array) $existing['id_template_jawaban'],
+                    [$item->id_template_jawaban]
+                );
+                $existing['total'] += $item->total;
+            } else {
+                $detail->push([
+                    'jawaban' => $item->jawaban_value,
+                    'id_template_jawaban' => [$item->id_template_jawaban],
+                    'total' => $item->total,
+                ]);
+            }
+        }
 
-                return [
-                    'pertanyaan' => $group->first()->pertanyaan_teks,
-                    'total' => $detail->sum('total'),
-                    'detail' => $detail,
-                ];
-            });
+        return [
+            'pertanyaan' => $group->first()->pertanyaan_teks,
+            'total' => $detail->sum('total'),
+            'detail' => $detail,
+        ];
+    });
+
         dump($jawabanCounts);
 
         $pertanyaanList = $pertanyaanList->map(function ($pertanyaan) use ($jawabanCounts, $allJawabanIds, $allPertanyaanIds) {
