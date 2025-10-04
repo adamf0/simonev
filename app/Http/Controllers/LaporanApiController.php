@@ -598,16 +598,32 @@ class LaporanApiController extends Controller
             ->get()
             ->groupBy('pertanyaan_teks')
             ->map(function ($group) {
+                $detail = collect();
+
+                // gabungkan jawaban yang sama (misal "1") dari beberapa template pertanyaan
+                foreach ($group as $item) {
+                    $existing = $detail->firstWhere('id_template_jawaban', $item->id_template_jawaban);
+                    if ($existing) {
+                        // jika sudah ada, gabungkan ID dan jumlahkan total
+                        $existing['id_template_jawaban'] = array_merge(
+                            (array) $existing['id_template_jawaban'],
+                            [$item->id_template_jawaban]
+                        );
+                        $existing['total'] += $item->total;
+                    } else {
+                        $detail->push([
+                            'id_template_jawaban' => [$item->id_template_jawaban],
+                            'total' => $item->total,
+                        ]);
+                    }
+                }
+
                 return [
                     'pertanyaan' => $group->first()->pertanyaan_teks,
-                    'total' => $group->sum('total'),
-                    'detail' => $group->map(fn($item) => [
-                        'id_template_jawaban' => $item->id_template_jawaban,
-                        'total' => $item->total,
-                    ])->values()
+                    'total' => $detail->sum('total'),
+                    'detail' => $detail,
                 ];
             });
-
         dump($jawabanCounts);
 
         $pertanyaanList = $pertanyaanList->map(function ($pertanyaan) use ($jawabanCounts, $allJawabanIds, $allPertanyaanIds) {
