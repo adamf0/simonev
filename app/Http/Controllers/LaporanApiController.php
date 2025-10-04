@@ -421,79 +421,154 @@ class LaporanApiController extends Controller
         return response()->json($labelsFinal);
     }
 
-    public function laporanV2($id_bank_soal, Request $request){
-        set_time_limit(0);
-        ini_set('output_buffering', 'off');
-        ini_set('zlib.output_compression', false);
-        set_time_limit(0);
-        ob_implicit_flush(true);
+    // public function laporanV2($id_bank_soal, Request $request){
+    //     set_time_limit(0);
+    //     ini_set('output_buffering', 'off');
+    //     ini_set('zlib.output_compression', false);
+    //     set_time_limit(0);
+    //     ob_implicit_flush(true);
 
-        $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
-        $target = $request?->target;
-        $target_value = $request?->target_value;
+    //     $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
+    //     $target = $request?->target;
+    //     $target_value = $request?->target_value;
 
+    //     $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
+    //                         ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
+    //                         ->get()
+    //                         ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal, $target , $target_value){
+    //                             $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal, $target , $target_value){
+    //                                 $results = VKuesioner::with([
+    //                                                 'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
+    //                                                 'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+    //                                                 'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi","kode_jenjang", "nama_prodi"),
+    //                                                 'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
+    //                                                 'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
+    //                                                 'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi","kode_jenjang","nama_prodi"),
+    //                                                 'Tendik',
+    //                                             ])
+    //                                             ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+    //                                             ->whereHas('Pertanyaan', fn($q) => 
+    //                                                 $q->where('id_template_pertanyaan',$pertanyaan->id)
+    //                                             )
+    //                                             ->whereHas('Pilihan', fn($q) => 
+    //                                                 $q->where('id_template_jawaban',$jawaban->id)
+    //                                             );
+
+    //                                 if (!empty($target) && !empty($target_value)) {
+    //                                     $results = $results->where(function($q) use ($target_value) {
+    //                                         $q->whereHas('Mahasiswa.Prodi', function($q2) use ($target_value) {
+    //                                             if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
+    //                                                 $nama = $matches[1];
+    //                                                 $jenjang = match($matches[2]) {
+    //                                                     'S1' => 'C',
+    //                                                     'S2' => 'B',
+    //                                                     'S3' => 'A',
+    //                                                     'D3' => 'E',
+    //                                                     'D4' => 'D',
+    //                                                     'Profesi' => 'J',
+    //                                                     default => null
+    //                                                 };
+    //                                                 $q2->where('nama_prodi', $nama)
+    //                                                 ->where('kode_jenjang', $jenjang);
+    //                                             }
+    //                                         })
+    //                                         ->orWhereHas('Dosen.Prodi', function($q2) use ($target_value) {
+    //                                             if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
+    //                                                 $nama = $matches[1];
+    //                                                 $jenjang = match($matches[2]) {
+    //                                                     'S1' => 'C',
+    //                                                     'S2' => 'B',
+    //                                                     'S3' => 'A',
+    //                                                     'D3' => 'E',
+    //                                                     'D4' => 'D',
+    //                                                     'Profesi' => 'J',
+    //                                                     default => null
+    //                                                 };
+    //                                                 $q2->where('nama_prodi', $nama)
+    //                                                 ->where('kode_jenjang', $jenjang);
+    //                                             }
+    //                                         })
+    //                                         ->orWhereHas('Tendik', function($q2) use ($target_value) {
+    //                                             $q2->where('unit', $target_value);
+    //                                         });
+    //                                     });
+    //                                 }
+    //                                 $results = $results->count();
+                                                
+    //                                 $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
+    //                                 $jawaban->total = $results;
+    //                             });
+
+    //                             $labels = $pertanyaan->TemplatePilihan->pluck('jawaban')->toArray();
+    //                             $data = $pertanyaan->TemplatePilihan->pluck('total')->toArray();
+
+    //                             if($pertanyaan->jenis_pilihan=="rating5"){
+    //                                 $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
+    //                                 $pertanyaan->chart = [
+    //                                     "labels" => $labels,
+    //                                     "datasets" => [
+    //                                         [
+    //                                             "label" => 'Dataset 1',
+    //                                             "data" => $data,
+    //                                             "backgroundColor" => $colors,
+    //                                         ],
+    //                                     ],
+    //                                 ];
+    //                             } else{
+    //                                 $colors = $this->generateRandomColors(count($labels)); // Generating random colors for each label
+    //                                 $pertanyaan->chart = [
+    //                                     "labels"=> $labels,
+    //                                     "datasets"=> [
+    //                                       [
+    //                                         "label"=> '# Total',
+    //                                         "data"=> $data,
+    //                                         "backgroundColor"=> $colors,
+    //                                         "borderColor"=> $colors,
+    //                                         "borderWidth"=> 1,
+    //                                       ],
+    //                                     ],
+    //                                 ];
+    //                             }
+    //                             return $pertanyaan;
+    //                         })
+    //                         ->reduce(function($carry, $item) {
+    //                             $kategori = $item->Kategori?->nama_kategori ?? "unknown";
+    //                             $sub_kategori = $item->SubKategori?->nama_sub ?? "";
+    //                             $pattern = "$kategori#$sub_kategori";
+
+    //                             $carry[] = [
+    //                                 "pattern"=>$pattern,
+    //                                 "pertanyaan"=>$item->pertanyaan,
+    //                                 "jenis_pilihan"=>$item->jenis_pilihan,
+    //                                 "chart"=>$item->chart,
+    //                             ];
+
+    //                             return $carry;
+    //                         }, []);
+
+    //     // return json_encode($listPertanyaan);
+    //     return response()->stream(function() use ($listPertanyaan) {
+    //         foreach ($listPertanyaan as $row) {
+    //             echo json_encode($row, JSON_UNESCAPED_UNICODE) . "\n";
+    //             ob_flush();
+    //             flush();
+    //         }
+    //     }, 200, [
+    //         'Content-Type' => 'application/x-ndjson',
+    //     ]);
+        
+    // }
+    public function laporanV2($id_bank_soal){
         $listPertanyaan = TemplatePertanyaan::with(['TemplatePilihan','Kategori','SubKategori'])
-                            ->whereIn('id_bank_soal',[$id_bank_soal, $branchBankSoal])
+                            ->where('id_bank_soal',$id_bank_soal)
                             ->get()
-                            ->map(function($pertanyaan) use(&$id_bank_soal, &$branchBankSoal, $target , $target_value){
-                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal, &$branchBankSoal, $target , $target_value){
-                                    $results = VKuesioner::with([
-                                                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
-                                                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                                                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi","kode_jenjang", "nama_prodi"),
-                                                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
-                                                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                                                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi","kode_jenjang","nama_prodi"),
-                                                    'Tendik',
-                                                ])
-                                                ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
-                                                ->whereHas('Pertanyaan', fn($q) => 
-                                                    $q->where('id_template_pertanyaan',$pertanyaan->id)
-                                                )
-                                                ->whereHas('Pilihan', fn($q) => 
-                                                    $q->where('id_template_jawaban',$jawaban->id)
-                                                );
-
-                                    if (!empty($target) && !empty($target_value)) {
-                                        $results = $results->where(function($q) use ($target_value) {
-                                            $q->whereHas('Mahasiswa.Prodi', function($q2) use ($target_value) {
-                                                if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
-                                                    $nama = $matches[1];
-                                                    $jenjang = match($matches[2]) {
-                                                        'S1' => 'C',
-                                                        'S2' => 'B',
-                                                        'S3' => 'A',
-                                                        'D3' => 'E',
-                                                        'D4' => 'D',
-                                                        'Profesi' => 'J',
-                                                        default => null
-                                                    };
-                                                    $q2->where('nama_prodi', $nama)
-                                                    ->where('kode_jenjang', $jenjang);
-                                                }
-                                            })
-                                            ->orWhereHas('Dosen.Prodi', function($q2) use ($target_value) {
-                                                if (preg_match('/^(.*) \((.*)\)$/', $target_value, $matches)) {
-                                                    $nama = $matches[1];
-                                                    $jenjang = match($matches[2]) {
-                                                        'S1' => 'C',
-                                                        'S2' => 'B',
-                                                        'S3' => 'A',
-                                                        'D3' => 'E',
-                                                        'D4' => 'D',
-                                                        'Profesi' => 'J',
-                                                        default => null
-                                                    };
-                                                    $q2->where('nama_prodi', $nama)
-                                                    ->where('kode_jenjang', $jenjang);
-                                                }
-                                            })
-                                            ->orWhereHas('Tendik', function($q2) use ($target_value) {
-                                                $q2->where('unit', $target_value);
-                                            });
-                                        });
-                                    }
-                                    $results = $results->count();
+                            ->map(function($pertanyaan) use(&$id_bank_soal){
+                                $pertanyaan->TemplatePilihan->map(function($jawaban) use(&$pertanyaan, &$id_bank_soal){
+                                    $results = Kuesioner::join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                                                ->where('kuesioner.id_bank_soal', $id_bank_soal)
+                                                ->where('id_template_pertanyaan',$pertanyaan->id)
+                                                ->where('id_template_jawaban',$jawaban->id)
+                                                ->count();
                                                 
                                     $jawaban->jawaban = $jawaban->isFreeText? "Lainnya":$jawaban->jawaban;
                                     $jawaban->total = $results;
@@ -536,8 +611,7 @@ class LaporanApiController extends Controller
                                 $sub_kategori = $item->SubKategori?->nama_sub ?? "";
                                 $pattern = "$kategori#$sub_kategori";
 
-                                $carry[] = [
-                                    "pattern"=>$pattern,
+                                $carry[$pattern][] = [
                                     "pertanyaan"=>$item->pertanyaan,
                                     "jenis_pilihan"=>$item->jenis_pilihan,
                                     "chart"=>$item->chart,
@@ -546,17 +620,7 @@ class LaporanApiController extends Controller
                                 return $carry;
                             }, []);
 
-        // return json_encode($listPertanyaan);
-        return response()->stream(function() use ($listPertanyaan) {
-            foreach ($listPertanyaan as $row) {
-                echo json_encode($row, JSON_UNESCAPED_UNICODE) . "\n";
-                ob_flush();
-                flush();
-            }
-        }, 200, [
-            'Content-Type' => 'application/x-ndjson',
-        ]);
-        
+        return json_encode($listPertanyaan);
     }
 
     public function laporan(Request $request){
