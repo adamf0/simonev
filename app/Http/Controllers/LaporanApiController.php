@@ -586,10 +586,17 @@ class LaporanApiController extends Controller
     
             // Gabungkan jawaban yang sama dari template berbeda
             foreach ($jawabanGroup->groupBy('jawaban') as $jawabanValue => $jawabanItems) {
+                $total = Kuesioner::with(['Mahasiswa2','Dosen2','tendik'])
+                            ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                            ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+                            ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
+                            ->whereIn('id_template_jawaban', $jawabanItems->pluck('id')->toArray())
+                            ->count();
+
                 $detail->push([
                     'jawaban' => $jawabanValue,
                     'id_template_jawaban' => $jawabanItems->pluck('id')->toArray(),
-                    'total' => $jawabanItems->count(), // hitung per ID template jawaban
+                    'total' => $total, // hitung per ID template jawaban
                 ]);
             }
     
