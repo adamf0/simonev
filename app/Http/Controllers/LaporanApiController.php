@@ -567,14 +567,17 @@ class LaporanApiController extends Controller
             ->get()
             ->unique('pertanyaan')
             ->values();
+        dump($pertanyaanList);
 
         $allPertanyaanIds = TemplatePertanyaan::whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
             ->pluck('id', 'pertanyaan')
             ->groupBy(function ($id, $pertanyaan) {
                 return $pertanyaan;
             });
+        dump($allPertanyaanIds);
 
         $allJawabanIds = TemplatePilihan::whereIn('id_template_soal', $allPertanyaanIds->flatten()->toArray())->get();
+        dump($allJawabanIds);
 
         $jawabanCounts = Kuesioner::with(["Mahasiswa2","Dosen2","tendik"])
             ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
@@ -590,6 +593,8 @@ class LaporanApiController extends Controller
             ->groupBy(function ($item) {
                 return $item->pertanyaan_teks;
             });
+
+        dump($jawabanCounts);
 
         $pertanyaanList = $pertanyaanList->map(function ($pertanyaan) use ($jawabanCounts, $allJawabanIds, $allPertanyaanIds) {
             $groupJawaban = $allJawabanIds
@@ -624,6 +629,8 @@ class LaporanApiController extends Controller
 
             return $pertanyaan;
         });
+
+        dd($pertanyaanList);
 
         $listPertanyaanGrouped = $pertanyaanList->reduce(function ($carry, $item) {
             $kategori = $item->Kategori?->nama_kategori ?? 'unknown';
