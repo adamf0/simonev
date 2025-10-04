@@ -422,6 +422,11 @@ class LaporanApiController extends Controller
     }
 
     public function laporanV2($id_bank_soal, Request $request){
+        set_time_limit(0);
+        ini_set('output_buffering', 'off');
+        ini_set('zlib.output_compression', false);
+        set_time_limit(0);
+        
         $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
         $target = $request?->target;
         $target_value = $request?->target_value;

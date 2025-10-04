@@ -55,7 +55,29 @@ function Laporan({level, listBankSoal=[]}) {
 
     console.log(listBankSoal);
 
-    useEffect(() => {
+    // useEffect(() => {
+    //     console.log(filters);
+    //     if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
+    //         dispatch(fetchChartFakultasLabel(bankSoal));
+    //     }
+    //     if (![null, "", undefined].includes(bankSoal) && chartProdi) {
+    //         dispatch(fetchChartProdiLabel(bankSoal));
+    //     }
+    //     if (![null, "", undefined].includes(bankSoal) && chartUnit) {
+    //         dispatch(fetchChartUnitLabel(bankSoal));
+    //     }
+
+    //     if(![null, "", undefined].includes(bankSoal)){
+    //         dispatch(fetchChart(bankSoal, filters?.target ?? '', filters?.target_value ?? ''));
+    //     }
+
+    //     if(![null, "", undefined].includes(bankSoal)){
+    //         dispatch(fetchChartTotal(bankSoal, filters?.target ?? '', filters?.target_value ?? ''));
+    //     }
+
+    // }, [filters]);
+
+    function handlerFilter(){
         console.log(filters);
         if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
             dispatch(fetchChartFakultasLabel(bankSoal));
@@ -74,8 +96,7 @@ function Laporan({level, listBankSoal=[]}) {
         if(![null, "", undefined].includes(bankSoal)){
             dispatch(fetchChartTotal(bankSoal, filters?.target ?? '', filters?.target_value ?? ''));
         }
-
-    }, [filters]);
+    }
 
     const changeFilter = (key, value) => {
         setFilters(prevFilters => ({ ...prevFilters, [key]: value }));
@@ -526,6 +547,7 @@ function Laporan({level, listBankSoal=[]}) {
                                     </select>
                                 </div>
                                 <div class="col-12">
+                                    <button className="btn btn-primary" onClick={()=>handlerFilter()}>Filter</button>
                                     <button className="btn btn-primary" onClick={()=>{setBankSoal(null)}}>Hapus filter</button>
                                 </div>
                             </div>
