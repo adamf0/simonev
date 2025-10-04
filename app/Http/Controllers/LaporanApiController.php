@@ -562,54 +562,69 @@ class LaporanApiController extends Controller
     public function laporanV2($id_bank_soal){
         $branchBankSoal = BankSoal::where("branch",$id_bank_soal)->first()?->id;
 
+        // 1️⃣ Ambil semua pertanyaan unik per teks
         $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
-            ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
-            ->orderBy("pertanyaan", "asc")
-            ->limit(2)
-            ->get()
-            ->groupBy('pertanyaan')
-            ->values();
+        ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+        ->orderBy("pertanyaan", "asc")
+        ->limit(2)
+        ->get()
+        ->groupBy('pertanyaan');
         dump($pertanyaanList);
 
-        $allPertanyaanIds = TemplatePertanyaan::whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
-            ->orderBy("pertanyaan", "asc")
-            ->limit(2)
-            ->get()
-            ->groupBy('pertanyaan')
-            ->map(function ($group) {
-                return $group->pluck('id');
-            });
-
-        dump($allPertanyaanIds);
-
-        $allJawabanIds = TemplatePilihan::whereIn('id_template_soal', $allPertanyaanIds->flatten()->toArray())->get();
+        // 2️⃣ Ambil semua jawaban terkait pertanyaan
+        $allJawabanIds = TemplatePilihan::whereIn(
+            'id_template_soal',
+            $pertanyaanList->flatten()->pluck('id')->toArray()
+        )->get();
         dump($allJawabanIds);
 
+        // 3️⃣ Hitung total per jawaban dan gabungkan template yang sama
         $jawabanCounts = collect();
 
-foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
-    $detail = collect();
+        foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
+            $detail = collect();
 
-    // Ambil semua jawaban untuk pertanyaan ini
-    $jawabanGroup = $allJawabanIds->whereIn('id_template_soal', $pertGroup->pluck('id'));
+            // Ambil jawaban untuk semua template pertanyaan dengan teks yang sama
+            $jawabanGroup = $allJawabanIds->whereIn('id_template_soal', $pertGroup->pluck('id'));
 
-    // Kelompokkan jawaban yang sama (misal jawaban "1") meski dari template berbeda
-    foreach ($jawabanGroup->groupBy('jawaban') as $jawabanValue => $jawabanItems) {
-        $detail->push([
-            'jawaban' => $jawabanValue,
-            'id_template_jawaban' => $jawabanItems->pluck('id')->toArray(),
-            'total' => $jawabanItems->count(), // jumlah template jawaban yang sama
-        ]);
-    }
+            // Gabungkan jawaban yang sama dari template berbeda
+            foreach ($jawabanGroup->groupBy('jawaban') as $jawabanValue => $jawabanItems) {
+                $detail->push([
+                    'jawaban' => $jawabanValue,
+                    'id_template_jawaban' => $jawabanItems->pluck('id')->toArray(),
+                    'total' => $jawabanItems->count(), // hitung per ID template jawaban
+                ]);
+            }
 
-    $jawabanCounts[$pertanyaanText] = [
-        'pertanyaan' => $pertanyaanText,
-        'total' => $detail->sum('total'), // jumlah semua template jawaban unik
-        'detail' => $detail,
-    ];
-}
+            // Siapkan chart
+            $labels = $detail->pluck('jawaban')->toArray();
+            $data = $detail->pluck('total')->toArray();
+            $colors = $this->generateRandomColors(count($labels));
 
-        dump($jawabanCounts);
+            $pertanyaanList[$pertanyaanText]->each(function ($pertanyaan) use ($detail, $labels, $data, $colors) {
+                $pertanyaan->chart = [
+                    'labels' => $labels,
+                    'datasets' => [
+                        [
+                            'label' => $pertanyaan->jenis_pilihan == 'rating5' ? 'Dataset 1' : '# Total',
+                            'data' => $data,
+                            'backgroundColor' => $colors,
+                            'borderColor' => $colors,
+                            'borderWidth' => 1,
+                        ],
+                    ],
+                ];
+
+                $pertanyaan->TemplatePilihan = $detail; // update jawaban
+            });
+
+            $jawabanCounts[$pertanyaanText] = [
+                'pertanyaan' => $pertanyaanText,
+                'total' => $detail->sum('total'), // total semua jawaban
+                'detail' => $detail,
+            ];
+        }
+        dd($jawabanCounts);
 
         $pertanyaanList = $pertanyaanList->map(function ($pertanyaan) use ($jawabanCounts, $allJawabanIds, $allPertanyaanIds) {
             $groupJawaban = $allJawabanIds
