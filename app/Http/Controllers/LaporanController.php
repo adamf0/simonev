@@ -255,9 +255,101 @@ class LaporanController extends Controller
                                 });
         }
         $listBankSoal = $listBankSoal->get()->map(function($row){
-            $row->target_list_name = empty($row->target_list) 
+            $branch = DB::table('v_bank_soal as bs')
+                    ->select(
+                        'bs.id',
+                        DB::raw('bs.judul as text'),
+                        'bs.createdBy',
+                        'bs.target_type',
+                        'bs.target_list',
+                        'bs.peruntukan',
+                        DB::raw("
+                            CASE 
+                                WHEN bs.target_type = 'prodi' THEN (
+                                    CASE 
+                                        WHEN JSON_CONTAINS(bs.target_list, '\"all\"') THEN 
+                                            (SELECT GROUP_CONCAT(
+                                                concat(
+                                                    p.nama_prodi,
+                                                    case 
+                                                        when kode_jenjang = 'C' then ' (S1)'
+                                                        when kode_jenjang = 'B' then ' (S2)'
+                                                        when kode_jenjang = 'A' then ' (S3)'
+                                                        when kode_jenjang = 'E' then ' (D3)'
+                                                        when kode_jenjang = 'D' then ' (D4)'
+                                                        when kode_jenjang = 'J' then ' (Profesi)'
+                                                        else '(x)'
+                                                    end
+                                                ) SEPARATOR ', ') 
+                                            FROM m_program_studi_simak p)
+                                        ELSE
+                                            (SELECT GROUP_CONCAT(concat(
+                                                    p.nama_prodi,
+                                                    case 
+                                                        when kode_jenjang = 'C' then ' (S1)'
+                                                        when kode_jenjang = 'B' then ' (S2)'
+                                                        when kode_jenjang = 'A' then ' (S3)'
+                                                        when kode_jenjang = 'E' then ' (D3)'
+                                                        when kode_jenjang = 'D' then ' (D4)'
+                                                        when kode_jenjang = 'J' then ' (Profesi)'
+                                                        else '(x)'
+                                                    end
+                                                ) SEPARATOR ', ')
+                                            FROM JSON_TABLE(bs.target_list, '$[*]' 
+                                                COLUMNS (kode_prodi VARCHAR(10) PATH '$')
+                                            ) jt
+                                            JOIN m_program_studi_simak p 
+                                                ON p.kode_prodi = jt.kode_prodi)
+                                    END
+                                )
+                                WHEN bs.target_type = 'unit' THEN (
+                                    CASE 
+                                        WHEN JSON_CONTAINS(bs.target_list, '\"all\"') THEN 
+                                            (SELECT GROUP_CONCAT(
+                                                        RTRIM(REPLACE(u.unit_kerja, 'F.', 'Fakultas')) 
+                                                        SEPARATOR ', '
+                                                    )
+                                            FROM n_pengangkatan_simpeg u)
+                                        ELSE
+                                            (SELECT GROUP_CONCAT(
+                                                        RTRIM(REPLACE(u.unit_kerja, 'F.', 'Fakultas')) 
+                                                        SEPARATOR ', '
+                                                    )
+                                            FROM JSON_TABLE(bs.target_list, '$[*]' 
+                                                COLUMNS (kode_unit VARCHAR(255) PATH '$')
+                                            ) jt
+                                            JOIN n_pengangkatan_simpeg u 
+                                                ON u.unit_kerja = jt.kode_unit)
+                                    END
+                                )
+                                ELSE NULL
+                            END AS target_list_name
+                        ")
+                    )
+                    ->where("branch", $row?->id)
+                    ->get()
+                    ->map(function($b){
+                        $b->target_list_name = empty($b->target_list) 
+                                        ? [] 
+                                        : array_map('trim', explode(',', $b->target_list_name));
+
+                        return $b;
+                    });
+
+            $row->target_list_name1 = empty($row->target_list) 
                                         ? [] 
                                         : array_map('trim', explode(',', $row->target_list_name));
+
+            $row->target_list_name2 = collect($branch->pluck('target_list_name')->flatten())->all();
+
+            $row->target_list_name = collect($row->target_list_name1)
+                                        ->merge($row->target_list_name2)
+                                        ->flatten()                    
+                                        ->map(fn($v) => trim($v))     
+                                        ->unique()                     
+                                        ->values()                      
+                                        ->all();                         
+
 
             if($row->createdBy=="fakultas"){
                 $targetList = json_decode($row?->target_list ?? '[]', true);
