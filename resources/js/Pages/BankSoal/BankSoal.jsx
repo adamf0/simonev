@@ -466,27 +466,26 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         
         return [...output];
     }
-    // Ubah string target_list_all jadi array dengan split(",")
-    const target_list_all = (item.rule?.target_list_all ?? "")
-    .split(",")
-    .map(s => s.trim())   // hilangkan spasi
-    .filter(Boolean);     // buang elemen kosong
+    const target_list_all_raw = item.rule?.target_list_all;
 
-    // Ubah juga listTarget kalau masih berupa string
-    const listTargetArray = (listTarget ?? "")
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
-
-    // Kalau target_fakultas juga string koma, ubah juga
-    const target_fakultas = (item.rule?.target_fakultas ?? "")
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
-
-    // Periksa apakah ada satu elemen di target_list_all
-    // yang cocok dengan listTarget atau bernilai "all"
+    // Kalau sudah array → pakai langsung.
+    // Kalau string → split jadi array.
+    // Kalau tipe lain → fallback ke array kosong.
+    const target_list_all = Array.isArray(target_list_all_raw)
+      ? target_list_all_raw.map(String)
+      : typeof target_list_all_raw === "string"
+        ? target_list_all_raw.split(",").map(s => s.trim()).filter(Boolean)
+        : [];
+    
+    const listTargetArray = Array.isArray(listTarget)
+      ? listTarget.map(String)
+      : typeof listTarget === "string"
+        ? listTarget.split(",").map(s => s.trim()).filter(Boolean)
+        : [];
+    
     const match = target_list_all.some(it => listTargetArray.includes(it) || it === "all");
+    
+    console.log({ target_list_all, listTargetArray, match });
 
     console.log(`
         id: ${item.id},
