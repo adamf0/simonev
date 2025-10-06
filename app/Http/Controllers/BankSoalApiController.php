@@ -71,6 +71,22 @@ class BankSoalApiController extends Controller
             } 
 
             $item->rule = $rule;
+            
+            if($item->createdBy=="fakultas"){
+                $targetList = json_decode($item?->target_list ?? '[]', true);
+                $targetList = in_array("all",$targetList)? []:$targetList;
+                $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
+                        ->join("m_program_studi_simak", "m_program_studi_simak.kode_fak","=","m_fakultas_simak.kode_fakultas")
+                        ->whereIn("m_program_studi_simak.kode_prodi",$targetList)
+                        ->distinct()
+                        ->get()
+                        ->pluck("text")
+                        ->toArray();
+    
+                $item->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$item->text):$item->text;
+            } else{
+                $item->text = "[LPM] ".$item->text;
+            }
             return $item;
         });
 
