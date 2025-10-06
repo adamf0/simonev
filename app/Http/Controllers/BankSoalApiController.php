@@ -73,7 +73,6 @@ class BankSoalApiController extends Controller
             $item->rule = $rule;
             
             if($item->createdBy=="fakultas"){
-                dump($targetListInput);
                 $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
                         ->join("m_program_studi_simak", "m_program_studi_simak.kode_fak","=","m_fakultas_simak.kode_fakultas")
                         ->whereIn("m_program_studi_simak.kode_prodi",$targetListInput)
@@ -82,7 +81,7 @@ class BankSoalApiController extends Controller
                         ->pluck("text")
                         ->toArray();
     
-                $item->judul = count($targetListInput)? ("[".implode(",",$listFakultas)."] ".$item->judul):$item->judul;
+                $item->judul = count($listFakultas)? ("[".implode(",",$listFakultas)."] ".$item->judul):$item->judul;
             } else{
                 $item->judul = "[LPM] ".$item->judul;
             }
