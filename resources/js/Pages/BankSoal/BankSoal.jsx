@@ -482,7 +482,15 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         target_list_all: ${target_list_all},
         target_fakultas: ${target_fakultas}
         listTarget: ${listTarget.concat(["all"])},
-        item.rule: ${item.rule}
+        item.rule: ${item.rule},
+
+        level_fakultas: level == "fakultas",
+        createdBy_admin: item.createdBy == "admin",
+        branch_zero: item.branch == 0,
+        type_spesific: item.rule?.type == "spesific",
+        match_value: match,
+        target_type_prodi_or_unit:
+          item.rule?.target_type == "prodi" || item.rule?.target_type == "unit",
         `
     )
     return (
@@ -544,7 +552,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
                         <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                     {
-                        (item.createdBy=="admin" && item.branch==0 && item.rule?.type=="spesific" && match && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
+                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && item.rule?.type=="spesific" && match && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
                         <button className="btn" disabled={loading} onClick={() => createBranch(item.id)}>
                             <i className="bi bi-signpost-split text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
