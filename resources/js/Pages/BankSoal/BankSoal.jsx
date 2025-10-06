@@ -484,6 +484,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         listTarget: ${listTarget.concat(["all"])},
         item.rule: ${item.rule},
 
+        item:${item},
         level_fakultas: ${level == "fakultas"},
         createdBy_admin: ${item.createdBy == "admin"},
         branch_zero: ${item.branch == 0},
