@@ -484,13 +484,13 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         listTarget: ${listTarget.concat(["all"])},
         item.rule: ${item.rule},
 
-        level_fakultas: level == "fakultas",
-        createdBy_admin: item.createdBy == "admin",
-        branch_zero: item.branch == 0,
-        type_spesific: item.rule?.type == "spesific",
-        match_value: match,
+        level_fakultas: ${level == "fakultas"},
+        createdBy_admin: ${item.createdBy == "admin"},
+        branch_zero: ${item.branch == 0},
+        type_spesific: ${item.rule?.type == "spesific"},
+        match_value: ${match},
         target_type_prodi_or_unit:
-          item.rule?.target_type == "prodi" || item.rule?.target_type == "unit",
+          ${item.rule?.target_type == "prodi" || item.rule?.target_type == "unit"},
         `
     )
     return (
