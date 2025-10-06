@@ -255,9 +255,9 @@ class AuthController extends Controller
                 return redirect()->route('dashboard');
             }
         } catch (Exception $e) {
-            if($request->debug==1){
-                throw $e;
-            }
+            // if($request->debug==1){
+            //     throw $e;
+            // }
             return view("access_denied");
         }
     }
