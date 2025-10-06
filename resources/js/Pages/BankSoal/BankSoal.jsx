@@ -468,7 +468,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
     }
     const target_list_all = item.rule?.target_list_all ?? [];
     const target_fakultas = item.rule?.target_fakultas ?? [];
-    const match = (target_list_all ?? []).some(item => listTarget.includes(item) || item === "all");
+    const match = (target_list_all ?? []).some(it => listTarget.includes(it) || it === "all");
 
     console.log(`
         id: ${item.id},
