@@ -535,7 +535,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
                         </button>
                     }
                     {
-                        ((item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
+                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
                         <button className="btn" disabled={loading} onClick={() => openPertanyaan(item.id)}>
                             <i className="bi bi-arrow-right-circle text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
@@ -544,7 +544,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
                         <i className="bi bi-eye text-black" style={{ fontSize: "1.2rem" }}></i>
                     </button>
                     {
-                        (level=="fakultas" && item.createdBy=="admin" && item.branch==0 && item.rule?.type=="spesific" && match && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
+                        (item.createdBy=="admin" && item.branch==0 && item.rule?.type=="spesific" && match && (item.rule?.target_type=="prodi" || item.rule?.target_type=="unit")) && 
                         <button className="btn" disabled={loading} onClick={() => createBranch(item.id)}>
                             <i className="bi bi-signpost-split text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
