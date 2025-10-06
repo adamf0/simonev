@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Prodi extends Model
 {
-    protected $table = 'm_program_studi_simak';
-    // protected $connection = 'simak';
+    protected $table = 'm_program_studi';
+    protected $connection = 'simak';
     protected $fillable = ['*'];
 
     function fakultas(): HasOne{

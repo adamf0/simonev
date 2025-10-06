@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Fakultas extends Model
 {
-    protected $table = 'm_fakultas_simak';
-    // protected $connection = 'simak';
+    protected $table = 'm_fakultas';
+    protected $connection = 'simak';
     protected $fillable = ['*'];
 
     public function Prodis():HasMany{
