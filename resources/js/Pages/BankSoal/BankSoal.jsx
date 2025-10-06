@@ -16,7 +16,7 @@ function BankSoal({level=null, fakultas=null, prodi=null, listUnit=[], listFakul
     const errorMessage = useSelector((state) => state.bankSoal.error);
     const loading = useSelector((state) => state.bankSoal.loading); // Access loading state from Redux
 
-    const [filters, setFilters] = useState({ judul: '', status: '', deskripsi: '', start_date: '', end_date: '' });
+    const [filters, setFilters] = useState({ kode_fakultas: fakultas, judul: '', status: '', deskripsi: '', start_date: '', end_date: '' });
     const [isModalDeleteVisible, setModalDeleteVisible] = useState(false);
     const [isModalAddVisible, setModalAddVisible] = useState(false);
     const [isModalCopyVisible, setModalCopyVisible] = useState(false);

@@ -27,6 +27,19 @@ class BankSoalApiController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('kode_fakultas')) {
+            $listTarget = Prodi::where('kode_fak', $request->kode_fakultas)
+                ->pluck('kode_prodi')
+                ->toArray();
+        
+            // Jika kolom rule adalah JSON dan memiliki key "target_list" berupa array
+            $query->where(function ($q) use ($listTarget) {
+                foreach ($listTarget as $target) {
+                    $q->orWhereJsonContains('rule->target_list', $target);
+                }
+            });
+        }
+
         $bankSoals = $query->paginate(5);
 
         $bankSoals->getCollection()->transform(function($item) {
