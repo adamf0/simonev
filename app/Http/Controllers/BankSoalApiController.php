@@ -39,6 +39,7 @@ class BankSoalApiController extends Controller
                 }
             });
         }
+        dd($query->toRawSql());
 
         $bankSoals = $query->paginate(5);
 
