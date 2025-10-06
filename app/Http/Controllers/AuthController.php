@@ -31,7 +31,7 @@ class AuthController extends Controller
         ])
         ->where('username',$username)
         ->get()
-        ->filter(fn($item)=> sha1(md5($password))==$item->password)
+        // ->filter(fn($item)=> sha1(md5($password))==$item->password)
         ->values();
 
         if($akunSimak->count()>1){
