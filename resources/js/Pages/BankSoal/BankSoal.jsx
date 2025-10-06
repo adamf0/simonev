@@ -466,9 +466,27 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         
         return [...output];
     }
-    const target_list_all = item.rule?.target_list_all ?? [];
-    const target_fakultas = item.rule?.target_fakultas ?? [];
-    const match = (target_list_all ?? []).some(it => listTarget.includes(it) || it === "all");
+    // Ubah string target_list_all jadi array dengan split(",")
+    const target_list_all = (item.rule?.target_list_all ?? "")
+    .split(",")
+    .map(s => s.trim())   // hilangkan spasi
+    .filter(Boolean);     // buang elemen kosong
+
+    // Ubah juga listTarget kalau masih berupa string
+    const listTargetArray = (listTarget ?? "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+
+    // Kalau target_fakultas juga string koma, ubah juga
+    const target_fakultas = (item.rule?.target_fakultas ?? "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+
+    // Periksa apakah ada satu elemen di target_list_all
+    // yang cocok dengan listTarget atau bernilai "all"
+    const match = target_list_all.some(it => listTargetArray.includes(it) || it === "all");
 
     console.log(`
         id: ${item.id},
@@ -484,7 +502,6 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         listTarget: ${listTarget.concat(["all"])},
         item.rule: ${item.rule},
 
-        item:${JSON.stringify(item)},
         level_fakultas: ${level == "fakultas"},
         createdBy_admin: ${item.createdBy == "admin"},
         branch_zero: ${item.branch == 0},
