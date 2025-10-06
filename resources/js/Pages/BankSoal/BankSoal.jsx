@@ -529,7 +529,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
                         </button>
                     }
                     {
-                        ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
+                        ((item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) &&
                         <button className="btn" disabled={loading} onClick={() => openCopy(item.id, item.judul)}>
                             <i className="bi bi-copy text-black" style={{ fontSize: "1.2rem" }}></i>
                         </button>
