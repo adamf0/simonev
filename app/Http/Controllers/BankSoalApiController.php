@@ -83,9 +83,9 @@ class BankSoalApiController extends Controller
                         ->pluck("text")
                         ->toArray();
     
-                $item->text = count($targetList)? ("[".implode(",",$listFakultas)."] ".$item->text):$item->text;
+                $item->judul = count($targetList)? ("[".implode(",",$listFakultas)."] ".$item->text):$item->text;
             } else{
-                $item->text = "[LPM] ".$item->text;
+                $item->judul = "[LPM] ".$item->text;
             }
             return $item;
         });
