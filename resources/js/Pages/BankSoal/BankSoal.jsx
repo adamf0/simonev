@@ -489,7 +489,7 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
         <tr key={item.id}>
             <td>
                 {
-                    (level=="admin" || item.branch!=0) && <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
+                    ((level=="admin" && item.createdBy=="admin" && item.branch==0) || (item.createdBy!="admin" && item.branch!=0 && target_fakultas.includes(fakultas))) && <input type="checkbox" checked={item.selected} onChange={() => changeSelected(item.id)} />
                 }
             </td>
             <td>{item.judul}</td>
