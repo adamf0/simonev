@@ -73,7 +73,6 @@ class BankSoalApiController extends Controller
             $item->rule = $rule;
             
             if($item->createdBy=="fakultas"){
-                $targetListInput = $rule["target_list"];
                 dump($targetListInput);
                 $listFakultas = Fakultas::select(DB::raw('nama_fakultas as text'))
                         ->join("m_program_studi_simak", "m_program_studi_simak.kode_fak","=","m_fakultas_simak.kode_fakultas")
