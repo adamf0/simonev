@@ -207,7 +207,7 @@ Error generating stack: `+i.message+`
         listTarget: ${p.concat(["all"])},
         item.rule: ${r.rule},
 
-        item:${r},
+        item:${JSON.stringify(r)},
         level_fakultas: ${e=="fakultas"},
         createdBy_admin: ${r.createdBy=="admin"},
         branch_zero: ${r.branch==0},
