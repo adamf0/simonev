@@ -31,7 +31,7 @@ class AuthController extends Controller
         ])
         ->where('username',$username)
         ->get()
-        ->filter(fn($item)=> sha1(md5($password))==$item->password)
+        // ->filter(fn($item)=> sha1(md5($password))==$item->password)
         ->values();
 
         if($akunSimak->count()>1){
@@ -205,9 +205,7 @@ class AuthController extends Controller
                 return view("invalid_resource");
             }
 
-            $akun = User::where("username", $request->username)
-                    // ->where("password_plain", $request->password)
-                    ->first();
+            $akun = User::where("username", $request->username)->where("password_plain", $request->password)->first();
 
             if($akun==null){
                 $akunSimak = $this->loginSimak($request->username, $request->password);
