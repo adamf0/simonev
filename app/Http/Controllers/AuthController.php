@@ -256,7 +256,7 @@ class AuthController extends Controller
             }
         } catch (Exception $e) {
             // if($request->debug==1){
-            //     throw $e;
+                throw $e;
             // }
             return view("access_denied");
         }
