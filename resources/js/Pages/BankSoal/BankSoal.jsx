@@ -468,9 +468,16 @@ BankSoal.BankSoalsRow = ({ level, fakultas, prodi, item, loading, changeSelected
     }
     const target_list_all_raw = item.rule?.target_list_all;
 
+    const target_fakultas_raw = item.rule?.target_fakultas;
     // Kalau sudah array → pakai langsung.
     // Kalau string → split jadi array.
     // Kalau tipe lain → fallback ke array kosong.
+    const target_fakultas = Array.isArray(target_fakultas_raw)
+      ? target_fakultas_raw.map(String)
+      : typeof target_fakultas_raw === "string"
+        ? target_fakultas_raw.split(",").map(s => s.trim()).filter(Boolean)
+        : [];
+
     const target_list_all = Array.isArray(target_list_all_raw)
       ? target_list_all_raw.map(String)
       : typeof target_list_all_raw === "string"
