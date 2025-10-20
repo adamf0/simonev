@@ -95,7 +95,7 @@ class BankSoalApiController extends Controller
                 $targetFakultas = $item->rule["target_fakultas"] ?? collect();
                 $targetList = $item->rule["target_list"] ?? [];
                 return $targetFakultas->contains($kodeFakultas) || in_array("all", $targetList);
-            });
+            })->values();
         }        
 
         return response()->json([
