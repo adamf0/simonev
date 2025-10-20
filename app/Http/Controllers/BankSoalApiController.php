@@ -68,6 +68,7 @@ class BankSoalApiController extends Controller
                 $rule["target_list_all"] = $targetListInput;
                 $rule["target_fakultas"] = Prodi::with(["fakultas"])->whereIn("kode_prodi",$targetListInput)->get()->pluck("fakultas.kode_fakultas")->unique()->values();
                 $rule["target_list"] = count($target_list)>$number? array_merge(array_slice($target_list, 0, $number), ["+".(count($target_list)-$number)." prodi"]):$target_list;
+                $rule["target_list_untruncate"] = $target_list;
             } 
 
             $item->rule = $rule;
@@ -93,6 +94,7 @@ class BankSoalApiController extends Controller
         
             $filtered = $bankSoals->getCollection()->filter(function($item) use ($kodeFakultas) {
                 $targetFakultas = $item->rule["target_fakultas"] ?? collect();
+                // $targetList = $item->rule["target_list_untruncate"] ?? collect();
                 return $targetFakultas->contains($kodeFakultas);
             });
         
