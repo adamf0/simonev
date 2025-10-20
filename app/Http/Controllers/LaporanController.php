@@ -250,12 +250,15 @@ class LaporanController extends Controller
             $listTarget = Prodi::where('kode_fak', $fakultas)->pluck('kode_prodi');
 
             $listBankSoal = $listBankSoal
-                                ->where("createdBy", "fakultas")
-                                ->where(function($q) use ($listTarget) {
-                                    foreach ($listTarget as $kode) {
-                                        $q->orWhereRaw('JSON_CONTAINS(target_list, ?)', [json_encode($kode)]);
-                                    }
-                                });
+                                ->where(function($q) use($listTarget){
+                                    return $q->where("createdBy", "fakultas")
+                                    ->where(function($q) use ($listTarget) {
+                                        foreach ($listTarget as $kode) {
+                                            $q->orWhereRaw('JSON_CONTAINS(target_list, ?)', [json_encode($kode)]);
+                                        }
+                                    });
+                                })
+                                ->orWhere("createdBy", "admin");
         }
         $listBankSoal = $listBankSoal->get()->map(function($row){
             $branch = DB::table('v_bank_soal as bs')
