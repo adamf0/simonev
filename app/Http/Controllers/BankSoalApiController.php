@@ -88,6 +88,18 @@ class BankSoalApiController extends Controller
             return $item;
         });
 
+        if ($request->filled('kode_fakultas')) {
+            $kodeFakultas = $request->kode_fakultas;
+        
+            $filtered = $bankSoals->getCollection()->filter(function($item) use ($kodeFakultas) {
+                $targetFakultas = $item->rule["target_fakultas"] ?? collect();
+                return $targetFakultas->contains($kodeFakultas);
+            });
+        
+            // ganti collection hasil paginate dengan hasil filter
+            $bankSoals->setCollection($filtered->values());
+        }        
+
         return response()->json([
             'data' => $bankSoals->getCollection(),
             'currentPage' => $bankSoals->currentPage(),
