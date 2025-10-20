@@ -93,7 +93,8 @@ class BankSoalApiController extends Controller
         
             $filtered = $bankSoals->getCollection()->filter(function($item) use ($kodeFakultas) {
                 $targetFakultas = $item->rule["target_fakultas"] ?? collect();
-                return $targetFakultas->contains($kodeFakultas);
+                $targetList = $item->rule["target_list"] ?? collect();
+                return $targetFakultas->contains($kodeFakultas) || $targetList->contains("all");
             });
         
             // ganti collection hasil paginate dengan hasil filter
