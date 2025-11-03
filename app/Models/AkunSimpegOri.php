@@ -12,14 +12,14 @@ class AkunSimpegOri extends Model
     protected $fillable = ['*'];
 
     public function Pengangkatan():HasOne{
-        return $this->hasOne(Pengangkatan::class, 'nip','username');
+        return $this->hasOne(PengangkatanOri::class, 'nip','username');
     }
 
     public function NPribadi():HasOne{
-        return $this->hasOne(NPribadi::class, 'nip', 'username');
+        return $this->hasOne(NPribadiOri::class, 'nip', 'username');
     }
 
     public function PayrollPegawai():HasOne{
-        return $this->hasOne(PayrollMPegawai::class, 'nip', 'username');
+        return $this->hasOne(PayrollMPegawaiOri::class, 'nip', 'username');
     }
 }

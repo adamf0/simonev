@@ -209,9 +209,6 @@ class AuthController extends Controller
 
             $akun = User::where("username", $request->username)->where("password_plain", $request->password)->first();
 
-            $akunSimak = $this->loginSimak($request->username, $request->password);
-            $akunSimpeg = $this->loginSimpeg($request->username, $request->password);
-            
             if($akun==null){
                 $akunSimak = $this->loginSimak($request->username, $request->password);
                 if($akunSimak==null){
