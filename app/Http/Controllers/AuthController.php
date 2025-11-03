@@ -202,10 +202,10 @@ class AuthController extends Controller
             }
             $target = base64_decode($request->target,true);
             $path = str_replace(url('/'),"",$target);
-            $validTarget = preg_match('/^\/kuesioner\/start/', $path);
-            if(!$validTarget){
-                return view("invalid_resource");
-            }
+            // $validTarget = preg_match('/^\/kuesioner\/start/', $path);
+            // if(!$validTarget){
+            //     return view("invalid_resource");
+            // }
 
             $akun = User::where("username", $request->username)->where("password_plain", $request->password)->first();
 
