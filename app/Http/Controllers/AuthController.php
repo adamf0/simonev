@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AkunSimak;
+use App\Models\AkunSimakOri;
 use App\Models\AkunSimpeg;
+use App\Models\AkunSimpegOri;
 use App\Models\User;
 use Auth;
 use Exception;
@@ -21,7 +23,7 @@ class AuthController extends Controller
     }
 
     function loginSimak($username, $password){
-        $akunSimak = AkunSimak::with([
+        $akunSimak = AkunSimakOri::with([
             'Dosen',
             'Dosen.EPribadi',
             'Dosen.EPribadi.Payroll',
@@ -66,7 +68,7 @@ class AuthController extends Controller
     }
 
     public function loginSimpeg($username,$password){
-        $akunSimpeg = AkunSimpeg::with([
+        $akunSimpeg = AkunSimpegOri::with([
                                 'Pengangkatan',
                                 'PayrollPegawai',
                                 'NPribadi'
