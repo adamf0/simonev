@@ -202,13 +202,16 @@ class AuthController extends Controller
             }
             $target = base64_decode($request->target,true);
             $path = str_replace(url('/'),"",$target);
-            // $validTarget = preg_match('/^\/kuesioner\/start/', $path);
-            // if(!$validTarget){
-            //     return view("invalid_resource");
-            // }
+            $validTarget = preg_match('/^\/kuesioner\/start/', $path);
+            if(!$validTarget){
+                return view("invalid_resource");
+            }
 
             $akun = User::where("username", $request->username)->where("password_plain", $request->password)->first();
 
+            $akunSimak = $this->loginSimak($request->username, $request->password);
+            $akunSimpeg = $this->loginSimpeg($request->username, $request->password);
+            
             if($akun==null){
                 $akunSimak = $this->loginSimak($request->username, $request->password);
                 if($akunSimak==null){
@@ -257,9 +260,9 @@ class AuthController extends Controller
                 return redirect()->route('dashboard');
             }
         } catch (Exception $e) {
-            if($request->debug==1){
+            // if($request->debug==1){
                 throw $e;
-            }
+            // }
             return view("access_denied");
         }
     }
