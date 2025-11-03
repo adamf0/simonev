@@ -12,9 +12,9 @@ class AkunSimakOri extends Model
     protected $fillable = ['*'];
 
     public function Dosen():HasOne{
-        return $this->hasOne(Dosen::class, 'NIDN', 'userid');
+        return $this->hasOne(DosenOri::class, 'NIDN', 'userid');
     }
     public function Mahasiswa():HasOne{
-        return $this->hasOne(Mahasiswa::class, 'NIM', 'userid');
+        return $this->hasOne(MahasiswaOri::class, 'NIM', 'userid');
     }
 }
