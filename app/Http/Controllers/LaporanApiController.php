@@ -72,6 +72,7 @@ class LaporanApiController extends Controller
         ");
 
         $query = DB::table("kuesioner as k")
+                    ->distinct()
                     ->select(
                         'k.id',
                         'k.nidn',
