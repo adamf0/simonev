@@ -55,9 +55,13 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
         setlistTendik(list)
     }, [unit]);
 
-    useEffect(() => {
+    // useEffect(() => {
+    //     dispatch(fetchRekapKuesioners(filters));
+    // }, [filters]);
+
+    function filterHandler(){
         dispatch(fetchRekapKuesioners(filters));
-    }, [filters]);
+    }
 
     useEffect(() => {
         changeFilter("date",date);
@@ -217,6 +221,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                                     />
                                 </div>
                                 <div className="col-12">
+                                    <button className="btn btn-primary mr-3" onClick={()=>filterHandler()}>Filter</button>
                                     <button className="btn btn-primary" onClick={()=>clearFilter()}>Hapus Filter</button>
                                 </div>
                             </div>
