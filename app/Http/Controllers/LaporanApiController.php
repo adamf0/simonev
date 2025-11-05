@@ -46,7 +46,7 @@ class LaporanApiController extends Controller
     {
         DB::statement("
             CREATE TEMPORARY TABLE temp_vtendik AS
-            SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
+            SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, rtrim(REPLACE(MAX(unit), 'F.', 'Fakultas'))  AS unit
             FROM (
                 SELECT 
                     CASE WHEN e_pribadi_simpeg.nip = 0 THEN '' ELSE e_pribadi_simpeg.nip END AS nip,
