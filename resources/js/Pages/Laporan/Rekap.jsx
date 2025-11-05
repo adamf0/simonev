@@ -220,8 +220,8 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                                         type={'range'}
                                     />
                                 </div>
-                                <div className="col-12">
-                                    <button className="btn btn-primary mr-3" onClick={()=>filterHandler()}>Filter</button>
+                                <div className="col-12 row gap-2">
+                                    <button className="btn btn-primary" onClick={()=>filterHandler()}>Filter</button>
                                     <button className="btn btn-primary" onClick={()=>clearFilter()}>Hapus Filter</button>
                                 </div>
                             </div>
