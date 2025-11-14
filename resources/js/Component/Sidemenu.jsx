@@ -31,7 +31,7 @@ function Sidemenu({ isOpen, level }) {
                         </li>
                         <li className={`sidebar-item`}>
                             <a className="sidebar-link" href="https://drive.google.com/file/d/1zlz1V5gVhlmoqYr7etbz5QpsmuEyiNeL/view?usp=sharing">
-                                <i className="align-middle ti ti-home me-2"></i>
+                                <i className="align-middle ti ti-book me-2"></i>
                                 <span className="align-middle">Buku Panduan</span>
                             </a>
                         </li>
