@@ -29,6 +29,12 @@ function Sidemenu({ isOpen, level }) {
                                 <span className="align-middle">Dashboards</span>
                             </a>
                         </li>
+                        <li className={`sidebar-item`}>
+                            <a className="sidebar-link" href="https://drive.google.com/file/d/1zlz1V5gVhlmoqYr7etbz5QpsmuEyiNeL/view?usp=sharing">
+                                <i className="align-middle ti ti-home me-2"></i>
+                                <span className="align-middle">Buku Panduan</span>
+                            </a>
+                        </li>
                         {
                             level=="admin"?
                             <li className={`sidebar-item ${activeItem === '/pengguna' ? 'active' : ''}`}>
