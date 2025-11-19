@@ -6,7 +6,7 @@ export const FETCH_CHART_CHUNK = "FETCH_CHART_CHUNK"; // per-pertanyaan
 export const FETCH_CHART_SUCCESS = "FETCH_CHART_SUCCESS";
 export const FETCH_CHART_FAILURE = "FETCH_CHART_FAILURE";
 
-const api_chart = '/api/tes/all';
+const api_chart = '/tes/all';
 
 export const fetchChartSSE = (id_bank_soal, target = "", target_value = "") => {
   return async (dispatch) => {
