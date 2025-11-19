@@ -16,6 +16,8 @@ const initialState = {
 };
 
 const chartReducer = (state = initialState, action) => {
+  console.log(state)
+  
   switch (action.type) {
 
     case FETCH_CHART_REQUEST:
@@ -24,15 +26,14 @@ const chartReducer = (state = initialState, action) => {
         loading: true, 
         chart: {}, 
         action_type: action.type,
-        loaded_pertanyaan: 0,
       };
 
     case FETCH_CHART_START:
       return {
         ...state,
         total_pertanyaan: action.payload.total_pertanyaan,
-        action_type: action.type,
         loaded_pertanyaan: 0,
+        action_type: action.type,
       };
 
     case FETCH_CHART_CHUNK: {
@@ -46,7 +47,6 @@ const chartReducer = (state = initialState, action) => {
       // copy state chart sekarang
       const currentList = state.chart[key] || [];
 
-      console.log(state, chunk)
       return {
         ...state,
         loaded_pertanyaan: state.loaded_pertanyaan + 1,
