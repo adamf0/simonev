@@ -1,197 +1,180 @@
-import React, { useEffect, useState } from "react";
-import { Chart } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend
-} from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, Filler, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { Chart, Bar, Pie } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { useDispatch, useSelector } from 'react-redux';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, Title, Filler, ChartDataLabels, CategoryScale, LinearScale, BarElement);
 
 export default function Tes() {
-  const [allData, setAllData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { chart, action_type, loading, error } = useSelector(s => s.chartV2);
 
-  const [fakultasCompleteCount, setFakultasCompleteCount] = useState({});
-  const [prodiCompleteCount, setProdiCompleteCount] = useState({});
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch("/tes/all");
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let allItems = [];
-  
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-  
-        buffer += decoder.decode(value, { stream: true });
-        let lines = buffer.split("\n");
-        buffer = lines.pop(); // sisa partial JSON
-  
-        for (let line of lines) {
-          if (line.trim()) {
-            try {
-              const parsed = JSON.parse(line);
-              if (Array.isArray(parsed)) {
-                allItems.push(...parsed);
-              } else {
-                allItems.push(parsed);
-              }
-            } catch (err) {
-              console.error("JSON parse error:", err, line);
-            }
-          }
-        }
-      }
-  
-      if (buffer.trim()) {
-        try {
-          const parsed = JSON.parse(buffer);
-          if (Array.isArray(parsed)) {
-            allItems.push(...parsed);
-          } else {
-            allItems.push(parsed);
-          }
-        } catch (err) {
-          console.error("JSON parse error (final buffer):", err, buffer);
-        }
-      }
-  
-      setAllData(allItems);
-      setLoading(false);
-    };
-  
-    fetchData();
-  }, []); 
-
-  useEffect(() => {
-    if (!loading && allData.length > 0) {
-      const filteredComplete = allData.filter(item => item.status_pengisian === "isi lengkap");
-
-      // Hitung per fakultas
-      const fakultasResult = filteredComplete.reduce((acc, item) => {
-        let namaFak = item?.mhs
-          ? item.mhs?.fakultas?.nama_fakultas || "Tidak diketahui"
-          : item?.dosen
-            ? item.dosen?.prodi?.fakultas?.nama_fakultas || "Tidak diketahui"
-            : "Tidak diketahui";
-        acc[namaFak] = (acc[namaFak] || 0) + 1;
-        return acc;
-      }, {});
-
-      // Hitung per prodi
-      const prodiResult = filteredComplete.reduce((acc, item) => {
-        let namaProdi = item?.mhs
-          ? item.mhs?.prodi?.nama_prodi || "Tidak diketahui"
-          : item?.dosen
-            ? item.dosen?.prodi?.nama_prodi || "Tidak diketahui"
-            : "Tidak diketahui";
-        acc[namaProdi] = (acc[namaProdi] || 0) + 1;
-        return acc;
-      }, {});
-
-      setFakultasCompleteCount(fakultasResult);
-      setProdiCompleteCount(prodiResult);
-    }
-  }, [loading, allData]);
-
-  const makePieConfig = (labels, rawData) => {
-    const total = rawData.reduce((sum, val) => sum + val, 0);
-    const percentageData = rawData.map(val => (val / total * 100).toFixed(1));
-  
-    return {
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Persentase',
-            data: percentageData, // tampilkan persentase di chart
-            customData: rawData,  // simpan data asli untuk tooltip
-            backgroundColor: labels.map((_, i) =>
-              `hsl(${(i * 40) % 360}, 70%, 60%)`
-            ),
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false // kita matikan legend default
+  function buildOptionsChart(source, hiddenLegend = false){
+      return {
+          responsive: true,
+          plugins: {
+              tooltip: {
+                  callbacks: {
+                      title: function(tooltipItem) {
+                          return source.labels[tooltipItem[0].dataIndex];
+                      },
+                      label: function(tooltipItem) {
+                          const total = source.datasets[0].data.reduce((acc, val) => acc + val, 0);
+                          const value = source.datasets[0].data[tooltipItem.dataIndex];
+                          const percentage = ((value / total) * 100).toFixed(2);
+                          return `Total: ${value} | Persentase: ${percentage}%`;
+                      }
+                  }
               },
-                tooltip: {
-                    callbacks: {
-                    label: function (context) {
-                        const rawValue = context.dataset.customData[context.dataIndex];
-                        const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
-                        const percentage = ((rawValue / total) * 100).toFixed(1);
-                        return `${context.label}: ${rawValue} (${percentage}%)`;
-                    }
-                    }
-                }
-        }
+              legend: {
+                  display: !hiddenLegend
+              },
+              datalabels: {
+                  formatter: function(value, context) {
+                      const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                      const percentage = ((value / total) * 100).toFixed(2);
+                      return `${percentage}%`;  // Display percentage only
+                  },
+                  color: '#000',  // White color for labels on the chart
+                  font: {
+                      weight: 'bold',
+                      size: 14
+                  }
+              }
+          }
       }
-    };
-  };
+  }
+  function RataRataRatingChart({ data }) {
+      const ratingCharts = data.filter(item => item.jenis_pilihan === "rating5");
 
-  const fakultasLabels = Object.keys(fakultasCompleteCount);
-  const fakultasValues = Object.values(fakultasCompleteCount);
-  const fakultasColors = fakultasLabels.map((_, i) =>
-    `hsl(${(i * 40) % 360}, 70%, 60%)`
-  );
+      const totalRatings = ratingCharts.reduce((acc, curr) => {
+          const values = curr.chart.datasets[0].data;
+          values.forEach((val, idx) => {
+              acc[idx] = (acc[idx] || 0) + val;
+          });
+          return acc;
+      }, []);
 
-  const prodiLabels = Object.keys(prodiCompleteCount);
-  const prodiValues = Object.values(prodiCompleteCount);
-  const prodiColors = prodiLabels.map((_, i) =>
-    `hsl(${(i * 40) % 360}, 70%, 60%)`
-    );
+      const avgRatings = (totalRatings.length > 0 ? totalRatings : [0, 0, 0, 0, 0])
+                              .map(val => Number((val / (ratingCharts.length || 1)).toFixed(3)));
 
-  return (
-    <div>
-      <p>Total users: {allData.length}</p>
 
-      <h2>Fakultas (Selesai)</h2>
-      <div style={{ width: '500px' }}>
-                <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />
-            </div>
-            <div className="chart-legend">
-                {fakultasLabels.map((label, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
-                    <div style={{
-                    width: '12px',
-                    height: '12px',
-                    backgroundColor: fakultasColors[i],
-                    marginRight: '6px'
-                    }}></div>
-                    <span>{label}</span>
-                </div>
-                ))}
-            </div>
+      const chartData = {
+          labels: ["1", "2", "3", "4", "5"],
+          datasets: [
+              {
+                  label: "Rata-rata Rating",
+                  data: avgRatings,
+                  backgroundColor: "rgba(54, 162, 235, 0.7)",
+                  borderColor: "rgba(54, 162, 235, 1)",
+                  borderWidth: 1,
+              },
+          ],
+      };
 
-      <h2>Prodi (Selesai)</h2>
-      <div className="chart-container">
-            <div style={{ width: '500px' }}>
-                <Chart type="pie" {...makePieConfig(prodiLabels, prodiValues)} />
-            </div>
-            <div className="chart-legend">
-                {prodiLabels.map((label, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
-                    <div style={{
-                    width: '12px',
-                    height: '12px',
-                    backgroundColor: prodiColors[i],
-                    marginRight: '6px'
-                    }}></div>
-                    <span>{label}</span>
-                </div>
-                ))}
-            </div>
+      const options = {
+          responsive: true,
+          plugins: { 
+              title: { 
+                  display: false 
+              }, 
+              legend: {
+                  display: false
+              },
+              datalabels: {
+                  formatter: function(value, context) {
+                      const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                      const percentage = ((value / total) * 100).toFixed(2);
+                      return `${percentage}%`;  // Display percentage only
+                  },
+                  color: '#000',  // White color for labels on the chart
+                  font: {
+                      weight: 'bold',
+                      size: 14
+                  }
+              },
+          },
+          scales: { y: { beginAtZero: true } },
+      };
+
+      return (
+          <div className="row">
+              <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">
+                  Rata-rata Rating
+              </div>
+              <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                  <Bar data={chartData} options={options} />
+              </div>
+          </div>
+      );
+  }
+  function renderChart() {
+
+    if (action_type === FETCH_CHART_REQUEST || loading) {
+      return (
+        <div className="card px-4 py-3">
+          <p>Loading...</p>
         </div>
-    </div>
-  );
+      );
+    }
+  
+    if (action_type === FETCH_CHART_FAILURE) {
+      return <p className="text-danger">{error?.message || "Error"}</p>;
+    }
+  
+    if (!chart || Object.keys(chart).length === 0) {
+      return (
+        <div className="card px-4 py-3">
+          <p>No Data</p>
+        </div>
+      );
+    }
+  
+    return Object.keys(chart).map((key) => {
+      const parts = key.split("#").filter(Boolean);
+  
+      const title = parts.length === 1 ? parts[0] : parts.join(" > ");
+  
+      return (
+        <div key={key} className="card d-flex flex-row">
+          <div className="col-12">
+            <h3 className="text-primary bg-primary text-white px-3 py-3">
+              {title}
+            </h3>
+  
+            <div className="grid px-4 py-3">
+              {chart[key].map((c, i) => (
+                <div key={i} className="row">
+                  <div className="col-12 text-center text-success">
+                    {c.pertanyaan}
+                  </div>
+  
+                  <div className="col-12">
+                    {c.jenis_pilihan === "rating5" ? (
+                      <Bar
+                        data={c.chart}
+                        options={buildOptionsChart(c.chart, true)}
+                      />
+                    ) : (
+                      <Pie data={c.chart} options={buildOptionsChart(c.chart)} />
+                    )}
+                  </div>
+                </div>
+              ))}
+  
+              {/* Tambah rata-rata rating */}
+              <RataRataRatingChart data={chart[key]} />
+            </div>
+          </div>
+        </div>
+      );
+    });
+  }
+
+  useEffect(() => {
+      dispatch(fetchChartSSE(110, "prodi", "ILMU HUKUM (S1)"));
+  }, []);
+  
+
+  return <>{renderChart()}</>
 }
