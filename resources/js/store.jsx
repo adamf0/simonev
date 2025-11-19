@@ -13,7 +13,7 @@ import subkategoriReducer from './Pages/SubKategori/redux/reducers/subkategoriRe
 import chartFakultasLabelReducer from './Pages/Laporan/redux/reducers/chartFakultasLabelReducer';
 import chartProdiLabelReducer from './Pages/Laporan/redux/reducers/chartProdiLabelReducer';
 import chartUnitLabelReducer from './Pages/Laporan/redux/reducers/chartUnitLabelReducer';
-import chartReducer from './Pages/Laporan/redux/reducers/chartReducerV2';
+import chartReducer from './Pages/Laporan/redux/reducers/chartReducer';
 import chartTotalReducer from './Pages/Laporan/redux/reducers/chartTotalReducer';
 
 // import chartReducerV2 from './Pages/Laporan/redux/reducers/chartReducerV2';
