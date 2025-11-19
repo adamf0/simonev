@@ -2,7 +2,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, Filler, CategoryS
 import { Chart, Bar, Pie } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
 import { fetchChartSSE } from './Laporan/redux/actions/chartActionsv2';
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title, Filler, ChartDataLabels, CategoryScale, LinearScale, BarElement);
