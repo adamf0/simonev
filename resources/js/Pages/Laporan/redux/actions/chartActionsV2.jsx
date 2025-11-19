@@ -18,7 +18,7 @@ export const fetchChartSSE = (id_bank_soal, target = "", target_value = "") => {
         window.__SSE_CHART__.close();
       }
 
-      const url = `${api_chart}/${id_bank_soal}/stream?target=${target}&target_value=${target_value}`;
+      const url = `${api_chart}`; // /${id_bank_soal}/stream?target=${target}&target_value=${target_value}
       const source = new EventSource(url);
       window.__SSE_CHART__ = source;
 
