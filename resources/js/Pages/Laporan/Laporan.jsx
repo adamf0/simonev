@@ -236,7 +236,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if(cfActionType==FETCH_CHART_FAKULTAS_LABEL_FAILURE){
             return cfErrorMessage;
         } else{
-            if(ctActionType==FETCH_CHART_TOTAL_REQUEST){
+            if(ctActionType==FETCH_CHART_TOTAL_REQUEST || ctLoading){
                 return "loading...";
             } else if(ctActionType==FETCH_CHART_TOTAL_FAILURE){
                 return ctErrorMessage;
@@ -284,7 +284,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if(cpActionType==FETCH_CHART_PRODI_LABEL_FAILURE){
             return cpErrorMessage;
         } else{
-            if(ctActionType==FETCH_CHART_TOTAL_REQUEST){
+            if(ctActionType==FETCH_CHART_TOTAL_REQUEST || ctLoading){
                 return "loading...";
             } else if(ctActionType==FETCH_CHART_TOTAL_FAILURE){
                 return ctErrorMessage;
@@ -312,7 +312,7 @@ function Laporan({level, listBankSoal=[]}) {
         } else if(cuActionType==FETCH_CHART_UNIT_LABEL_FAILURE){
             return cuErrorMessage;
         } else{
-            if(ctActionType==FETCH_CHART_TOTAL_REQUEST){
+            if(ctActionType==FETCH_CHART_TOTAL_REQUEST || ctLoading){
                 return "loading...";
             } else if(ctActionType==FETCH_CHART_TOTAL_FAILURE){
                 return ctErrorMessage;
