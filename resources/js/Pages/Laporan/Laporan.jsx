@@ -46,12 +46,14 @@ function Laporan({level, listBankSoal=[]}) {
     // const ctErrorMessage = useSelector((state) => state.chartTotal.error);
     // const ctLoading = useSelector((state) => state.chartTotal.loading); 
 
+    const xx = useSelector((state) => state.chart);
     const chart = useSelector((state) => state.chart.chart);
     const ActionType = useSelector((state) => state.chart.action_type);
     const ErrorMessage = useSelector((state) => state.chart.error);
     const Loading = useSelector((state) => state.chart.loading);
     const TotalPertanyaan = useSelector((state) => state.chart.total_pertanyaan);
     const LoadedPertanyaan = useSelector((state) => state.chart.loaded_pertanyaan);
+    console.log(xx)
 
     const [filters, setFilters] = useState({level: level, bankSoal: '', target: '', target_value: ''});
 

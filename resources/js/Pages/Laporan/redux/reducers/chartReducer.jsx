@@ -31,7 +31,8 @@ const chartReducer = (state = initialState, action) => {
       return {
         ...state,
         total_pertanyaan: action.payload.total_pertanyaan,
-        action_type: action.type
+        action_type: action.type,
+        loaded_pertanyaan: 0,
       };
 
     case FETCH_CHART_CHUNK: {
