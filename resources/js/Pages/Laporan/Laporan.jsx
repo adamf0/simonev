@@ -49,7 +49,9 @@ function Laporan({level, listBankSoal=[]}) {
     const chart = useSelector((state) => state.chart.chart);
     const ActionType = useSelector((state) => state.chart.action_type);
     const ErrorMessage = useSelector((state) => state.chart.error);
-    const Loading = useSelector((state) => state.chart.loading);    
+    const Loading = useSelector((state) => state.chart.loading);
+    const TotalPertanyaan = useSelector((state) => state.chart.total_pertanyaan);
+    const LoadedPertanyaan = useSelector((state) => state.chart.loaded_pertanyaan);
 
     const [filters, setFilters] = useState({level: level, bankSoal: '', target: '', target_value: ''});
 
@@ -414,7 +416,7 @@ function Laporan({level, listBankSoal=[]}) {
         if (ActionType  === FETCH_CHART_REQUEST || Loading) {
           return (
             <div className="card px-4 py-3">
-              <p>Loading...</p>
+              <p>Loading... ({LoadedPertanyaan}/{TotalPertanyaan})</p>
             </div>
           );
         }

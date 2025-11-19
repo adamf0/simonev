@@ -9,6 +9,7 @@ import {
 const initialState = {
   chart: {},
   total_pertanyaan: 0,
+  loaded_pertanyaan: 0,
   loading: false,
   error: null,
   action_type: null,
@@ -22,6 +23,7 @@ const chartReducer = (state = initialState, action) => {
         ...state, 
         loading: true, 
         chart: {}, 
+        loaded_pertanyaan: 0,
         action_type: action.type 
       };
 
@@ -35,16 +37,15 @@ const chartReducer = (state = initialState, action) => {
     case FETCH_CHART_CHUNK: {
       const chunk = action.payload;
 
-      // key = "kategori#subKategori"
       const key = chunk.subKategori
         ? `${chunk.kategori}#${chunk.subKategori}`
         : chunk.kategori;
 
-      // copy state chart sekarang
       const currentList = state.chart[key] || [];
 
       return {
         ...state,
+        loaded_pertanyaan: state.loaded_pertanyaan + 1,
         chart: {
           ...state.chart,
           [key]: [...currentList, chunk]
