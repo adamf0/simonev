@@ -7,43 +7,43 @@ import {
 } from "../actions/chartTotalActions";
 
 const initialState = {
-  chart: [],      // kumpulan item SSE
+  chart: [],      // data hasil SSE chunk
   loading: false,
   error: null,
-  action_type: null,
+  action_type: null
 };
 
 const chartTotalReducer = (state = initialState, action) => {
   switch (action.type) {
-    
+
     case FETCH_CHART_TOTAL_REQUEST:
       return {
         ...state,
         loading: true,
-        chart: [],
-        action_type: action.type,
+        chart: [],        // reset hasil lama
+        error: null,
+        action_type: action.type
       };
 
     case FETCH_CHART_TOTAL_START:
       return {
         ...state,
-        action_type: action.type,
+        action_type: action.type
       };
 
-    case FETCH_CHART_TOTAL_CHUNK: {
-      const chunk = action.payload; // array 500 item
+    case FETCH_CHART_TOTAL_CHUNK:
       return {
         ...state,
-        chart: [...state.chart, ...chunk],
-        action_type: action.type,
+        chart: [...state.chart, ...action.payload],  // append chunk
+        action_type: action.type
       };
-    }
 
     case FETCH_CHART_TOTAL_SUCCESS:
       return {
         ...state,
         loading: false,
-        action_type: action.type,
+        chart: [...state.chart],   // pastikan tidak dihapus
+        action_type: action.type
       };
 
     case FETCH_CHART_TOTAL_FAILURE:
@@ -51,7 +51,7 @@ const chartTotalReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.error,
-        action_type: action.type,
+        action_type: action.type
       };
 
     default:

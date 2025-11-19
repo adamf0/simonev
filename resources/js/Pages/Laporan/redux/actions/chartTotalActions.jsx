@@ -4,16 +4,12 @@ export const FETCH_CHART_TOTAL_CHUNK   = "FETCH_CHART_TOTAL_CHUNK";
 export const FETCH_CHART_TOTAL_SUCCESS = "FETCH_CHART_TOTAL_SUCCESS";
 export const FETCH_CHART_TOTAL_FAILURE = "FETCH_CHART_TOTAL_FAILURE";
 
-export const fetchChartTotal = (
-  id_bank_soal,
-  target = "",
-  target_value = ""
-) => {
+export const fetchChartTotal = (id_bank_soal, target = "", target_value = "") => {
   return async (dispatch) => {
     dispatch({ type: FETCH_CHART_TOTAL_REQUEST });
 
     try {
-      // tutup SSE sebelumnya
+      // tutup SSE lama jika masih hidup
       if (window.__SSE_CHART_TOTAL__) {
         window.__SSE_CHART_TOTAL__.close();
       }
@@ -22,29 +18,26 @@ export const fetchChartTotal = (
       const source = new EventSource(url);
       window.__SSE_CHART_TOTAL__ = source;
 
-      // start event
       dispatch({ type: FETCH_CHART_TOTAL_START });
 
-      // CHUNK event
+      // Saat backend kirim 500 row per chunk:
       source.addEventListener("chunk", (evt) => {
-        const rows = JSON.parse(evt.data);
+        const rows = JSON.parse(evt.data); // always array
         dispatch({
           type: FETCH_CHART_TOTAL_CHUNK,
-          payload: rows,
+          payload: rows
         });
       });
 
-      // DONE event
       source.addEventListener("done", () => {
         dispatch({ type: FETCH_CHART_TOTAL_SUCCESS });
         source.close();
       });
 
-      // ERROR event
       source.onerror = (err) => {
         dispatch({
           type: FETCH_CHART_TOTAL_FAILURE,
-          error: err,
+          error: err
         });
         source.close();
       };
@@ -52,7 +45,7 @@ export const fetchChartTotal = (
     } catch (error) {
       dispatch({
         type: FETCH_CHART_TOTAL_FAILURE,
-        error,
+        error
       });
     }
   };

@@ -41,10 +41,10 @@ function Laporan({level, listBankSoal=[]}) {
     const cuErrorMessage = useSelector((state) => state.chartUnitLabel.error);
     const cuLoading = useSelector((state) => state.chartUnitLabel.loading); 
 
-    const ct = useSelector((state) => state.chartTotal.chart);
-    const ctActionType = useSelector((state) => state.chartTotal.action_type);
-    const ctErrorMessage = useSelector((state) => state.chartTotal.error);
-    const ctLoading = useSelector((state) => state.chartTotal.loading); 
+    // const ct = useSelector((state) => state.chartTotal.chart);
+    // const ctActionType = useSelector((state) => state.chartTotal.action_type);
+    // const ctErrorMessage = useSelector((state) => state.chartTotal.error);
+    // const ctLoading = useSelector((state) => state.chartTotal.loading); 
 
     const chart = useSelector((state) => state.chart.chart);
     const ActionType = useSelector((state) => state.chart.action_type);
@@ -59,7 +59,13 @@ function Laporan({level, listBankSoal=[]}) {
     const [chartUnit, setChartUnit] = useState(false);
     const [colChart, setColChart] = useState(0);
 
-    const { data: allData, loading, error } = useSelector(state => state.chartTotal);
+    const { chart: allData, loading, error, action_type } = useSelector(
+        (state) => state.chartTotal
+    );
+    const ct = allData;
+    const ctActionType = action_type;
+    const ctErrorMessage = error;
+    const ctLoading = loading; 
 
     console.log(listBankSoal);
 
@@ -125,108 +131,92 @@ function Laporan({level, listBankSoal=[]}) {
     }
 
 
-    const { fakultasCompleteCount, prodiCompleteCount, unitCompleteCount, totalData } = useMemo(() => {
+    const {
+        fakultasCompleteCount,
+        prodiCompleteCount,
+        unitCompleteCount,
+        totalData
+    } = useMemo(() => {
         const fakultasResult = {};
         const prodiResult = {};
         const unitResult = {};
         let totalData = 0;
     
-        if (!loading && allData?.length > 0) {
-          const filteredComplete = allData?.filter(item => item.status_pengisian === "isi lengkap");
-          console.log(filteredComplete)
+        if (!loading && Array.isArray(allData) && allData.length > 0) {
+          const filteredComplete = allData.filter(
+            (item) => item.status_pengisian === "isi lengkap"
+          );
     
-          filteredComplete.forEach(item => {
-            const namaFak = item?.mhs?.fakultas?.nama_fakultas
-              || item?.dosen?.fakultas?.nama_fakultas
-              || item?.tendik?.unit?.fakultas
-              || "Tidak diketahui";
-              
-            const namaProdi = item?.mhs?.prodi?.nama_prodi_jenjang
-              || item?.dosen?.prodi?.nama_prodi_jenjang
-              || "Tidak diketahui";
-
-            const namaUnit = item?.tendik?.unit??"Tidak diketahui";
-                  
+          filteredComplete.forEach((item) => {
+            const namaFak =
+              item?.mhs?.fakultas?.nama_fakultas ||
+              item?.dosen?.fakultas?.nama_fakultas ||
+              item?.tendik?.unit?.fakultas ||
+              "Tidak diketahui";
+    
+            const namaProdi =
+              item?.mhs?.prodi?.nama_prodi_jenjang ||
+              item?.dosen?.prodi?.nama_prodi_jenjang ||
+              "Tidak diketahui";
+    
+            const namaUnit = item?.tendik?.unit || "Tidak diketahui";
+    
             fakultasResult[namaFak] = (fakultasResult[namaFak] || 0) + 1;
             prodiResult[namaProdi] = (prodiResult[namaProdi] || 0) + 1;
             unitResult[namaUnit] = (unitResult[namaUnit] || 0) + 1;
-            totalData += 1;
+    
+            totalData++;
           });
         }
     
-        return { fakultasCompleteCount: fakultasResult, prodiCompleteCount: prodiResult, unitCompleteCount:unitResult, totalData:totalData };
-      }, [allData, loading]);
-
-      const makePieConfig = (labels, rawData, isstatic=false) => {
-        console.log(labels, rawData)
-        const total = rawData.reduce((sum, val) => sum + val, 0);
-        const percentageData = rawData.map(val => +(val / total * 100).toFixed(1)); // angka, bukan string
-        console.log(total, percentageData)
-
         return {
-            data: {
-                labels,
-                datasets: [
-                    {
-                        label: 'Persentase',
-                        data: percentageData,
-                        customData: rawData,
-                        backgroundColor: labels.map((_, i) => !isstatic? `hsl(${(i * 40) % 360}, 70%, 60%)`:`hsl(210, 70%, 60%)`),
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    x: {
-                      stacked: true,
-                      beginAtZero: true,
-                      ticks: {
-                        precision: 0
-                      },
-                      grid: {
-                        display: true
-                      },
-                      title: {
-                        display: true,
-                        text: 'total'
-                      }
-                    },
-                    y: {
-                      stacked: true,
-                      grid: {
-                        display: false
-                      }
-                    }
+          fakultasCompleteCount: fakultasResult,
+          prodiCompleteCount: prodiResult,
+          unitCompleteCount: unitResult,
+          totalData
+        };
+    }, [allData, loading]);
+    
+      // chart config
+    const makePieConfig = (labels, rawData, isstatic = false) => {
+        const total = rawData.reduce((sum, val) => sum + val, 0);
+        const percentageData = rawData.map((val) => +((val / total) * 100).toFixed(1));
+    
+        return {
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Persentase",
+                data: percentageData,
+                customData: rawData,
+                backgroundColor: labels.map((_, i) =>
+                  !isstatic
+                    ? `hsl(${(i * 40) % 360}, 70%, 60%)`
+                    : `hsl(210, 70%, 60%)`
+                ),
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label(context) {
+                    const raw = context.dataset.customData[context.dataIndex];
+                    const total = context.dataset.customData.reduce(
+                      (a, b) => a + b,
+                      0
+                    );
+                    const pct = ((raw / total) * 100).toFixed(1);
+                    return `${context.label}: ${raw} (${pct}%)`;
                   },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                const rawValue = context.dataset.customData[context.dataIndex];
-                                const total = context.dataset.customData.reduce((sum, v) => sum + v, 0);
-                                const percentage = ((rawValue / total) * 100).toFixed(1);
-                                return `${context.label}: ${rawValue} (${percentage}%)`;
-                            }
-                        }
-                    },
-                    datalabels: {
-                        formatter: function(value, context) {
-                            const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
-                            const percentage = ((value / total) * 100).toFixed(2);
-                            return `${percentage}%`;  // Display percentage only
-                        },
-                        color: '#000',  // White color for labels on the chart
-                        font: {
-                            weight: 'bold',
-                            size: 14
-                        }
-                    }
-                }
-            }
+                },
+              },
+            },
+          },
         };
     };    
     
@@ -236,46 +226,53 @@ function Laporan({level, listBankSoal=[]}) {
         } else if(cfActionType==FETCH_CHART_FAKULTAS_LABEL_FAILURE){
             return cfErrorMessage;
         } else{
-            if(ctActionType==FETCH_CHART_TOTAL_REQUEST || ctLoading){
+            // === UI LOADING / ERROR ===
+            if (ctActionType === FETCH_CHART_TOTAL_REQUEST || ctLoading)
                 return "loading...";
-            } else if(ctActionType==FETCH_CHART_TOTAL_FAILURE){
-                return ctErrorMessage;
-            } else{
-                const fakultasLabels = Object.keys(fakultasCompleteCount);
-                const fakultasValues = Object.values(fakultasCompleteCount);
-                const fakultasColors = fakultasLabels.map((_, i) =>
-                `hsl(${(i * 40) % 360}, 70%, 60%)`
-                );
 
-                // console.log(cfFakultas, fakultasLabels, fakultasValues)
-                if(fakultasLabels.length > 0 && fakultasValues.length>0){
-                    return <div className="row">
-                                <div className="col-xl-9 col-lg-9 col-md-8 col-sm-12" style={{ maxHeight: "300px" }}>
-                                    <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />
-                                </div>
-                                <div className="col-xl-3 col-lg-3 col-md-4 col-sm-12">
-                                    <div style={{ maxHeight: "300px", overflowY: "scroll" }}>
-                                        {fakultasLabels.map((label, i) => (
-                                        <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
-                                            <div style={{
-                                            width: '12px',
-                                            height: '12px',
-                                            backgroundColor: fakultasColors[i],
-                                            marginRight: '6px'
-                                            }}></div>
-                                            <span>{label}</span>
-                                        </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="col-12">
-                                    <h3>Total Data: <b className="text-success">{totalData}</b></h3>
-                                </div>
+            if (ctActionType === FETCH_CHART_TOTAL_FAILURE)
+                return ctErrorMessage.toString();
+
+            // === UI CHART ===
+            const fakultasLabels = Object.keys(fakultasCompleteCount);
+            const fakultasValues = Object.values(fakultasCompleteCount);
+            const fakultasColors = fakultasLabels.map(
+                (_, i) => `hsl(${(i * 40) % 360}, 70%, 60%)`
+            );
+
+            if (fakultasLabels.length === 0) return "Tidak ada data";
+
+            return (
+                <div className="row">
+                    <div className="col-xl-9 col-lg-9 col-md-8 col-sm-12" style={{ maxHeight: "300px" }}>
+                    <Chart type="pie" {...makePieConfig(fakultasLabels, fakultasValues)} />
                     </div>
-                }
 
-                return;
-            }
+                    <div className="col-xl-3 col-lg-3 col-md-4 col-sm-12">
+                    <div style={{ maxHeight: "300px", overflowY: "scroll" }}>
+                        {fakultasLabels.map((label, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center" }}>
+                            <div
+                            style={{
+                                width: "12px",
+                                height: "12px",
+                                backgroundColor: fakultasColors[i],
+                                marginRight: "6px",
+                            }}
+                            />
+                            <span>{label}</span>
+                        </div>
+                        ))}
+                    </div>
+                    </div>
+
+                    <div className="col-12">
+                    <h3>
+                        Total Data: <b className="text-success">{totalData}</b>
+                    </h3>
+                    </div>
+                </div>
+            );
         }
     }
     function renderChartProdi(){
