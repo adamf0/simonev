@@ -296,14 +296,74 @@ class LaporanApiController extends Controller
 
         // Query sama seperti sebelumnya
         $query = VKuesioner::with([
-            'Mahasiswa' => fn($q) => $q->select("kode_fak", "kode_prodi", "NIM", "nama_mahasiswa"),
-            'Mahasiswa.Fakultas' => fn($q) => $q->select("kode_fakultas", "nama_fakultas"),
-            'Mahasiswa.Prodi' => fn($q) => $q->select("kode_prodi", DB::raw('(CONCAT(...)) as nama_prodi_jenjang'), "nama_prodi"),
-            'Dosen' => fn($q) => $q->select("kode_fak", "kode_prodi", "NIDN", "nama_dosen"),
-            'Dosen.Fakultas' => fn($q) => $q->select("kode_fakultas", "nama_fakultas"),
-            'Dosen.Prodi' => fn($q) => $q->select("kode_prodi", DB::raw('(CONCAT(...)) as nama_prodi_jenjang'), "nama_prodi"),
+            'Mahasiswa' => fn($q) => $q->select(
+                "kode_fak",
+                "kode_prodi",
+                "NIM",
+                "nama_mahasiswa"
+            ),
+        
+            'Mahasiswa.Fakultas' => fn($q) => $q->select(
+                "kode_fakultas",
+                "nama_fakultas"
+            ),
+        
+            'Mahasiswa.Prodi' => fn($q) => $q->select(
+                "kode_prodi",
+                "nama_prodi",
+                DB::raw("
+                    CONCAT(
+                        nama_prodi, 
+                        ' (',
+                        CASE kode_jenjang
+                            WHEN 'A' THEN 'S3'
+                            WHEN 'B' THEN 'S2'
+                            WHEN 'C' THEN 'S1'
+                            WHEN 'D' THEN 'D4'
+                            WHEN 'E' THEN 'D3'
+                            WHEN 'J' THEN 'Profesi'
+                            ELSE kode_jenjang
+                        END,
+                        ')'
+                    ) AS nama_prodi_jenjang
+                ")
+            ),
+        
+            'Dosen' => fn($q) => $q->select(
+                "kode_fak",
+                "kode_prodi",
+                "NIDN",
+                "nama_dosen"
+            ),
+        
+            'Dosen.Fakultas' => fn($q) => $q->select(
+                "kode_fakultas",
+                "nama_fakultas"
+            ),
+        
+            'Dosen.Prodi' => fn($q) => $q->select(
+                "kode_prodi",
+                "nama_prodi",
+                DB::raw("
+                    CONCAT(
+                        nama_prodi, 
+                        ' (',
+                        CASE kode_jenjang
+                            WHEN 'A' THEN 'S3'
+                            WHEN 'B' THEN 'S2'
+                            WHEN 'C' THEN 'S1'
+                            WHEN 'D' THEN 'D4'
+                            WHEN 'E' THEN 'D3'
+                            WHEN 'J' THEN 'Profesi'
+                            ELSE kode_jenjang
+                        END,
+                        ')'
+                    ) AS nama_prodi_jenjang
+                ")
+            ),
+        
             'Tendik',
-        ]);
+        ]);       
 
         // FILTER sesuai kode kamu (tidak diubah)
         if (!empty($target) && !empty($target_value)) {
