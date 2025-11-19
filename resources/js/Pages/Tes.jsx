@@ -13,7 +13,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, Title, Filler, ChartDataLabels, Ca
 
 export default function Tes() {
   const dispatch = useDispatch();
-  const { chart, action_type, loading, error } = useSelector(s => s.chartV2);
+  const { chart, action_type, loading, error } = useSelector(s => s.chart);
 
   function buildOptionsChart(source, hiddenLegend = false){
       return {

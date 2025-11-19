@@ -16,7 +16,7 @@ import chartUnitLabelReducer from './Pages/Laporan/redux/reducers/chartUnitLabel
 import chartReducer from './Pages/Laporan/redux/reducers/chartReducerV2';
 import chartTotalReducer from './Pages/Laporan/redux/reducers/chartTotalReducer';
 
-import chartReducerV2 from './Pages/Laporan/redux/reducers/chartReducerV2';
+// import chartReducerV2 from './Pages/Laporan/redux/reducers/chartReducerV2';
 
 const store = createStore(
     combineReducers({
@@ -30,7 +30,7 @@ const store = createStore(
         kategori: kategoriReducer,
         subkategori: subkategoriReducer,
 
-        chartV2:chartReducerV2,
+        // chartV2:chartReducerV2,
 
         chartFakultasLabel:chartFakultasLabelReducer,
         chartProdiLabel:chartProdiLabelReducer,

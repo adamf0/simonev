@@ -6,7 +6,11 @@ import { FETCH_CHART_FAKULTAS_LABEL_FAILURE, FETCH_CHART_FAKULTAS_LABEL_REQUEST,
 import { FETCH_CHART_PRODI_LABEL_FAILURE, FETCH_CHART_PRODI_LABEL_REQUEST, fetchChartProdiLabel } from "./redux/actions/fetchChartProdiLabel";
 import { FETCH_CHART_UNIT_LABEL_FAILURE, FETCH_CHART_UNIT_LABEL_REQUEST, fetchChartUnitLabel } from "./redux/actions/fetchChartUnitLabel";
 import 'react-calendar-datetime-picker/dist/style.css'
-import { FETCH_CHART_FAILURE, FETCH_CHART_REQUEST, fetchChart } from "./redux/actions/chartActions";
+import { FETCH_CHART_REQUEST,
+    FETCH_CHART_START,
+    FETCH_CHART_CHUNK,
+    FETCH_CHART_SUCCESS,
+    FETCH_CHART_FAILURE, fetchChart } from "./redux/actions/chartActions";
 import { FETCH_CHART_TOTAL_FAILURE, FETCH_CHART_TOTAL_REQUEST, fetchChartTotal } from "./redux/actions/chartTotalActions";
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, Filler, CategoryScale, LinearScale, BarElement } from 'chart.js';
@@ -41,7 +45,7 @@ function Laporan({level, listBankSoal=[]}) {
     const chart = useSelector((state) => state.chart.chart);
     const ActionType = useSelector((state) => state.chart.action_type);
     const ErrorMessage = useSelector((state) => state.chart.error);
-    const Loading = useSelector((state) => state.chart.loading); 
+    const Loading = useSelector((state) => state.chart.loading);    
 
     const [filters, setFilters] = useState({level: level, bankSoal: '', target: '', target_value: ''});
 
@@ -54,28 +58,6 @@ function Laporan({level, listBankSoal=[]}) {
     const { data: allData, loading, error } = useSelector(state => state.chartTotal);
 
     console.log(listBankSoal);
-
-    // useEffect(() => {
-    //     console.log(filters);
-    //     if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
-    //         dispatch(fetchChartFakultasLabel(bankSoal));
-    //     }
-    //     if (![null, "", undefined].includes(bankSoal) && chartProdi) {
-    //         dispatch(fetchChartProdiLabel(bankSoal));
-    //     }
-    //     if (![null, "", undefined].includes(bankSoal) && chartUnit) {
-    //         dispatch(fetchChartUnitLabel(bankSoal));
-    //     }
-
-    //     if(![null, "", undefined].includes(bankSoal)){
-    //         dispatch(fetchChart(bankSoal, filters?.target ?? '', filters?.target_value ?? ''));
-    //     }
-
-    //     if(![null, "", undefined].includes(bankSoal)){
-    //         dispatch(fetchChartTotal(bankSoal, filters?.target ?? '', filters?.target_value ?? ''));
-    //     }
-
-    // }, [filters]);
 
     function handlerFilter(){
         console.log(filters);
@@ -429,59 +411,66 @@ function Laporan({level, listBankSoal=[]}) {
     }
 
     function renderChart() {
-        if(ActionType==FETCH_CHART_REQUEST){
-            return <div class="card px-4 py-3">
-            <div class="grid-top">
-                <div class="col-12">
-                    <p>loading ...</p>
-                </div>
+        if (ActionType  === FETCH_CHART_REQUEST || Loading) {
+          return (
+            <div className="card px-4 py-3">
+              <p>Loading...</p>
             </div>
-        </div>;
-        } else if(ActionType==FETCH_CHART_FAILURE){
-            return ErrorMessage;
-        } else if (!chart || Object.keys(chart).length === 0) {
-            return <div class="card px-4 py-3">
-                <div class="grid-top">
-                    <div class="col-12">
-                        <p>No Data</p>
-                    </div>
-                </div>
-            </div>;
+          );
         }
-        
-        return Object.keys(chart).map((key) => {
-            const splitKey = key.split("#").filter(item => item !== "" && item !== null && item !== undefined);
-
-            let title = "unknown";
-            if(splitKey.length==1){
-                title = splitKey[0]
-            } else if(splitKey.length>1){
-                title = splitKey.join(" > ")
-            }
-
-            return <div key={key} class="card d-flex flex-row">
-                <div class="col-12">
-                    <h3 class="text-primary bg-primary text-white px-3 py-3">{title}</h3>
-                    <div class="grid px-4 py-3">
-                        {
-                            chart[key].map((c, i) => (
-                                <div key={i} className="row">
-                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-success">{c.pertanyaan}</div>
-                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-                                        {c.jenis_pilihan === "rating5" 
-                                            ? <Bar data={c.chart} options={buildOptionsChart(c.chart, true)} />
-                                            : <Pie data={c.chart} options={buildOptionsChart(c.chart)} />}
-                                    </div>
-                                </div>
-                            ))
-                        }
-                        <RataRataRatingChart data={chart[key]} />
-                    </div>
-                </div>
-            </div>
-        });
-    }
       
+        if (ActionType === FETCH_CHART_FAILURE) {
+          return <p className="text-danger">{ErrorMessage?.message || "Error"}</p>;
+        }
+      
+        if (!chart || Object.keys(chart).length === 0) {
+          return (
+            <div className="card px-4 py-3">
+              <p>No Data</p>
+            </div>
+          );
+        }
+      
+        return Object.keys(chart).map((key) => {
+          const parts = key.split("#").filter(Boolean);
+      
+          const title = parts.length === 1 ? parts[0] : parts.join(" > ");
+      
+          return (
+            <div key={key} className="card d-flex flex-row">
+              <div className="col-12">
+                <h3 className="text-primary bg-primary text-white px-3 py-3">
+                  {title}
+                </h3>
+      
+                <div className="grid px-4 py-3">
+                  {chart[key].map((c, i) => (
+                    <div key={i} className="row">
+                      <div className="col-12 text-center text-success">
+                        {c.pertanyaan}
+                      </div>
+      
+                      <div className="col-12">
+                        {c.jenis_pilihan === "rating5" ? (
+                          <Bar
+                            data={c.chart}
+                            options={buildOptionsChart(c.chart, true)}
+                          />
+                        ) : (
+                          <Pie data={c.chart} options={buildOptionsChart(c.chart)} />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+      
+                  {/* Tambah rata-rata rating */}
+                  <RataRataRatingChart data={chart[key]} />
+                </div>
+              </div>
+            </div>
+          );
+        });
+    }      
 
     return (
             <>
