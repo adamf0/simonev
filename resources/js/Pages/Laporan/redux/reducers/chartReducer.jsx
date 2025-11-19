@@ -46,6 +46,7 @@ const chartReducer = (state = initialState, action) => {
       // copy state chart sekarang
       const currentList = state.chart[key] || [];
 
+      console.log(state, chunk)
       return {
         ...state,
         loaded_pertanyaan: state.loaded_pertanyaan + 1,
