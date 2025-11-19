@@ -4,7 +4,7 @@ import {
   FETCH_CHART_CHUNK,
   FETCH_CHART_SUCCESS,
   FETCH_CHART_FAILURE
-} from '../actions/chartActions';
+} from '../actions/chartActionsV2';
 
 const initialState = {
   chart: {},
