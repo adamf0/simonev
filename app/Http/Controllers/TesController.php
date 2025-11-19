@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankSoal;
+use App\Models\Kuesioner;
 use App\Models\Prodi;
+use App\Models\TemplatePertanyaan;
+use App\Models\TemplatePilihan;
 use App\Models\VKuesioner;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -14,180 +18,178 @@ class TesController extends Controller
         return Inertia::render('Tes', []);
     }
     function all() {
-        $id_bank_soal = 110;
-        // $type = "prodi";
+        // Header SSE
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('X-Accel-Buffering: no'); // Untuk nginx / cloudflare
 
-        // $bankSoal = DB::table('v_bank_soal')->where('id', $id_bank_soal)->first();
-        // $targetList = json_decode($bankSoal?->target_list ?? '[]', true);
-        // $targetList = in_array("all",$targetList)? []:$targetList;
-        
-        // $list = $bankSoal->createdBy=="fakultas" && count($targetList)>0?  
-        //         Prodi::select(
-        //             DB::raw('
-        //             concat(
-        //                 `nama_prodi`, 
-        //                 " (",
-        //                 (
-        //                 case 
-        //                     when kode_jenjang = "C" then "S1"
-        //                     when kode_jenjang = "B" then "S2"
-        //                     when kode_jenjang = "A" then "S3"
-        //                     when kode_jenjang = "E" then "D3"
-        //                     when kode_jenjang = "D" then "D4"
-        //                     when kode_jenjang = "J" then "Profesi"
-        //                     else "?"
-        //                 end
-        //                 ),
-        //                 ")"
-        //             ) as text')
-        //         )->whereIn("kode_prodi", $targetList)->distinct()->get() : 
-        //         Prodi::select(
-        //         DB::raw('
-        //         concat(
-        //             `nama_prodi`, 
-        //             " (",
-        //             (
-        //             case 
-        //                 when kode_jenjang = "C" then "S1"
-        //                 when kode_jenjang = "B" then "S2"
-        //                 when kode_jenjang = "A" then "S3"
-        //                 when kode_jenjang = "E" then "D3"
-        //                 when kode_jenjang = "D" then "D4"
-        //                 when kode_jenjang = "J" then "Profesi"
-        //                 else "?"
-        //             end
-        //             ),
-        //             ")"
-        //         ) as text')
-        //     )->distinct()->get();
+        $id_bank_soal = "110";
+        $target = "prodi";
+        $target_value = "ILMU HUKUM (S1)";
 
-        // $dataset = [];
-        // $labels = $list->pluck('text')->reduce(function($carry, $item) {
-        //     if(!empty($item)){
-        //         $carry[] = $item;
-        //     }
-        //     return $carry;
-        // }, []);
+        $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->first()?->id;
 
-        // $allData = VKuesioner::with([
-        //         'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
-        //         'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-        //         'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-        //             concat(
-        //                 nama_prodi,
-        //                 case 
-        //                     when kode_jenjang = "C" then " (S1)"
-        //                     when kode_jenjang = "B" then " (S2)"
-        //                     when kode_jenjang = "A" then " (S3)"
-        //                     when kode_jenjang = "E" then " (D3)"
-        //                     when kode_jenjang = "D" then " (D4)"
-        //                     when kode_jenjang = "J" then " (Profesi)"
-        //                     else "?"
-        //                 end
-        //             )    
-        //         ) as nama_prodi_jenjang'), "nama_prodi"),
-        //         'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
-        //         'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-        //         'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-        //             concat(
-        //                 nama_prodi,
-        //                 case 
-        //                     when kode_jenjang = "C" then " (S1)"
-        //                     when kode_jenjang = "B" then " (S2)"
-        //                     when kode_jenjang = "A" then " (S3)"
-        //                     when kode_jenjang = "E" then " (D3)"
-        //                     when kode_jenjang = "D" then " (D4)"
-        //                     when kode_jenjang = "J" then " (Profesi)"
-        //                     else "?"
-        //                 end
-        //             )    
-        //         ) as nama_prodi_jenjang'), "nama_prodi"),
-        //         'Tendik',
-        //     ])
-        //     ->where("id_bank_soal",$id_bank_soal)
-        //     ->get();
+        // 1️⃣ Ambil semua pertanyaan unik
+        $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
+            ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->get()
+            ->groupBy('pertanyaan');
 
-        ini_set('output_buffering', 'off');
-        ini_set('zlib.output_compression', false);
-        set_time_limit(0);
-        ob_implicit_flush(true);
+        // 2️⃣ Ambil template jawaban
+        $allJawabanIds = TemplatePilihan::whereIn(
+            'id_template_soal',
+            $pertanyaanList->flatten()->pluck('id')->toArray()
+        )->get();
 
-        $totalChunks = 0;
-
-        return Response::stream(function () use (&$totalChunks, &$id_bank_soal) {
-                VKuesioner::with([
-                    'Mahasiswa'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIM","nama_mahasiswa"),
-                    'Mahasiswa.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                    'Mahasiswa.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                        concat(
-                            nama_prodi,
-                            case 
-                                when kode_jenjang = "C" then " (S1)"
-                                when kode_jenjang = "B" then " (S2)"
-                                when kode_jenjang = "A" then " (S3)"
-                                when kode_jenjang = "E" then " (D3)"
-                                when kode_jenjang = "D" then " (D4)"
-                                when kode_jenjang = "J" then " (Profesi)"
-                                else "?"
-                            end
-                        )    
-                    ) as nama_prodi_jenjang'), "nama_prodi"),
-                    'Dosen'=>fn($q)=>$q->select("kode_fak","kode_prodi","NIDN","nama_dosen"),
-                    'Dosen.Fakultas'=>fn($q)=>$q->select("kode_fakultas","nama_fakultas"),
-                    'Dosen.Prodi'=>fn($q)=>$q->select("kode_prodi",DB::raw('(
-                        concat(
-                            nama_prodi,
-                            case 
-                                when kode_jenjang = "C" then " (S1)"
-                                when kode_jenjang = "B" then " (S2)"
-                                when kode_jenjang = "A" then " (S3)"
-                                when kode_jenjang = "E" then " (D3)"
-                                when kode_jenjang = "D" then " (D4)"
-                                when kode_jenjang = "J" then " (Profesi)"
-                                else "?"
-                            end
-                        )    
-                    ) as nama_prodi_jenjang'), "nama_prodi"),
-                    'Tendik',
-                ])
-                ->where("id_bank_soal",$id_bank_soal)
-                ->chunk(500, function ($rows) use (&$totalChunks) {
-                $batch = $rows->map(function ($row) {
-                    return [
-                        'id'    => $row->id,
-                        'nidn'  => $row->nidn,
-                        'nip' => $row->nip,
-                        'npm' => $row->npm,
-                        'id_bank_soal' => $row->id_bank_soal,
-                        'status_pengisian' => $row->statusPengisian,
-                        'mhs' => $row?->Mahasiswa,
-                        'dosen' => $row?->Dosen,
-                        'tendik' => $row?->Tendik,
-                    ];
-                });
-        
-                echo json_encode($batch) . "\n";
-                $totalChunks++;
-        
-                ob_flush();
-                flush();
-                });
-        }, 200, [
-            'Content-Type' => 'application/x-ndjson',
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
-            'X-Accel-Buffering' => 'no',
+        // Kirim jumlah pertanyaan dulu
+        $this->sendSSE("start", [
+            "total_pertanyaan" => count($pertanyaanList)
         ]);
-        
-        // foreach($labels as $l){
-        //     $count = $allData->filter(function ($item) use ($l) {
-        //         $dosenProdi = optional(optional($item->Dosen)->Prodi)->nama_prodi_jenjang;
-        //         $mhsProdi   = optional(optional($item->Mahasiswa)->Prodi)->nama_prodi_jenjang;
-        //         return $dosenProdi === $l || $mhsProdi === $l;
-        //     })->count();
-        //     $dataset[] = $count;
-        // }//
-         
-        // return response()->json($dataset);
+
+        // 3️⃣ Loop seperti sebelumnya — per pertanyaan
+        foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
+
+            $detail = collect();
+
+            $jawabanGroup = $allJawabanIds->whereIn(
+                'id_template_soal',
+                $pertGroup->pluck('id')
+            );
+
+            // Gabungan per jawaban
+            foreach ($jawabanGroup->groupBy('jawaban') as $jawabanValue => $jawabanItems) {
+
+                // Query total jawaban seperti versi lama
+                $total = Kuesioner::with(['tendik'])
+                    ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
+                    ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+                    ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
+                    ->whereIn('id_template_jawaban', $jawabanItems->pluck('id'));
+
+                // Filtering
+                if (!empty($target_value)) {
+                    $total = $this->applyTargetFilter($total, $target_value);
+                }
+
+                $detail->push([
+                    "jawaban" => $jawabanValue,
+                    "total" => $total->count(),
+                ]);
+            }
+
+            // Build chart (versi sama persis)
+            $labels = $detail->pluck('jawaban')->toArray();
+            $data = $detail->pluck('total')->toArray();
+            $colors = $this->generateRandomColors(count($labels));
+
+            $charts = [
+                "labels" => $labels,
+                "datasets" => [
+                    [
+                        "label" => "Dataset",
+                        "data" => $data,
+                        "backgroundColor" => $colors,
+                        "borderColor" => $colors,
+                        "borderWidth" => 1
+                    ]
+                ]
+            ];
+
+            // 4️⃣ Kirim SSE chunk Untuk satu pertanyaan
+            $this->sendSSE("pertanyaan", [
+                "pertanyaan" => $pertanyaanText,
+                "kategori" => $pertGroup->first()->Kategori?->nama_kategori,
+                "subKategori" => $pertGroup->first()->SubKategori?->nama_sub,
+                "jenis_pilihan" => $pertGroup->first()->jenis_pilihan,
+                "chart" => $charts,
+            ]);
+        }
+
+        // 5️⃣ kirim selesai
+        $this->sendSSE("done", ["message" => "completed"]);
+        exit;
     }
+
+    function applyTargetFilter($query, $target_value)
+    {
+        return $query->where(function ($query) use ($target_value) {
+
+            // Mahasiswa
+            $query->whereExists(function ($sub) use ($target_value) {
+                $sub->select(DB::raw(1))
+                    ->from('m_mahasiswa_simak')
+                    ->join('m_program_studi', 'm_program_studi.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
+                    ->whereColumn('kuesioner.npm', 'm_mahasiswa_simak.NIM')
+                    ->whereRaw("
+                        concat(
+                            m_program_studi.nama_prodi, 
+                            CASE 
+                                WHEN m_program_studi.kode_jenjang='C' THEN ' (S1)' 
+                                WHEN m_program_studi.kode_jenjang='B' THEN ' (S2)' 
+                                WHEN m_program_studi.kode_jenjang='A' THEN ' (S3)' 
+                                WHEN m_program_studi.kode_jenjang='E' THEN ' (D3)' 
+                                WHEN m_program_studi.kode_jenjang='D' THEN ' (D4)' 
+                                WHEN m_program_studi.kode_jenjang='J' THEN ' (Profesi)' 
+                                ELSE '' 
+                            END
+                        ) = ?", [$target_value]);
+            })
+
+            // Dosen
+            ->orWhereExists(function ($sub) use ($target_value) {
+                $sub->select(DB::raw(1))
+                    ->from('m_dosen_simak')
+                    ->join('m_program_studi', 'm_program_studi.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
+                    ->whereColumn('kuesioner.nidn', 'm_dosen_simak.NIDN')
+                    ->whereRaw("
+                        concat(
+                            m_program_studi.nama_prodi, 
+                            CASE 
+                                WHEN m_program_studi.kode_jenjang='C' THEN ' (S1)' 
+                                WHEN m_program_studi.kode_jenjang='B' THEN ' (S2)' 
+                                WHEN m_program_studi.kode_jenjang='A' THEN ' (S3)' 
+                                WHEN m_program_studi.kode_jenjang='E' THEN ' (D3)' 
+                                WHEN m_program_studi.kode_jenjang='D' THEN ' (D4)' 
+                                WHEN m_program_studi.kode_jenjang='J' THEN ' (Profesi)' 
+                                ELSE '' 
+                            END
+                        ) = ?", [$target_value]);
+            })
+
+            // Tendik
+            ->orWhereHas('tendik', function ($sub) use ($target_value) {
+                $sub->where('unit', $target_value);
+            });
+        });
+    }
+
+    function generateRandomColors($count, $random=true){
+        $colors = [];
+        
+        while (count($colors) < $count) {
+            // Generate random RGB values
+            $r = $random? rand(50, 255):0;  // Avoid 0 (black) and ensure enough color range
+            $g = $random? rand(50, 255):0;  // Avoid 0 (black) and ensure enough color range
+            $b = $random? rand(50, 255):255;  // Avoid 0 (black) and ensure enough color range
+            
+            // Generate RGBA color with random transparency
+            $rgba = "rgba($r, $g, $b, 1)"; // 0.5 is the transparency value
+            
+            // Avoid too light (white) and too dark (black)
+            if (!in_array($rgba, $colors)) {
+                $colors[] = $rgba;
+            }
+        }
+
+        return $colors;
+    }
+
+    function sendSSE($event, $data)
+    {
+        echo "event: $event\n";
+        echo "data: " . json_encode($data) . "\n\n";
+        @ob_flush();
+        @flush();
+    }
+
 }
