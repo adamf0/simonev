@@ -23,8 +23,8 @@ const chartReducer = (state = initialState, action) => {
         ...state, 
         loading: true, 
         chart: {}, 
+        action_type: action.type,
         loaded_pertanyaan: 0,
-        action_type: action.type 
       };
 
     case FETCH_CHART_START:
@@ -37,10 +37,12 @@ const chartReducer = (state = initialState, action) => {
     case FETCH_CHART_CHUNK: {
       const chunk = action.payload;
 
+      // key = "kategori#subKategori"
       const key = chunk.subKategori
         ? `${chunk.kategori}#${chunk.subKategori}`
         : chunk.kategori;
 
+      // copy state chart sekarang
       const currentList = state.chart[key] || [];
 
       return {
