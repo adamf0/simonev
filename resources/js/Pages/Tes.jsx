@@ -3,7 +3,11 @@ import { Chart, Bar, Pie } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchChartSSE } from './Laporan/redux/actions/chartActionsv2';
+import { FETCH_CHART_REQUEST,
+  FETCH_CHART_START,
+  FETCH_CHART_CHUNK,
+  FETCH_CHART_SUCCESS,
+  FETCH_CHART_FAILURE, fetchChartSSE } from './Laporan/redux/actions/chartActionsv2';
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title, Filler, ChartDataLabels, CategoryScale, LinearScale, BarElement);
 
