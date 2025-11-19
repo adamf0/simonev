@@ -11,7 +11,11 @@ import { FETCH_CHART_REQUEST,
     FETCH_CHART_CHUNK,
     FETCH_CHART_SUCCESS,
     FETCH_CHART_FAILURE, fetchChart } from "./redux/actions/chartActions";
-import { FETCH_CHART_TOTAL_FAILURE, FETCH_CHART_TOTAL_REQUEST, fetchChartTotal } from "./redux/actions/chartTotalActions";
+import { FETCH_CHART_TOTAL_REQUEST,
+    FETCH_CHART_TOTAL_START,
+    FETCH_CHART_TOTAL_CHUNK,
+    FETCH_CHART_TOTAL_SUCCESS,
+    FETCH_CHART_TOTAL_FAILURE, fetchChartTotal } from "./redux/actions/chartTotalActions";
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, Filler, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Chart, Bar, Pie } from 'react-chartjs-2';
