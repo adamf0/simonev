@@ -19,6 +19,8 @@ use Inertia\Inertia;
 use InvalidArgumentException;
 use Illuminate\Support\Facades\Response;
 
+use function PHPUnit\Framework\isEmpty;
+
 class LaporanApiController extends Controller
 {
     private function generateRandomColors($count, $random=true){
@@ -767,7 +769,7 @@ class LaporanApiController extends Controller
                 }
 
                 $detail->push([
-                    "jawaban" => $jawabanValue,
+                    "jawaban" => isEmpty($jawabanValue)? "Lainnya":$jawabanValue,
                     "total" => $total->count(),
                 ]);
             }
@@ -793,7 +795,7 @@ class LaporanApiController extends Controller
             // 4️⃣ Kirim SSE chunk Untuk satu pertanyaan
             $this->sendSSE("pertanyaan", [
                 "pertanyaan" => $pertanyaanText,
-                "kategori" => $pertGroup->first()->Kategori?->nama_kategori,
+                "kategori" => $pertGroup->first()->Kategori?->nama_kategori?? "unknown",
                 "subKategori" => $pertGroup->first()->SubKategori?->nama_sub,
                 "jenis_pilihan" => $pertGroup->first()->jenis_pilihan,
                 "chart" => $charts,
