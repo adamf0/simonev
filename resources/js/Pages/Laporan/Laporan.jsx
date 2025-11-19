@@ -67,8 +67,6 @@ function Laporan({level, listBankSoal=[]}) {
     const ctErrorMessage = error;
     const ctLoading = loading; 
 
-    console.log(listBankSoal);
-
     function handlerFilter(){
         console.log(filters);
         if (![null, "", undefined].includes(bankSoal) && chartFakultas) {
@@ -233,6 +231,7 @@ function Laporan({level, listBankSoal=[]}) {
             if (ctActionType === FETCH_CHART_TOTAL_FAILURE)
                 return ctErrorMessage.toString();
 
+            console.log(ct)
             // === UI CHART ===
             const fakultasLabels = Object.keys(fakultasCompleteCount);
             const fakultasValues = Object.values(fakultasCompleteCount);
@@ -511,7 +510,6 @@ function Laporan({level, listBankSoal=[]}) {
                                             setColChart(1)
                                         }
 
-                                        console.log(listBankSoal.find(l => l.id == e.target.value))
                                         changeFilter("bankSoal",e.target.value);
                                         changeFilter("target",bs.target_type);
                                     }}>
