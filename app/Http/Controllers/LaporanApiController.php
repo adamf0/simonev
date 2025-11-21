@@ -762,10 +762,6 @@ class LaporanApiController extends Controller
                     ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
                     ->whereIn('id_template_jawaban', $jawabanItems->pluck('id'));
 
-                if($pertanyaanText=="Di dalam melaksanakan kegiatan di lingkup Universitas Pakuan, saya menggunakan visi dan misi Universitas Pakuan sebagai acuan"){
-                    dd($total->toRawSql());
-                }
-
                 // Filtering
                 if (!empty($target_value)) {
                     $total = $this->applyTargetFilter($total, $target_value);
@@ -795,9 +791,6 @@ class LaporanApiController extends Controller
                 ]
             ];
 
-            if($pertanyaanText=="Di dalam melaksanakan kegiatan di lingkup Universitas Pakuan, saya menggunakan visi dan misi Universitas Pakuan sebagai acuan"){
-                dd($jawabanValue, $jawabanItems);
-            }
             // 4️⃣ Kirim SSE chunk Untuk satu pertanyaan
             // $this->sendSSE("pertanyaan", [
             //     "pertanyaan" => $pertanyaanText,
