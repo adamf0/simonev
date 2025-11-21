@@ -289,7 +289,8 @@ class LaporanApiController extends Controller
             return;
         }
 
-        $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->first()?->id;
+        $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->get()->pluck("id")->toArray();
+        $targetBanksoal = array_merge($branchBankSoal, [$id_bank_soal]);
         $target = $request->target;
         $target_value = $request->target_value;
 
@@ -404,7 +405,7 @@ class LaporanApiController extends Controller
         }
 
         // STREAM dengan CHUNK 500
-        $query->whereIn("id_bank_soal", [$id_bank_soal, $branchBankSoal])
+        $query->whereIn("id_bank_soal", $targetBanksoal)
             ->chunk(500, function ($rows) {
 
                 $batch = $rows->map(fn($row) => [
@@ -721,11 +722,12 @@ class LaporanApiController extends Controller
         $target = $request?->target;
         $target_value = $request?->target_value;
 
-        $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->first()?->id;
+        $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->get()->pluck("id")->toArray();
+        $targetBanksoal = array_merge($branchBankSoal, [$id_bank_soal]);
 
         // 1️⃣ Ambil semua pertanyaan unik
         $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
-            ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->whereIn('id_bank_soal', $targetBanksoal)
             ->get()
             ->groupBy('pertanyaan');
 
@@ -756,7 +758,7 @@ class LaporanApiController extends Controller
                 // Query total jawaban seperti versi lama
                 $total = Kuesioner::with(['tendik'])
                     ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
-                    ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+                    ->whereIn('kuesioner.id_bank_soal', $targetBanksoal)
                     ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
                     ->whereIn('id_template_jawaban', $jawabanItems->pluck('id'));
 
