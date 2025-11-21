@@ -47,6 +47,7 @@ class TesController extends Controller
         // ]);
 
         // 3️⃣ Loop seperti sebelumnya — per pertanyaan
+        dd($pertanyaanList, $allJawabanIds);
         foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
 
             $detail = collect();
