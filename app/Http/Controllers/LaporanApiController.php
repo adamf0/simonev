@@ -738,9 +738,9 @@ class LaporanApiController extends Controller
         )->get();
 
         // Kirim jumlah pertanyaan dulu
-        // $this->sendSSE("start", [
-        //     "total_pertanyaan" => count($pertanyaanList)
-        // ]);
+        $this->sendSSE("start", [
+            "total_pertanyaan" => count($pertanyaanList)
+        ]);
 
         // 3️⃣ Loop seperti sebelumnya — per pertanyaan
         foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
@@ -792,17 +792,17 @@ class LaporanApiController extends Controller
             ];
 
             // 4️⃣ Kirim SSE chunk Untuk satu pertanyaan
-            // $this->sendSSE("pertanyaan", [
-            //     "pertanyaan" => $pertanyaanText,
-            //     "kategori" => $pertGroup->first()->Kategori?->nama_kategori?? "unknown",
-            //     "subKategori" => $pertGroup->first()->SubKategori?->nama_sub,
-            //     "jenis_pilihan" => $pertGroup->first()->jenis_pilihan,
-            //     "chart" => $charts,
-            // ]);
+            $this->sendSSE("pertanyaan", [
+                "pertanyaan" => $pertanyaanText,
+                "kategori" => $pertGroup->first()->Kategori?->nama_kategori?? "unknown",
+                "subKategori" => $pertGroup->first()->SubKategori?->nama_sub,
+                "jenis_pilihan" => $pertGroup->first()->jenis_pilihan,
+                "chart" => $charts,
+            ]);
         }
 
         // 5️⃣ kirim selesai
-        // $this->sendSSE("done", ["message" => "completed"]);
+        $this->sendSSE("done", ["message" => "completed"]);
         exit;
     }
 
