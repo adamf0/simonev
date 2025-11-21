@@ -58,7 +58,7 @@ class TesController extends Controller
             Kuesioner::with(['tendik'])
                     ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                     ->whereIn('kuesioner.id_bank_soal', $targetBranch)
-                    ->whereIn('id_template_pertanyaan', 992)
+                    ->whereIn('id_template_pertanyaan', [992])
                     ->whereIn('id_template_jawaban', [4846,4847,4848,4849,4850])
                     ->toRawSql()
         );
