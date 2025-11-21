@@ -766,7 +766,7 @@ class LaporanApiController extends Controller
                 }
 
                 $detail->push([
-                    "jawaban" => empty($jawabanValue)? "Lainnya":$jawabanValue,
+                    "jawaban" => $jawabanValue,
                     "total" => $total->count(),
                 ]);
             }
