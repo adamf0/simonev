@@ -32,7 +32,7 @@ class TesController extends Controller
 
         // 1️⃣ Ambil semua pertanyaan unik
         $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
-            ->whereIn('id_bank_soal', [$id_bank_soal, $branchBankSoal])
+            ->whereIn('id_bank_soal', $targetBranch)
             ->get()
             ->groupBy('pertanyaan');
 
