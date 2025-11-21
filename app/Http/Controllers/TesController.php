@@ -19,7 +19,7 @@ class TesController extends Controller
     }
     function all() {
         // Header SSE
-        header('Content-Type: text/event-stream');
+        // header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
         header('X-Accel-Buffering: no'); // Untuk nginx / cloudflare
 
@@ -100,17 +100,17 @@ class TesController extends Controller
             ];
 
             // 4️⃣ Kirim SSE chunk Untuk satu pertanyaan
-            $this->sendSSE("pertanyaan", [
-                "pertanyaan" => $pertanyaanText,
-                "kategori" => $pertGroup->first()->Kategori?->nama_kategori,
-                "subKategori" => $pertGroup->first()->SubKategori?->nama_sub,
-                "jenis_pilihan" => $pertGroup->first()->jenis_pilihan,
-                "chart" => $charts,
-            ]);
+            // $this->sendSSE("pertanyaan", [
+            //     "pertanyaan" => $pertanyaanText,
+            //     "kategori" => $pertGroup->first()->Kategori?->nama_kategori,
+            //     "subKategori" => $pertGroup->first()->SubKategori?->nama_sub,
+            //     "jenis_pilihan" => $pertGroup->first()->jenis_pilihan,
+            //     "chart" => $charts,
+            // ]);
         }
 
         // 5️⃣ kirim selesai
-        $this->sendSSE("done", ["message" => "completed"]);
+        // $this->sendSSE("done", ["message" => "completed"]);
         exit;
     }
 
