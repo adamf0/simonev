@@ -17,9 +17,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use InvalidArgumentException;
-use Illuminate\Support\Facades\Response;
-
-use function PHPUnit\Framework\isEmpty;
 
 class LaporanApiController extends Controller
 {
@@ -769,7 +766,7 @@ class LaporanApiController extends Controller
                 }
 
                 $detail->push([
-                    "jawaban" => isEmpty($jawabanValue)? "Lainnya":$jawabanValue,
+                    "jawaban" => empty($jawabanValue)? "Lainnya":$jawabanValue,
                     "total" => $total->count(),
                 ]);
             }
