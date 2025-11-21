@@ -27,7 +27,8 @@ class TesController extends Controller
         $target = "prodi";
         $target_value = "ILMU HUKUM (S1)";
 
-        $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->first()?->id;
+        $branchBankSoal = BankSoal::where("branch", $id_bank_soal)->get()->pluck("id")->toArray();
+        $targetBranch = array_merge($branchBankSoal, [$id_bank_soal]);
 
         // 1️⃣ Ambil semua pertanyaan unik
         $pertanyaanList = TemplatePertanyaan::with(['TemplatePilihan', 'Kategori', 'SubKategori'])
@@ -47,7 +48,14 @@ class TesController extends Controller
         // ]);
 
         // 3️⃣ Loop seperti sebelumnya — per pertanyaan
-        dd($pertanyaanList->get("Di dalam melaksanakan kegiatan di lingkup Universitas Pakuan, saya menggunakan visi dan misi Universitas Pakuan sebagai acuan"), $allJawabanIds);
+        dd(
+            $targetBranch,
+            $pertanyaanList->get("Di dalam melaksanakan kegiatan di lingkup Universitas Pakuan, saya menggunakan visi dan misi Universitas Pakuan sebagai acuan"), 
+            $allJawabanIds->whereIn(
+                'id_template_soal',
+                992
+            )
+        );
         foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
 
             $detail = collect();
@@ -63,7 +71,7 @@ class TesController extends Controller
                 // Query total jawaban seperti versi lama
                 $total = Kuesioner::with(['tendik'])
                     ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
-                    ->whereIn('kuesioner.id_bank_soal', [$id_bank_soal, $branchBankSoal])
+                    ->whereIn('kuesioner.id_bank_soal', $targetBranch)
                     ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
                     ->whereIn('id_template_jawaban', $jawabanItems->pluck('id'));
 
