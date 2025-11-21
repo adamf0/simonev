@@ -42,9 +42,9 @@ class TesController extends Controller
         )->get();
 
         // Kirim jumlah pertanyaan dulu
-        $this->sendSSE("start", [
-            "total_pertanyaan" => count($pertanyaanList)
-        ]);
+        // $this->sendSSE("start", [
+        //     "total_pertanyaan" => count($pertanyaanList)
+        // ]);
 
         // 3️⃣ Loop seperti sebelumnya — per pertanyaan
         foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
