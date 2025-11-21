@@ -47,7 +47,7 @@ class TesController extends Controller
         // ]);
 
         // 3️⃣ Loop seperti sebelumnya — per pertanyaan
-        dd($pertanyaanList, $allJawabanIds);
+        dd($pertanyaanList->get("Di dalam melaksanakan kegiatan di lingkup Universitas Pakuan, saya menggunakan visi dan misi Universitas Pakuan sebagai acuan"), $allJawabanIds);
         foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
 
             $detail = collect();
