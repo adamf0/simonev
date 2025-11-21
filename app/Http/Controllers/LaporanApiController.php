@@ -738,9 +738,9 @@ class LaporanApiController extends Controller
         )->get();
 
         // Kirim jumlah pertanyaan dulu
-        $this->sendSSE("start", [
-            "total_pertanyaan" => count($pertanyaanList)
-        ]);
+        // $this->sendSSE("start", [
+        //     "total_pertanyaan" => count($pertanyaanList)
+        // ]);
 
         // 3️⃣ Loop seperti sebelumnya — per pertanyaan
         foreach ($pertanyaanList as $pertanyaanText => $pertGroup) {
@@ -754,13 +754,17 @@ class LaporanApiController extends Controller
 
             // Gabungan per jawaban
             foreach ($jawabanGroup->groupBy('jawaban') as $jawabanValue => $jawabanItems) {
-
+                
                 // Query total jawaban seperti versi lama
                 $total = Kuesioner::with(['tendik'])
                     ->join('kuesioner_jawaban as kj', 'kj.id_kuesioner', '=', 'kuesioner.id')
                     ->whereIn('kuesioner.id_bank_soal', $targetBanksoal)
                     ->whereIn('id_template_pertanyaan', $pertGroup->pluck('id'))
                     ->whereIn('id_template_jawaban', $jawabanItems->pluck('id'));
+
+                if($pertanyaanText=="Di dalam melaksanakan kegiatan di lingkup Universitas Pakuan, saya menggunakan visi dan misi Universitas Pakuan sebagai acuan"){
+                    dd($total->toRawSql());
+                }
 
                 // Filtering
                 if (!empty($target_value)) {
@@ -791,18 +795,21 @@ class LaporanApiController extends Controller
                 ]
             ];
 
+            if($pertanyaanText=="Di dalam melaksanakan kegiatan di lingkup Universitas Pakuan, saya menggunakan visi dan misi Universitas Pakuan sebagai acuan"){
+                dd($jawabanValue, $jawabanItems);
+            }
             // 4️⃣ Kirim SSE chunk Untuk satu pertanyaan
-            $this->sendSSE("pertanyaan", [
-                "pertanyaan" => $pertanyaanText,
-                "kategori" => $pertGroup->first()->Kategori?->nama_kategori?? "unknown",
-                "subKategori" => $pertGroup->first()->SubKategori?->nama_sub,
-                "jenis_pilihan" => $pertGroup->first()->jenis_pilihan,
-                "chart" => $charts,
-            ]);
+            // $this->sendSSE("pertanyaan", [
+            //     "pertanyaan" => $pertanyaanText,
+            //     "kategori" => $pertGroup->first()->Kategori?->nama_kategori?? "unknown",
+            //     "subKategori" => $pertGroup->first()->SubKategori?->nama_sub,
+            //     "jenis_pilihan" => $pertGroup->first()->jenis_pilihan,
+            //     "chart" => $charts,
+            // ]);
         }
 
         // 5️⃣ kirim selesai
-        $this->sendSSE("done", ["message" => "completed"]);
+        // $this->sendSSE("done", ["message" => "completed"]);
         exit;
     }
 
