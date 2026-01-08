@@ -124,8 +124,11 @@ class KuesionerApiController extends Controller
                         ->orderByDesc('tanggal')
                         ->get();
 
-        $results2 = $bank_soal->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')])
-                    ->get()
+        $results2 = $bank_soal->whereBetween(DB::raw('NOW()'),[DB::raw('start_repair'),DB::raw('end_repair')]);
+        if($request->debug){
+            dump($results2->toRawSql());
+        }
+        $results2 = $results2->get()
                     ->transform(function ($item) use($request){
                             $yearEntry = date('Y');
                             // $item->rule = json_decode($item->rule, true);
@@ -210,6 +213,9 @@ class KuesionerApiController extends Controller
 
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
         $results2After = $results2->filter(fn($row) => !in_array($row?->id, $resultsIds))->values();
+        if($request->debug){
+            dd($resultsIds, $results2After);
+        }
 
         $resource = $results2After->merge($results)->values();
         $perPage = 5;
