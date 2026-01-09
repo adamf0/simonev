@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <title>SIMONEV</title>
-    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         .form-select, .form-control {
@@ -64,8 +64,8 @@
     @vite('resources/js/app.jsx')
     @inertiaHead
 
-    <link href="{{ asset('assets/css/modern.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/tabler-icons/tabler-icons.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/modern.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('assets/tabler-icons/tabler-icons.css') }}" rel="stylesheet"/>
 </head>
 
 <body>
