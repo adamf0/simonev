@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/', [AuthController::class, 'index'])->name('/');
-Route::get('/propagation', [AuthController::class, 'propagation'])->name('propagation');
+Route::post('/propagation', [AuthController::class, 'propagation'])->name('propagation');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
