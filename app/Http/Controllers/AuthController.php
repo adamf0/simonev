@@ -191,6 +191,7 @@ class AuthController extends Controller
     public function propagation(Request $request)
     {
         try {
+            dd($request->all());
             $validator      = validator($request->all(), [
                 'username' => ['required'],
                 'password' => ['required'],
