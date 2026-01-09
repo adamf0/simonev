@@ -191,8 +191,8 @@ class AuthController extends Controller
     public function propagation(Request $request)
     {
         try {
-            dd($request->all());
-            $validator      = validator($request->all(), [
+            dd($request->query());
+            $validator      = validator($request->query(), [
                 'username' => ['required'],
                 'password' => ['required'],
                 'target' => ['required','regex:/^[a-zA-Z0-9+\/=]*$/'],
@@ -201,19 +201,21 @@ class AuthController extends Controller
             if(count($validator->errors())){
                 return view("access_denied");
             }
-            $target = base64_decode($request->target,true);
+            $data = $validator->validated();
+
+            $target = base64_decode($data['target'],true);
             $path = str_replace(url('/'),"",$target);
             $validTarget = preg_match('/^\/kuesioner\/start/', $path);
             if(!$validTarget){
                 return view("invalid_resource");
             }
 
-            $akun = User::where("username", $request->username)->where("password_plain", $request->password)->first();
+            $akun = User::where("username", $data['username'])->where("password_plain", $data['password'])->first();
 
             if($akun==null){
-                $akunSimak = $this->loginSimak($request->username, $request->password);
+                $akunSimak = $this->loginSimak($data['username'], $data['password']);
                 if($akunSimak==null){
-                    $akunSimpeg = $this->loginSimpeg($request->username, $request->password);
+                    $akunSimpeg = $this->loginSimpeg($data['username'], $data['password']);
                     if($akunSimpeg==null){
                         throw new Exception("akun tidak ditemukan");
                     } else{
