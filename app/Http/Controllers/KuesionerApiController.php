@@ -291,12 +291,13 @@ class KuesionerApiController extends Controller
                     ->values();
 
         $resultsIds = $results->pluck("id_bank_soal")->values()->toArray();
+        if($request->debug){
+            dd($results,$results2,$resultsIds);
+        }
+
         $results2After = $results2->filter(fn($row) => !in_array($row?->id, $resultsIds))->values();
 
         $resource = $results2After->merge($results)->values();
-        if($request->debug){
-            dd($resource);
-        }
         $resource = $resource->where("statusPengisian","!=","isi lengkap")->values();
         return response()->json(["totalIsiKuesioner"=>$resource->count()]);
     }
