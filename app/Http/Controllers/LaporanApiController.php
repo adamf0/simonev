@@ -165,7 +165,7 @@ class LaporanApiController extends Controller
     public function rekap_sse(Request $request)
     {
         set_time_limit(0);
-        ini_set('memory_limit', '1024M');
+        ini_set('memory_limit', '-1');
 
         return response()->stream(function () use ($request) {
 
