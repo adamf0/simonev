@@ -167,102 +167,169 @@ class LaporanApiController extends Controller
         set_time_limit(0);
         ini_set('memory_limit', '-1');
 
-         DB::statement("CREATE TEMPORARY TABLE temp_vtendik AS
-                SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
-                FROM (
-                    SELECT 
-                        CASE WHEN e_pribadi_simpeg.nip = 0 THEN '' ELSE e_pribadi_simpeg.nip END AS nip,
-                        e_pribadi_simpeg.nidn,
-                        e_pribadi_simpeg.nama,
-                        payroll_m_pegawai.fakultas,
-                        NULL AS unit
-                    FROM e_pribadi_simpeg
-                    LEFT JOIN payroll_m_pegawai ON payroll_m_pegawai.nip = e_pribadi_simpeg.nip
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
+        header('X-Accel-Buffering: no');
 
-                    UNION ALL
+        // 🔥 MATIKAN BUFFER PHP
+        while (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+        ob_implicit_flush(true);
 
-                    SELECT 
-                        CASE WHEN n_pribadi_simpeg.nip = 0 THEN '' ELSE n_pribadi_simpeg.nip END AS nip,
-                        NULL AS nidn,
-                        n_pribadi_simpeg.nama,
-                        NULL AS fakultas,
-                        n_pengangkatan_simpeg.unit_kerja AS unit
-                    FROM n_pribadi_simpeg
-                    LEFT JOIN n_pengangkatan_simpeg ON n_pengangkatan_simpeg.nip = n_pribadi_simpeg.nip
-                ) a
-                GROUP BY a.nidn, a.nip
-            ");
+        if (empty($request->bankSoal)) {
+            $this->sendSSE("start",[
+                'total' => 0
+            ]);
+            $this->sendSSE("done", ["message" => "completed"]);
+            exit;
+        }
 
-            $query = DB::table("kuesioner as k")
-                ->select(
-                    'k.id',
-                    'k.tanggal',
-                    'bank_soal.peruntukan',
-                    'bank_soal.judul as bankSoal',
-                    'm_mahasiswa_simak.nama_mahasiswa',
-                    'fak_mhs.nama_fakultas as nama_fakultas_mahasiswa',
-                    'prodi_mhs.nama_prodi as nama_prodi_mahasiswa',
-                    'tDosen.nama as nama_dosen',
-                    'fak_dsn.nama_fakultas as nama_fakultas_dosen',
-                    'prodi_dsn.nama_prodi as nama_prodi_dosen',
-                    'tTendik.nama as nama_tendik',
-                    'n_pengangkatan_simpeg.unit_kerja'
-                )
-                ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
-                ->leftJoin('temp_vtendik as tDosen', 'k.nidn', '=', 'tDosen.nidn')
-                ->leftJoin('m_dosen_simak', 'm_dosen_simak.nidn', '=', 'tDosen.nidn')
-                ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
-                ->leftJoin('n_pengangkatan_simpeg', 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
-                ->leftJoin('m_mahasiswa_simak', 'k.npm', '=', 'm_mahasiswa_simak.nim')
-                ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
-                ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
-                ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
-                ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fakultas', '=', 'm_dosen_simak.kode_fak')
-                ->where('k.id_bank_soal', $request->bankSoal)
-                ->orderBy('k.id');
+         DB::statement("
+            CREATE TEMPORARY TABLE temp_vtendik AS
+            SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
+            FROM (
+                SELECT 
+                    CASE WHEN e_pribadi_simpeg.nip = 0 THEN '' ELSE e_pribadi_simpeg.nip END AS nip,
+                    e_pribadi_simpeg.nidn,
+                    e_pribadi_simpeg.nama,
+                    payroll_m_pegawai.fakultas,
+                    NULL AS unit
+                FROM e_pribadi_simpeg
+                LEFT JOIN payroll_m_pegawai ON payroll_m_pegawai.nip = e_pribadi_simpeg.nip
 
-            if($request->debug==1){
-                dd($query->count(), $query->get());
+                UNION ALL
+
+                SELECT 
+                    CASE WHEN n_pribadi_simpeg.nip = 0 THEN '' ELSE n_pribadi_simpeg.nip END AS nip,
+                    NULL AS nidn,
+                    n_pribadi_simpeg.nama,
+                    NULL AS fakultas,
+                    n_pengangkatan_simpeg.unit_kerja AS unit
+                FROM n_pribadi_simpeg
+                LEFT JOIN n_pengangkatan_simpeg ON n_pengangkatan_simpeg.nip = n_pribadi_simpeg.nip
+            ) a
+            GROUP BY a.nidn, a.nip
+        ");
+
+        $query = DB::table("kuesioner as k")
+                    ->distinct()
+                    ->select(
+                        'k.id',
+                        'k.nidn',
+                        'k.nip',
+                        'k.npm',
+                        'k.id_bank_soal',
+                        'k.tanggal',
+                        'bank_soal.peruntukan',
+                        'bank_soal.judul as bankSoal',
+
+                        'm_mahasiswa_simak.nama_mahasiswa',
+                        'm_mahasiswa_simak.kode_fak as mahasiswa_kode_fakultas',
+                        'm_mahasiswa_simak.kode_prodi as mahasiswa_kode_prodi',
+                        'fak_mhs.nama_fakultas as nama_fakultas_mahasiswa',
+                        'prodi_mhs.nama_prodi as nama_prodi_mahasiswa',
+
+                        'tDosen.nama as nama_dosen',
+                        'm_dosen_simak.kode_prodi as dosen_kode_prodi',
+                        'm_dosen_simak.kode_fak as dosen_kode_fakultas',
+                        'fak_dsn.nama_fakultas as nama_fakultas_dosen',
+                        'prodi_dsn.nama_prodi as nama_prodi_dosen',
+
+                        'tTendik.nama as nama_tendik',
+                        'n_pengangkatan_simpeg.unit_kerja',
+                    )
+                    ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
+                    ->leftJoin('temp_vtendik as tDosen', 'k.nidn', '=', 'tDosen.nidn')
+                    ->leftJoin(DB::raw("(SELECT nidn, kode_fak, kode_prodi FROM m_dosen_simak) as m_dosen_simak"), 'm_dosen_simak.nidn', '=', 'tDosen.nidn')
+                    ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
+                    ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan_simpeg) as n_pengangkatan_simpeg"), 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
+                    ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
+
+                    ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
+                    ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
+
+                    ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
+                    ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fakultas', '=', 'm_dosen_simak.kode_fak')
+
+                    ->where(
+                        DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1)"),
+                        '<=',
+                        DB::raw('(SELECT COUNT(0) FROM kuesioner_jawaban kj JOIN template_pertanyaan tp2 ON kj.id_template_pertanyaan = tp2.id WHERE kj.id_kuesioner = k.id AND tp2.required = 1)')
+                    );
+
+        if($request->start_date && $request->end_date){
+            $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
+        }
+        if($request->level=="fakultas" || !empty($request->fakultas)){
+            $query = $query->where('m_mahasiswa_simak.kode_fak', $request->fakultas);
+        }
+        if($request->level=="prodi" || !empty($request->prodi)){
+            $query = $query->where('m_mahasiswa_simak.kode_prodi', $request->prodi);
+        }
+        if(!empty($request->npm)){
+            $query = $query->where('npm',$request->npm);
+        }
+        if(!empty($request->bankSoal)){
+            $query = $query->where('k.id_bank_soal',$request->bankSoal);
+        }
+
+        if($request->level=="admin"){
+            if(!empty($request->nidn)){
+                $query = $query->where('nidn',$request->nidn);
             }
-
-        return response()->stream(function () use ($request, $query) {
-
-            if (empty($request->bankSoal)) {
-                echo "event: end\n";
-                echo "data: " . json_encode(['total' => 0]) . "\n\n";
-                return;
+            if(!empty($request->nip)){
+                $query = $query->where('nip',$request->nip);
             }
-
-            echo "event: start\n";
-            echo "data: " . json_encode(['message' => 'start streaming']) . "\n\n";
-            ob_flush(); flush();
-
-            $count = 0;
-
-            foreach ($query->cursor() as $row) {
-
-                echo "event: row\n";
-                echo "data: " . json_encode($row) . "\n\n";
-
-                $count++;
-
-                if ($count % 2 === 0) {
-                    ob_flush();
-                    flush();
-                }
+            if(!empty($request->unit)){
+                $query = $query->where('n_pengangkatan_simpeg.unit_kerja',$request->unit);
             }
+        } else if($request->level=="prodi" || $request->level=="fakultas"){
+            $query = $query->whereNotNull('k.npm');
+        }
 
-            echo "event: end\n";
-            echo "data: " . json_encode(['total' => $count]) . "\n\n";
+        /*
+        =========================
+        HITUNG TOTAL (OPTIONAL)
+        =========================
+        */
+        $total = (clone $query)->count();
 
-            ob_flush(); flush();
-
-        }, 200, [
-            'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
-            'X-Accel-Buffering' => 'no',
+        $this->sendSSE("start", [
+            "total" => $total
         ]);
+
+        /*
+        =========================
+        STREAM DATA
+        =========================
+        */
+        $count = 0;
+
+        foreach ($query->cursor() as $row) {
+
+            $this->sendSSE("row", $row);
+
+            $count++;
+
+            // 🔥 optional: kirim progress tiap 100
+            if ($count % 100 === 0) {
+                $this->sendSSE("progress", [
+                    "current" => $count,
+                    "total" => $total
+                ]);
+            }
+        }
+
+        /*
+        =========================
+        END
+        =========================
+        */
+        $this->sendSSE("done", ["message" => "completed"]);
+
+        exit;
     }
 
     // public function chart($id_bank_soal, Request $request){
