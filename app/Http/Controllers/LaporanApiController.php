@@ -215,10 +215,10 @@ class LaporanApiController extends Controller
                     ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
                     
                     ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
-                    ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fak', '=', 'm_mahasiswa_simak.kode_fak')
+                    ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
 
                     ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
-                    ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fak', '=', 'm_dosen_simak.kode_fak')
+                    ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fakultas', '=', 'm_dosen_simak.kode_fak')
 
                     ->where(
                         DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1)"),
