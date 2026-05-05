@@ -4,7 +4,7 @@ import { saveAs } from "file-saver";
 export const exportRekapSSE = (filters, onProgress) => {
   return new Promise((resolve, reject) => {
     const params = new URLSearchParams(filters).toString();
-    const url = `https://simonev-lpm.unpak.ac.id/api/kuesioner/stream-rekap?${params}`;
+    const url = `/api/kuesioner/rekap/sse?${params}`;
 
     const eventSource = new EventSource(url);
 
@@ -36,7 +36,7 @@ export const exportRekapSSE = (filters, onProgress) => {
         Peruntukan: d.peruntukan || "",
         Bank_Soal: d.bankSoal || "",
 
-        Nama_Mahasiswa: d.nama_mahasiswa || "",
+        Nama_Mahasiswa: d?.nama_mahasiswa || d?.npm || "",
         Fakultas_Mahasiswa: d.nama_fakultas_mahasiswa || "",
         Prodi_Mahasiswa: d.nama_prodi_mahasiswa || "",
 
@@ -71,10 +71,8 @@ export const exportRekapSSE = (filters, onProgress) => {
     END
     =========================
     */
-    eventSource.addEventListener("end", (e) => {
-      const meta = JSON.parse(e.data);
-
-      console.log("Streaming finished:", meta.total);
+    eventSource.addEventListener("done", (e) => {
+      console.log("Streaming finished");
 
       /*
       =========================
@@ -132,8 +130,8 @@ export const exportRekapSSE = (filters, onProgress) => {
       */
       const wb = XLSX.utils.book_new();
 
-      XLSX.utils.book_append_sheet(wb, wsRekap, "Data Rekap");
-      XLSX.utils.book_append_sheet(wb, wsDetail, "General Info");
+      XLSX.utils.book_append_sheet(wb, wsRekap, "General Info");
+      XLSX.utils.book_append_sheet(wb, wsDetail, "Data Rekap");
 
       const excelBuffer = XLSX.write(wb, {
         bookType: "xlsx",
