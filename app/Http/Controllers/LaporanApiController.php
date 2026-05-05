@@ -15,8 +15,9 @@ use App\Models\TemplatePilihan;
 use App\Models\VKuesioner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
 use InvalidArgumentException;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\RekapExport;
 
 class LaporanApiController extends Controller
 {
@@ -148,6 +149,158 @@ class LaporanApiController extends Controller
             'total' => $totalRecords,
             'lastPage' => $kuesioner->lastPage(),
         ]);
+    }
+
+    public function export_rekap(Request $request)
+    {
+        DB::statement("
+            CREATE TEMPORARY TABLE temp_vtendik AS
+            SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
+            FROM (
+                SELECT 
+                    CASE WHEN e_pribadi_simpeg.nip = 0 THEN '' ELSE e_pribadi_simpeg.nip END AS nip,
+                    e_pribadi_simpeg.nidn,
+                    e_pribadi_simpeg.nama,
+                    payroll_m_pegawai.fakultas,
+                    NULL AS unit
+                FROM e_pribadi_simpeg
+                LEFT JOIN payroll_m_pegawai ON payroll_m_pegawai.nip = e_pribadi_simpeg.nip
+
+                UNION ALL
+
+                SELECT 
+                    CASE WHEN n_pribadi_simpeg.nip = 0 THEN '' ELSE n_pribadi_simpeg.nip END AS nip,
+                    NULL AS nidn,
+                    n_pribadi_simpeg.nama,
+                    NULL AS fakultas,
+                    n_pengangkatan_simpeg.unit_kerja AS unit
+                FROM n_pribadi_simpeg
+                LEFT JOIN n_pengangkatan_simpeg ON n_pengangkatan_simpeg.nip = n_pribadi_simpeg.nip
+            ) a
+            GROUP BY a.nidn, a.nip
+        ");
+
+        $query = DB::table("kuesioner as k")
+                    ->distinct()
+                    ->select(
+                        'k.id',
+                        'k.nidn',
+                        'k.nip',
+                        'k.npm',
+                        'k.id_bank_soal',
+                        'k.tanggal',
+                        'bank_soal.peruntukan',
+                        'bank_soal.judul as bankSoal',
+                        'm_mahasiswa_simak.nama_mahasiswa',
+                        'm_mahasiswa_simak.kode_fak as mahasiswa_kode_fakultas',
+                        'm_mahasiswa_simak.kode_prodi as mahasiswa_kode_prodi',
+                        'tDosen.nama as nama_dosen',
+                        'm_dosen_simak.kode_prodi as dosen_kode_prodi',
+                        'm_dosen_simak.kode_fak as dosen_kode_fakultas',
+                        'tTendik.nama as nama_tendik',
+                        'n_pengangkatan_simpeg.unit_kerja',
+                    )
+                    ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
+                    ->leftJoin('temp_vtendik as tDosen', 'k.nidn', '=', 'tDosen.nidn')
+                    ->leftJoin(DB::raw("(SELECT nidn, kode_fak, kode_prodi FROM m_dosen_simak) as m_dosen_simak"), 'm_dosen_simak.nidn', '=', 'tDosen.nidn')
+                    ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
+                    ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan_simpeg) as n_pengangkatan_simpeg"), 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
+                    ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
+                    ->where(
+                        DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1)"),
+                        '<=',
+                        DB::raw('(SELECT COUNT(0) FROM kuesioner_jawaban kj JOIN template_pertanyaan tp2 ON kj.id_template_pertanyaan = tp2.id WHERE kj.id_kuesioner = k.id AND tp2.required = 1)')
+                    );
+
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+        }
+
+        if ($request->level == "fakultas" || !empty($request->fakultas)) {
+            $query->where('m_mahasiswa_simak.kode_fak', $request->fakultas);
+        }
+
+        if ($request->level == "prodi" || !empty($request->prodi)) {
+            $query->where('m_mahasiswa_simak.kode_prodi', $request->prodi);
+        }
+
+        if (!empty($request->npm)) {
+            $query->where('npm', $request->npm);
+        }
+
+        if (!empty($request->bankSoal)) {
+            $query->where('k.id_bank_soal', $request->bankSoal);
+        } else {
+            return response()->json(['message' => 'bankSoal wajib']);
+        }
+
+        if ($request->level == "admin") {
+            if (!empty($request->nidn)) {
+                $query->where('nidn', $request->nidn);
+            }
+            if (!empty($request->nip)) {
+                $query->where('nip', $request->nip);
+            }
+            if (!empty($request->unit)) {
+                $query->where('n_pengangkatan_simpeg.unit_kerja', $request->unit);
+            }
+        } else if ($request->level == "prodi" || $request->level == "fakultas") {
+            $query->whereNotNull('k.npm');
+        }
+
+        // 🔥 TANPA PAGING
+        $rows = $query->get();
+        
+        $sheet1 = collect()
+            ->merge(
+                $rows->where('peruntukan', 'tendik')
+                    ->groupBy('unit_kerja')
+                    ->map(fn($item, $key) => [
+                        'kategori' => 'tendik',
+                        'group' => $key,
+                        'total' => $item->count()
+                    ])
+            )
+            ->merge(
+                $rows->whereNotNull('mahasiswa_kode_prodi')
+                    ->groupBy(fn($i) => $i->mahasiswa_kode_fakultas . '-' . $i->mahasiswa_kode_prodi)
+                    ->map(fn($item, $key) => [
+                        'kategori' => 'mahasiswa',
+                        'group' => $key,
+                        'total' => $item->count()
+                    ])
+            )
+            ->merge(
+                $rows->whereNotNull('dosen_kode_prodi')
+                    ->groupBy(fn($i) => $i->dosen_kode_fakultas . '-' . $i->dosen_kode_prodi)
+                    ->map(fn($item, $key) => [
+                        'kategori' => 'dosen',
+                        'group' => $key,
+                        'total' => $item->count()
+                    ])
+            )
+            ->values();
+
+        $sheet2 = $rows->map(function ($item) {
+            return [
+                'tanggal' => $item->tanggal,
+                'peruntukan' => $item->peruntukan,
+                'bank_soal' => $item->bankSoal,
+                'nama_mahasiswa' => $item->nama_mahasiswa,
+                'fakultas_mahasiswa' => $item->mahasiswa_kode_fakultas,
+                'prodi_mahasiswa' => $item->mahasiswa_kode_prodi,
+                'nama_dosen' => $item->nama_dosen,
+                'fakultas_dosen' => $item->dosen_kode_fakultas,
+                'prodi_dosen' => $item->dosen_kode_prodi,
+                'nama_tendik' => $item->nama_tendik,
+                'unit_kerja' => $item->unit_kerja,
+            ];
+        });
+
+        return Excel::download(
+            new RekapExport($sheet1, $sheet2),
+            'rekap_kuesioner.xlsx'
+        );
     }
 
     // public function chart($id_bank_soal, Request $request){
