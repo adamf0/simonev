@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\BankSoal;
-use App\Models\Dosen;
 use App\Models\Fakultas;
 use App\Models\Kuesioner;
 use App\Models\KuesionerJawaban;
@@ -16,8 +15,6 @@ use App\Models\VKuesioner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\RekapExport;
 
 class LaporanApiController extends Controller
 {
@@ -82,12 +79,19 @@ class LaporanApiController extends Controller
                         'k.tanggal',
                         'bank_soal.peruntukan',
                         'bank_soal.judul as bankSoal',
+
                         'm_mahasiswa_simak.nama_mahasiswa',
                         'm_mahasiswa_simak.kode_fak as mahasiswa_kode_fakultas',
                         'm_mahasiswa_simak.kode_prodi as mahasiswa_kode_prodi',
+                        'fak_mhs.nama_fakultas as nama_fakultas_mahasiswa',
+                        'prodi_mhs.nama_prodi as nama_prodi_mahasiswa',
+
                         'tDosen.nama as nama_dosen',
                         'm_dosen_simak.kode_prodi as dosen_kode_prodi',
                         'm_dosen_simak.kode_fak as dosen_kode_fakultas',
+                        'fak_dsn.nama_fakultas as nama_fakultas_dosen',
+                        'prodi_dsn.nama_prodi as nama_prodi_dosen',
+
                         'tTendik.nama as nama_tendik',
                         'n_pengangkatan_simpeg.unit_kerja',
                     )
@@ -97,6 +101,13 @@ class LaporanApiController extends Controller
                     ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
                     ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan_simpeg) as n_pengangkatan_simpeg"), 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
                     ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
+
+                    ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
+                    ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
+
+                    ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
+                    ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fakultas', '=', 'm_dosen_simak.kode_fak')
+
                     ->where(
                         DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1)"),
                         '<=',
@@ -151,170 +162,116 @@ class LaporanApiController extends Controller
         ]);
     }
 
-    public function export_rekap(Request $request)
+    public function rekap_sse(Request $request)
     {
-        DB::statement("
-            CREATE TEMPORARY TABLE temp_vtendik AS
-            SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
-            FROM (
-                SELECT 
-                    CASE WHEN e_pribadi_simpeg.nip = 0 THEN '' ELSE e_pribadi_simpeg.nip END AS nip,
-                    e_pribadi_simpeg.nidn,
-                    e_pribadi_simpeg.nama,
-                    payroll_m_pegawai.fakultas,
-                    NULL AS unit
-                FROM e_pribadi_simpeg
-                LEFT JOIN payroll_m_pegawai ON payroll_m_pegawai.nip = e_pribadi_simpeg.nip
+        return response()->stream(function () use ($request) {
 
-                UNION ALL
+            // HEADER FORMAT SSE
+            echo "event: start\n";
+            echo "data: " . json_encode(['message' => 'start streaming']) . "\n\n";
+            ob_flush(); flush();
 
-                SELECT 
-                    CASE WHEN n_pribadi_simpeg.nip = 0 THEN '' ELSE n_pribadi_simpeg.nip END AS nip,
-                    NULL AS nidn,
-                    n_pribadi_simpeg.nama,
-                    NULL AS fakultas,
-                    n_pengangkatan_simpeg.unit_kerja AS unit
-                FROM n_pribadi_simpeg
-                LEFT JOIN n_pengangkatan_simpeg ON n_pengangkatan_simpeg.nip = n_pribadi_simpeg.nip
-            ) a
-            GROUP BY a.nidn, a.nip
-        ");
+            /*
+            =========================
+            TEMP TABLE
+            =========================
+            */
+            DB::statement("
+                CREATE TEMPORARY TABLE temp_vtendik AS
+                SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
+                FROM (
+                    SELECT 
+                        CASE WHEN e_pribadi_simpeg.nip = 0 THEN '' ELSE e_pribadi_simpeg.nip END AS nip,
+                        e_pribadi_simpeg.nidn,
+                        e_pribadi_simpeg.nama,
+                        payroll_m_pegawai.fakultas,
+                        NULL AS unit
+                    FROM e_pribadi_simpeg
+                    LEFT JOIN payroll_m_pegawai ON payroll_m_pegawai.nip = e_pribadi_simpeg.nip
 
-        $query = DB::table("kuesioner as k")
-                    ->distinct()
-                    ->select(
-                        'k.id',
-                        'k.nidn',
-                        'k.nip',
-                        'k.npm',
-                        'k.id_bank_soal',
-                        'k.tanggal',
-                        'bank_soal.peruntukan',
-                        'bank_soal.judul as bankSoal',
+                    UNION ALL
 
-                        'm_mahasiswa_simak.nama_mahasiswa',
-                        'm_mahasiswa_simak.kode_fak as mahasiswa_kode_fakultas',
-                        'm_mahasiswa_simak.kode_prodi as mahasiswa_kode_prodi',
-                        'fak_mhs.nama_fakultas as nama_fakultas_mahasiswa',
-                        'prodi_mhs.nama_prodi as nama_prodi_mahasiswa',
+                    SELECT 
+                        CASE WHEN n_pribadi_simpeg.nip = 0 THEN '' ELSE n_pribadi_simpeg.nip END AS nip,
+                        NULL AS nidn,
+                        n_pribadi_simpeg.nama,
+                        NULL AS fakultas,
+                        n_pengangkatan_simpeg.unit_kerja AS unit
+                    FROM n_pribadi_simpeg
+                    LEFT JOIN n_pengangkatan_simpeg ON n_pengangkatan_simpeg.nip = n_pribadi_simpeg.nip
+                ) a
+                GROUP BY a.nidn, a.nip
+            ");
 
-                        'tDosen.nama as nama_dosen',
-                        'm_dosen_simak.kode_prodi as dosen_kode_prodi',
-                        'm_dosen_simak.kode_fak as dosen_kode_fakultas',
-                        'fak_dsn.nama_fakultas as nama_fakultas_dosen',
-                        'prodi_dsn.nama_prodi as nama_prodi_dosen',
+            $query = DB::table("kuesioner as k")
+                ->select(
+                    'k.id',
+                    'k.tanggal',
+                    'bank_soal.peruntukan',
+                    'bank_soal.judul as bankSoal',
 
-                        'tTendik.nama as nama_tendik',
-                        'n_pengangkatan_simpeg.unit_kerja',
-                    )
-                    ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
-                    ->leftJoin('temp_vtendik as tDosen', 'k.nidn', '=', 'tDosen.nidn')
-                    ->leftJoin(DB::raw("(SELECT nidn, kode_fak, kode_prodi FROM m_dosen_simak) as m_dosen_simak"), 'm_dosen_simak.nidn', '=', 'tDosen.nidn')
-                    ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
-                    ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan_simpeg) as n_pengangkatan_simpeg"), 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
-                    ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
-                    
-                    ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
-                    ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
+                    'm_mahasiswa_simak.nama_mahasiswa',
+                    'fak_mhs.nama_fakultas as nama_fakultas_mahasiswa',
+                    'prodi_mhs.nama_prodi as nama_prodi_mahasiswa',
 
-                    ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
-                    ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fakultas', '=', 'm_dosen_simak.kode_fak')
+                    'tDosen.nama as nama_dosen',
+                    'fak_dsn.nama_fakultas as nama_fakultas_dosen',
+                    'prodi_dsn.nama_prodi as nama_prodi_dosen',
 
-                    ->where(
-                        DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1)"),
-                        '<=',
-                        DB::raw('(SELECT COUNT(0) FROM kuesioner_jawaban kj JOIN template_pertanyaan tp2 ON kj.id_template_pertanyaan = tp2.id WHERE kj.id_kuesioner = k.id AND tp2.required = 1)')
-                    );
+                    'tTendik.nama as nama_tendik',
+                    'n_pengangkatan_simpeg.unit_kerja'
+                )
+                ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
+                ->leftJoin('temp_vtendik as tDosen', 'k.nidn', '=', 'tDosen.nidn')
+                ->leftJoin(DB::raw("(SELECT nidn, kode_fak, kode_prodi FROM m_dosen_simak) as m_dosen_simak"), 'm_dosen_simak.nidn', '=', 'tDosen.nidn')
+                ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
+                ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan_simpeg) as n_pengangkatan_simpeg"), 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
+                ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
 
-        if ($request->start_date && $request->end_date) {
-            $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
-        }
+                ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
+                ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
 
-        if ($request->level == "fakultas" || !empty($request->fakultas)) {
-            $query->where('m_mahasiswa_simak.kode_fak', $request->fakultas);
-        }
+                ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
+                ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fakultas', '=', 'm_dosen_simak.kode_fak')
 
-        if ($request->level == "prodi" || !empty($request->prodi)) {
-            $query->where('m_mahasiswa_simak.kode_prodi', $request->prodi);
-        }
+                ->where('k.id_bank_soal', $request->bankSoal);
 
-        if (!empty($request->npm)) {
-            $query->where('npm', $request->npm);
-        }
+            /*
+            =========================
+            STREAM DATA PER CHUNK
+            =========================
+            */
+            $count = 0;
 
-        if (!empty($request->bankSoal)) {
-            $query->where('k.id_bank_soal', $request->bankSoal);
-        } else {
-            return response()->json(['message' => 'bankSoal wajib']);
-        }
+            $query->orderBy('k.id')
+                ->chunk(100, function ($rows) use (&$count) {
 
-        if ($request->level == "admin") {
-            if (!empty($request->nidn)) {
-                $query->where('nidn', $request->nidn);
-            }
-            if (!empty($request->nip)) {
-                $query->where('nip', $request->nip);
-            }
-            if (!empty($request->unit)) {
-                $query->where('n_pengangkatan_simpeg.unit_kerja', $request->unit);
-            }
-        } else if ($request->level == "prodi" || $request->level == "fakultas") {
-            $query->whereNotNull('k.npm');
-        }
+                    foreach ($rows as $row) {
 
-        // 🔥 TANPA PAGING
-        $rows = $query->get();
-        
-        $sheet1 = collect()
-            ->merge(
-                $rows->where('peruntukan', 'tendik')
-                    ->groupBy('unit_kerja')
-                    ->map(fn($item, $key) => [
-                        'kategori' => 'tendik',
-                        'group' => $key,
-                        'total' => $item->count()
-                    ])
-            )
-            ->merge(
-                $rows->whereNotNull('mahasiswa_kode_prodi')
-                    ->groupBy(fn($i) => $i->mahasiswa_kode_fakultas . '-' . $i->mahasiswa_kode_prodi)
-                    ->map(fn($item, $key) => [
-                        'kategori' => 'mahasiswa',
-                        'group' => $key,
-                        'total' => $item->count()
-                    ])
-            )
-            ->merge(
-                $rows->whereNotNull('dosen_kode_prodi')
-                    ->groupBy(fn($i) => $i->dosen_kode_fakultas . '-' . $i->dosen_kode_prodi)
-                    ->map(fn($item, $key) => [
-                        'kategori' => 'dosen',
-                        'group' => $key,
-                        'total' => $item->count()
-                    ])
-            )
-            ->values();
+                        echo "event: row\n";
+                        echo "data: " . json_encode($row) . "\n\n";
 
-        $sheet2 = $rows->map(function ($item) {
-            return [
-                'tanggal' => $item->tanggal,
-                'peruntukan' => $item->peruntukan,
-                'bank_soal' => $item->bankSoal,
-                'nama_mahasiswa' => $item->nama_mahasiswa,
-                'fakultas_mahasiswa' => $item->nama_fakultas_mahasiswa,
-                'prodi_mahasiswa' => $item->nama_prodi_mahasiswa,
-                'nama_dosen' => $item->nama_dosen,
-                'fakultas_dosen' => $item->nama_fakultas_dosen,
-                'prodi_dosen' => $item->nama_prodi_dosen,
-                'nama_tendik' => $item->nama_tendik,
-                'unit_kerja' => $item->unit_kerja,
-            ];
-        });
+                        $count++;
+                    }
 
-        return Excel::download(
-            new RekapExport($sheet1, $sheet2),
-            'rekap_kuesioner.xlsx'
-        );
+                    ob_flush(); flush();
+                });
+
+            /*
+            =========================
+            END EVENT
+            =========================
+            */
+            echo "event: end\n";
+            echo "data: " . json_encode(['total' => $count]) . "\n\n";
+
+            ob_flush(); flush();
+
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+        ]);
     }
 
     // public function chart($id_bank_soal, Request $request){
