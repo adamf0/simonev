@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { FETCH_REKAPS_FAILURE, FETCH_REKAPS_REQUEST, fetchRekapKuesioners } from "./redux/actions/rekapActions";
 import { DtCalendar } from 'react-calendar-datetime-picker'
 import 'react-calendar-datetime-picker/dist/style.css'
+import { exportRekapSSE } from "./redux/actions/exportRekapSSE";
 // import { Inertia } from '@inertiajs/inertia';
 
 function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=[], listTendik=[], listFakultas=[], listUnit=[], listBankSoal=[]}) {
@@ -27,6 +28,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
     const rekaps = useSelector((state) => state.rekap.rekaps);
     const action_type = useSelector((state) => state.rekap.action_type);
     const loading = useSelector((state) => state.rekap.loading); // Access loading state from Redux
+    const [exportLoading, setExportLoading] = useState(false);
 
     const [filters, setFilters] = useState({ npm: '', nidn: '', nip: '', unit:'', bankSoal: '', fakultas: level=='fakultas'? kode_fakultas:null, level: level, start_date: '', end_date: '' });
     const debounceTimeout = useRef(null);
@@ -61,6 +63,25 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
 
     function filterHandler(){
         dispatch(fetchRekapKuesioners(filters));
+    }
+
+    async function exportHandler() {
+        if (!filters.bankSoal) {
+            alert("Bank Soal wajib dipilih");
+            return;
+        }
+
+        try {
+            setExportLoading(true);
+
+            await exportRekapSSE(filters);
+
+        } catch (err) {
+            console.error(err);
+            alert("Gagal export");
+        } finally {
+            setExportLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -223,6 +244,21 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                                 <div className="col-12 row gap-2">
                                     <button className="btn btn-primary" onClick={()=>filterHandler()}>Filter</button>
                                     <button className="btn btn-primary" onClick={()=>clearFilter()}>Hapus Filter</button>
+
+                                    <button 
+                                        className="btn btn-success d-flex align-items-center justify-content-center gap-2"
+                                        onClick={exportHandler}
+                                        disabled={exportLoading}
+                                    >
+                                        {exportLoading ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm"></span>
+                                                Exporting...
+                                            </>
+                                        ) : (
+                                            <>Export Excel</>
+                                        )}
+                                    </button>
                                 </div>
                             </div>
                         </div>
