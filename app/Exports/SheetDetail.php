@@ -4,8 +4,9 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class SheetDetail implements FromCollection, WithHeadings
+class SheetDetail implements FromCollection, WithHeadings, WithTitle
 {
     protected $data;
 
@@ -34,5 +35,10 @@ class SheetDetail implements FromCollection, WithHeadings
             'Nama Tendik',
             'Unit Kerja',
         ];
+    }
+
+    public function title(): string
+    {
+        return 'Data Rekap';
     }
 }

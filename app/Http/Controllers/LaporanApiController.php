@@ -191,12 +191,19 @@ class LaporanApiController extends Controller
                         'k.tanggal',
                         'bank_soal.peruntukan',
                         'bank_soal.judul as bankSoal',
+
                         'm_mahasiswa_simak.nama_mahasiswa',
                         'm_mahasiswa_simak.kode_fak as mahasiswa_kode_fakultas',
                         'm_mahasiswa_simak.kode_prodi as mahasiswa_kode_prodi',
+                        'fak_mhs.nama_fakultas as nama_fakultas_mahasiswa',
+                        'prodi_mhs.nama_prodi as nama_prodi_mahasiswa',
+
                         'tDosen.nama as nama_dosen',
                         'm_dosen_simak.kode_prodi as dosen_kode_prodi',
                         'm_dosen_simak.kode_fak as dosen_kode_fakultas',
+                        'fak_dsn.nama_fakultas as nama_fakultas_dosen',
+                        'prodi_dsn.nama_prodi as nama_prodi_dosen',
+
                         'tTendik.nama as nama_tendik',
                         'n_pengangkatan_simpeg.unit_kerja',
                     )
@@ -206,6 +213,13 @@ class LaporanApiController extends Controller
                     ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
                     ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan_simpeg) as n_pengangkatan_simpeg"), 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
                     ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
+                    
+                    ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
+                    ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fak', '=', 'm_mahasiswa_simak.kode_fak')
+
+                    ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
+                    ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fak', '=', 'm_dosen_simak.kode_fak')
+
                     ->where(
                         DB::raw("(SELECT COUNT(0) FROM template_pertanyaan tp WHERE tp.id_bank_soal = k.id_bank_soal AND tp.required = 1)"),
                         '<=',
@@ -287,11 +301,11 @@ class LaporanApiController extends Controller
                 'peruntukan' => $item->peruntukan,
                 'bank_soal' => $item->bankSoal,
                 'nama_mahasiswa' => $item->nama_mahasiswa,
-                'fakultas_mahasiswa' => $item->mahasiswa_kode_fakultas,
-                'prodi_mahasiswa' => $item->mahasiswa_kode_prodi,
+                'fakultas_mahasiswa' => $item->nama_fakultas_mahasiswa,
+                'prodi_mahasiswa' => $item->nama_prodi_mahasiswa,
                 'nama_dosen' => $item->nama_dosen,
-                'fakultas_dosen' => $item->dosen_kode_fakultas,
-                'prodi_dosen' => $item->dosen_kode_prodi,
+                'fakultas_dosen' => $item->nama_fakultas_dosen,
+                'prodi_dosen' => $item->nama_prodi_dosen,
                 'nama_tendik' => $item->nama_tendik,
                 'unit_kerja' => $item->unit_kerja,
             ];
