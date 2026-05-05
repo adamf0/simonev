@@ -164,6 +164,9 @@ class LaporanApiController extends Controller
 
     public function rekap_sse(Request $request)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+        
         return response()->stream(function () use ($request) {
 
             // HEADER FORMAT SSE
@@ -271,6 +274,7 @@ class LaporanApiController extends Controller
             'Content-Type' => 'text/event-stream',
             'Cache-Control' => 'no-cache',
             'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
         ]);
     }
 
