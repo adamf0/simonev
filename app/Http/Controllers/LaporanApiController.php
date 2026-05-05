@@ -225,11 +225,16 @@ class LaporanApiController extends Controller
                         'bank_soal.peruntukan',
                         'bank_soal.judul as bankSoal',
 
-                        'null as nama_mahasiswa', //m_mahasiswa_simak.nama_mahasiswa
-                        'null as mahasiswa_kode_fakultas', //m_mahasiswa_simak.kode_fak
-                        'null as mahasiswa_kode_prodi', //m_mahasiswa_simak.kode_prodi
-                        'null as nama_fakultas_mahasiswa', //m_mahasiswa_simak.fak_mhs.nama_fakultas
-                        'null as nama_prodi_mahasiswa', //m_mahasiswa_simak.prodi_mhs.nama_prodi
+                        // 'null as nama_mahasiswa', //m_mahasiswa_simak.nama_mahasiswa
+                        // 'null as mahasiswa_kode_fakultas', //m_mahasiswa_simak.kode_fak
+                        // 'null as mahasiswa_kode_prodi', //m_mahasiswa_simak.kode_prodi
+                        // 'null as nama_fakultas_mahasiswa', //m_mahasiswa_simak.fak_mhs.nama_fakultas
+                        // 'null as nama_prodi_mahasiswa', //m_mahasiswa_simak.prodi_mhs.nama_prodi
+                        DB::raw('NULL as nama_mahasiswa'),
+                        DB::raw('NULL as mahasiswa_kode_fakultas'),
+                        DB::raw('NULL as mahasiswa_kode_prodi'),
+                        DB::raw('NULL as nama_fakultas_mahasiswa'),
+                        DB::raw('NULL as nama_prodi_mahasiswa'),
 
                         'tDosen.nama as nama_dosen',
                         'm_dosen_simak.kode_prodi as dosen_kode_prodi',
