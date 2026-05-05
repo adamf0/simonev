@@ -167,19 +167,7 @@ class LaporanApiController extends Controller
         set_time_limit(0);
         ini_set('memory_limit', '-1');
 
-        return response()->stream(function () use ($request) {
-
-            if (empty($request->bankSoal)) {
-                echo "event: end\n";
-                echo "data: " . json_encode(['total' => 0]) . "\n\n";
-                return;
-            }
-
-            echo "event: start\n";
-            echo "data: " . json_encode(['message' => 'start streaming']) . "\n\n";
-            ob_flush(); flush();
-
-            DB::statement("CREATE TEMPORARY TABLE temp_vtendik AS
+         DB::statement("CREATE TEMPORARY TABLE temp_vtendik AS
                 SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
                 FROM (
                     SELECT 
@@ -233,11 +221,23 @@ class LaporanApiController extends Controller
                 ->where('k.id_bank_soal', $request->bankSoal)
                 ->orderBy('k.id');
 
-            $count = 0;
-
             if($request->debug==1){
                 dd($query->count(), $query->get());
             }
+
+        return response()->stream(function () use ($request, $query) {
+
+            if (empty($request->bankSoal)) {
+                echo "event: end\n";
+                echo "data: " . json_encode(['total' => 0]) . "\n\n";
+                return;
+            }
+
+            echo "event: start\n";
+            echo "data: " . json_encode(['message' => 'start streaming']) . "\n\n";
+            ob_flush(); flush();
+
+            $count = 0;
 
             foreach ($query->cursor() as $row) {
 
