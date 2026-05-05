@@ -225,11 +225,11 @@ class LaporanApiController extends Controller
                         'bank_soal.peruntukan',
                         'bank_soal.judul as bankSoal',
 
-                        'm_mahasiswa_simak.nama_mahasiswa',
-                        'm_mahasiswa_simak.kode_fak as mahasiswa_kode_fakultas',
-                        'm_mahasiswa_simak.kode_prodi as mahasiswa_kode_prodi',
-                        'fak_mhs.nama_fakultas as nama_fakultas_mahasiswa',
-                        'prodi_mhs.nama_prodi as nama_prodi_mahasiswa',
+                        'null as nama_mahasiswa', //m_mahasiswa_simak.nama_mahasiswa
+                        'null as mahasiswa_kode_fakultas', //m_mahasiswa_simak.kode_fak
+                        'null as mahasiswa_kode_prodi', //m_mahasiswa_simak.kode_prodi
+                        'null as nama_fakultas_mahasiswa', //m_mahasiswa_simak.fak_mhs.nama_fakultas
+                        'null as nama_prodi_mahasiswa', //m_mahasiswa_simak.prodi_mhs.nama_prodi
 
                         'tDosen.nama as nama_dosen',
                         'm_dosen_simak.kode_prodi as dosen_kode_prodi',
@@ -245,10 +245,10 @@ class LaporanApiController extends Controller
                     ->leftJoin(DB::raw("(SELECT nidn, kode_fak, kode_prodi FROM m_dosen_simak) as m_dosen_simak"), 'm_dosen_simak.nidn', '=', 'tDosen.nidn')
                     ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
                     ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan_simpeg) as n_pengangkatan_simpeg"), 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
-                    ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
+                    // ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
 
-                    ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
-                    ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
+                    // ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
+                    // ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
 
                     ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
                     ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fakultas', '=', 'm_dosen_simak.kode_fak')
@@ -262,12 +262,12 @@ class LaporanApiController extends Controller
         if($request->start_date && $request->end_date){
             $query = $query->whereBetween('tanggal',[$request->start_date, $request->end_date]);
         }
-        if($request->level=="fakultas" || !empty($request->fakultas)){
-            $query = $query->where('m_mahasiswa_simak.kode_fak', $request->fakultas);
-        }
-        if($request->level=="prodi" || !empty($request->prodi)){
-            $query = $query->where('m_mahasiswa_simak.kode_prodi', $request->prodi);
-        }
+        // if($request->level=="fakultas" || !empty($request->fakultas)){
+        //     $query = $query->where('m_mahasiswa_simak.kode_fak', $request->fakultas);
+        // }
+        // if($request->level=="prodi" || !empty($request->prodi)){
+        //     $query = $query->where('m_mahasiswa_simak.kode_prodi', $request->prodi);
+        // }
         if(!empty($request->npm)){
             $query = $query->where('npm',$request->npm);
         }
