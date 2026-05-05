@@ -166,21 +166,20 @@ class LaporanApiController extends Controller
     {
         set_time_limit(0);
         ini_set('memory_limit', '1024M');
-        
+
         return response()->stream(function () use ($request) {
 
-            // HEADER FORMAT SSE
+            if (empty($request->bankSoal)) {
+                echo "event: end\n";
+                echo "data: " . json_encode(['total' => 0]) . "\n\n";
+                return;
+            }
+
             echo "event: start\n";
             echo "data: " . json_encode(['message' => 'start streaming']) . "\n\n";
             ob_flush(); flush();
 
-            /*
-            =========================
-            TEMP TABLE
-            =========================
-            */
-            DB::statement("
-                CREATE TEMPORARY TABLE temp_vtendik AS
+            DB::statement("CREATE TEMPORARY TABLE temp_vtendik AS
                 SELECT nip, nidn, MAX(nama) AS nama, MAX(fakultas) AS fakultas, MAX(unit) AS unit
                 FROM (
                     SELECT 
@@ -212,59 +211,43 @@ class LaporanApiController extends Controller
                     'k.tanggal',
                     'bank_soal.peruntukan',
                     'bank_soal.judul as bankSoal',
-
                     'm_mahasiswa_simak.nama_mahasiswa',
                     'fak_mhs.nama_fakultas as nama_fakultas_mahasiswa',
                     'prodi_mhs.nama_prodi as nama_prodi_mahasiswa',
-
                     'tDosen.nama as nama_dosen',
                     'fak_dsn.nama_fakultas as nama_fakultas_dosen',
                     'prodi_dsn.nama_prodi as nama_prodi_dosen',
-
                     'tTendik.nama as nama_tendik',
                     'n_pengangkatan_simpeg.unit_kerja'
                 )
                 ->join('bank_soal', 'k.id_bank_soal', '=', 'bank_soal.id')
                 ->leftJoin('temp_vtendik as tDosen', 'k.nidn', '=', 'tDosen.nidn')
-                ->leftJoin(DB::raw("(SELECT nidn, kode_fak, kode_prodi FROM m_dosen_simak) as m_dosen_simak"), 'm_dosen_simak.nidn', '=', 'tDosen.nidn')
+                ->leftJoin('m_dosen_simak', 'm_dosen_simak.nidn', '=', 'tDosen.nidn')
                 ->leftJoin('temp_vtendik as tTendik', 'k.nip', '=', 'tTendik.nip')
-                ->leftJoin(DB::raw("(SELECT nip, unit_kerja FROM n_pengangkatan_simpeg) as n_pengangkatan_simpeg"), 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
-                ->leftJoin(DB::raw("(SELECT nim, nama_mahasiswa, kode_fak, kode_prodi FROM m_mahasiswa_simak) as m_mahasiswa_simak"), 'k.npm', '=', 'm_mahasiswa_simak.nim')
-
+                ->leftJoin('n_pengangkatan_simpeg', 'tTendik.nip', '=', 'n_pengangkatan_simpeg.nip')
+                ->leftJoin('m_mahasiswa_simak', 'k.npm', '=', 'm_mahasiswa_simak.nim')
                 ->leftJoin('m_program_studi_simak as prodi_mhs', 'prodi_mhs.kode_prodi', '=', 'm_mahasiswa_simak.kode_prodi')
                 ->leftJoin('m_fakultas_simak as fak_mhs', 'fak_mhs.kode_fakultas', '=', 'm_mahasiswa_simak.kode_fak')
-
                 ->leftJoin('m_program_studi_simak as prodi_dsn', 'prodi_dsn.kode_prodi', '=', 'm_dosen_simak.kode_prodi')
                 ->leftJoin('m_fakultas_simak as fak_dsn', 'fak_dsn.kode_fakultas', '=', 'm_dosen_simak.kode_fak')
+                ->where('k.id_bank_soal', $request->bankSoal)
+                ->orderBy('k.id');
 
-                ->where('k.id_bank_soal', $request->bankSoal);
-
-            /*
-            =========================
-            STREAM DATA PER CHUNK
-            =========================
-            */
             $count = 0;
 
-            $query->orderBy('k.id')
-                ->chunk(100, function ($rows) use (&$count) {
+            foreach ($query->cursor() as $row) {
 
-                    foreach ($rows as $row) {
+                echo "event: row\n";
+                echo "data: " . json_encode($row) . "\n\n";
 
-                        echo "event: row\n";
-                        echo "data: " . json_encode($row) . "\n\n";
+                $count++;
 
-                        $count++;
-                    }
+                if ($count % 50 === 0) {
+                    ob_flush();
+                    flush();
+                }
+            }
 
-                    ob_flush(); flush();
-                });
-
-            /*
-            =========================
-            END EVENT
-            =========================
-            */
             echo "event: end\n";
             echo "data: " . json_encode(['total' => $count]) . "\n\n";
 
