@@ -235,6 +235,10 @@ class LaporanApiController extends Controller
 
             $count = 0;
 
+            if($request->debug==1){
+                dd($query->count(), $query->get());
+            }
+
             foreach ($query->cursor() as $row) {
 
                 echo "event: row\n";
@@ -242,7 +246,7 @@ class LaporanApiController extends Controller
 
                 $count++;
 
-                if ($count % 50 === 0) {
+                if ($count % 2 === 0) {
                     ob_flush();
                     flush();
                 }
