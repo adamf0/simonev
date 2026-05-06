@@ -245,7 +245,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                                     <button className="btn btn-primary" onClick={()=>filterHandler()}>Filter</button>
                                     <button className="btn btn-primary" onClick={()=>clearFilter()}>Hapus Filter</button>
 
-                                    <button 
+                                    {/* <button 
                                         className="btn btn-success d-flex align-items-center justify-content-center gap-2"
                                         onClick={exportHandler}
                                         disabled={exportLoading}
@@ -258,7 +258,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
                                         ) : (
                                             <>Export Excel</>
                                         )}
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         </div>
