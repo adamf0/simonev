@@ -62,6 +62,7 @@ function RekapKuesioner({kode_fakultas, level=null, listMahasiswa=[], listDosen=
     // }, [filters]);
 
     function filterHandler(){
+        return;
         dispatch(fetchRekapKuesioners(filters));
     }
 
