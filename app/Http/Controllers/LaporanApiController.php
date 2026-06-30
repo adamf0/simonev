@@ -463,13 +463,13 @@ class LaporanApiController extends Controller
     // }
     public function chart($id_bank_soal, Request $request){
         // Header SSE
-        header("Content-Type: text/event-stream");
-        header("Cache-Control: no-cache");
-        header("Connection: keep-alive");
-        header("X-Accel-Buffering: no");
+        // header("Content-Type: text/event-stream");
+        // header("Cache-Control: no-cache");
+        // header("Connection: keep-alive");
+        // header("X-Accel-Buffering: no");
 
-        ob_implicit_flush(true);
-        @ob_end_flush();
+        // ob_implicit_flush(true);
+        // @ob_end_flush();
 
         if (in_array($id_bank_soal, ["", "undefined", null])) {
             $this->sendSSE("error", ["message" => "bank soal '$id_bank_soal' tidak terdaftar"]);
