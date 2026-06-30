@@ -463,13 +463,13 @@ class LaporanApiController extends Controller
     // }
     public function chart($id_bank_soal, Request $request){
         // Header SSE
-        // header("Content-Type: text/event-stream");
-        // header("Cache-Control: no-cache");
-        // header("Connection: keep-alive");
-        // header("X-Accel-Buffering: no");
+        header("Content-Type: text/event-stream");
+        header("Cache-Control: no-cache");
+        header("Connection: keep-alive");
+        header("X-Accel-Buffering: no");
 
-        // ob_implicit_flush(true);
-        // @ob_end_flush();
+        ob_implicit_flush(true);
+        @ob_end_flush();
 
         if (in_array($id_bank_soal, ["", "undefined", null])) {
             $this->sendSSE("error", ["message" => "bank soal '$id_bank_soal' tidak terdaftar"]);
@@ -592,7 +592,7 @@ class LaporanApiController extends Controller
         }
 
         if($request->debug==1){
-            dd($query->whereIn("id_bank_soal", $targetBanksoal)->toRawSql());
+            return $query->whereIn("id_bank_soal", $targetBanksoal)->toRawSql();
         }
         // STREAM dengan CHUNK 500
         $query->whereIn("id_bank_soal", $targetBanksoal)
