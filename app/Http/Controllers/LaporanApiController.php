@@ -591,6 +591,9 @@ class LaporanApiController extends Controller
             });
         }
 
+        if($request->debug==1){
+            dd($query->whereIn("id_bank_soal", $targetBanksoal)->toRawSql());
+        }
         // STREAM dengan CHUNK 500
         $query->whereIn("id_bank_soal", $targetBanksoal)
             ->chunk(500, function ($rows) {
